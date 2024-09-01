@@ -9,5 +9,28 @@
     <form action="/logout" method="post">
         <input type="submit" value="Logout">
     </form>
+    {% if role == 'sysadmin' %}
+        <p>You are system administrator.</p>
+        <p>Create a user:</p>
+        <form action="/sysadmin_create_user" method="post">
+            
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+
+            <label for="newuser_name">Username:</label><br>
+            <input type="text" id="newuser_name" name="newuser_name" required><br>
+            <label for="newuser_password">Password:</label><br>
+            <input type="password" id="newuser_password" name="newuser_password" required><br><br>
+            <label for="newuser_role">Role:</label><br>
+            <select id="newuser_role" name="newuser_role">
+                <option value="hiruchaaru">Hiruchaaru</option>
+                <option value="projectmanager">Project Manager</option>
+            </select><br><br>
+            <input type="submit" value="Create User">
+        </form>
+        {% if sysadmin_createuser_message %}
+            <p style="color:green;">{{ sysadmin_createuser_message }}</p>
+        {% endif %}
+    {% endif %}
 </body>
 </html>

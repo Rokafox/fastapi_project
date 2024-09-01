@@ -16,3 +16,13 @@ def validate_user_when_login(username: str, password: str):
         if user.password == password:
             return user.role
         return False
+    
+def create_user(newuser_name: str, newuser_password: str, newuser_role: str):
+    try:
+        new_user = User(name=newuser_name, password=newuser_password, role=newuser_role)
+    except Exception as e:
+        return "Failed: " + str(e)
+    with Session(engine) as session:
+        session.add(new_user)
+        session.commit()
+        return "User created successfully!"

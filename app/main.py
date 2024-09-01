@@ -7,7 +7,7 @@ import os
 import shutil
 import time
 from .db.創造篇 import create_db_and_tables, create_sysadmin
-from .db.万法篇 import validate_user_when_login
+from .db.万法篇 import validate_user_when_login, create_user
 
 
 @asynccontextmanager
@@ -53,3 +53,11 @@ async def login(request: Request, username: str = Form(...), password: str = For
 @app.post("/logout", response_class=HTMLResponse)
 async def logout(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/sysadmin_create_user", response_class=HTMLResponse)
+async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
+                               newuser_password: str = Form(...), newuser_role: str = Form(...),
+                               username: str = Form(...), role: str = Form(...)):
+    msg = create_user(newuser_name, newuser_password, newuser_role)
+    return templates.TemplateResponse("home.html", {"request": request, "sysadmin_createuser_message": msg,
+                                                    "username" : username, "role": role})
