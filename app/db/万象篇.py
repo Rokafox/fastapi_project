@@ -1,23 +1,39 @@
 from sqlmodel import SQLModel, Field
 
 
-class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str
-    password: str = Field(min_length=5)
-    # role only allows 3 values: "sysadmin", "projectmanager", "hiruchaaru"
+class UserBase(SQLModel):
+    name: str = Field(unique=True)
+    password: str = Field(min_length=4)
     role: str = Field(
         default="hiruchaaru",
-        regex="^(sysadmin|projectmanager|hiruchaaru)$"
+        schema_extra={'pattern': '^(sysadmin|projectmanager|hiruchaaru)$'}
     )
 
-class Project(SQLModel, table=True):
+class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    name: str
+
+class UserCreate(UserBase):
+    pass
+
+class UserPublic(UserBase):
+    id: int
+
+
+class ProjectBase(SQLModel):
+    name: str = Field(unique=True)
     description: str
     starttime: str
     endtime: str
     status: str = Field(
         default="scheduled",
-        regex="^(ongoing|completed|scheduled|failed|canceled)$"
+        schema_extra={'pattern': '^(ongoing|completed|scheduled|failed|canceled)$'}
     )
+
+class Project(ProjectBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+class ProjectCreate(ProjectBase):
+    pass
+
+class ProjectPublic(ProjectBase):
+    id: int

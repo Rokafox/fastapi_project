@@ -16,6 +16,8 @@ def create_sysadmin():
     """
     admin1 = User(name="doge", password="doge", role="sysadmin")
     admin2 = User(name="cate", password="cate", role="sysadmin")
+    User.model_validate(admin1)
+    User.model_validate(admin2)
     with Session(engine) as session:
         session.add(admin1)
         session.add(admin2)
