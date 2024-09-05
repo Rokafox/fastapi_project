@@ -64,7 +64,7 @@ async def read_login(request: Request):
 async def login(request: Request, username: str = Form(...), password: str = Form(...), lang: str = Form("en")):
     user_role = validate_user_when_login(username, password)
     if user_role:
-        template_name = "home-jp.html" if lang == "jp" else "home.html"
+        template_name = "home.html" if lang == "en" else "home-jp.html"
         return templates.TemplateResponse(template_name, {"request": request, "username": username, "role": user_role})
     else:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})

@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,6 +14,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            position: relative;
         }
         .container {
             max-width: 400px;
@@ -76,9 +78,20 @@
         .links a:hover {
             text-decoration: underline;
         }
+        .header-text {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
+    <div class="header-text">AKATSUKI</div>
     <div class="container">
         <h1>Login</h1>
         {% if error %}
@@ -92,6 +105,7 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
             <input type="submit" value="Login">
+            <input type="hidden" name="lang" value="en">
         </form>
         <div class="links">
             <p><a href="/login-jp">日本語でログイン</a></p>
