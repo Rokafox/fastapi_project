@@ -55,16 +55,24 @@ async def read_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login", response_class=HTMLResponse)
-async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+async def login(request: Request, username: str = Form(...), password: str = Form(...), lang: str = Form("en")):
     user_role = validate_user_when_login(username, password)
     if user_role:
-        return templates.TemplateResponse("home.html", {"request": request, "username": username, "role": user_role})
+        template_name = "home-jp.html" if lang == "jp" else "home.html"
+        return templates.TemplateResponse(template_name, {"request": request, "username": username, "role": user_role})
     else:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+
+
 
 @app.post("/logout", response_class=HTMLResponse)
 async def logout(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+#英語ページ
+@app.get("/home", response_class=HTMLResponse)
+async def home_jp(request: Request, username: str, role: str):
+    return templates.TemplateResponse("home.html", {"request": request, "username": username, "role": role})
 
 @app.post("/sysadmin_create_user", response_class=HTMLResponse)
 async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
@@ -89,5 +97,37 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
     msg, successcheck = create_project(newproject_name, newproject_description, newproject_starttime, 
                          newproject_endtime, newproject_status)
     return templates.TemplateResponse("home.html", {"request": request, "sysadmin_createproject_message": msg,
+                                                    "sysadmin_createproject_success": successcheck,
+                                                    "username" : username, "role": role})
+
+#日本語ページ
+@app.get("/home-jp", response_class=HTMLResponse)
+async def home_jp(request: Request, username: str, role: str):
+    return templates.TemplateResponse("home-jp.html", {"request": request, "username": username, "role": role})
+
+
+@app.post("/sysadmin_create_user_jp", response_class=HTMLResponse)
+async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
+                               newuser_password: str = Form(...), newuser_role: str = Form(...),
+                               username: str = Form(...), role: str = Form(...)):
+    msg, successcheck = create_user(newuser_name, newuser_password, newuser_role)
+    return templates.TemplateResponse("home-jp.html", {"request": request, "sysadmin_createuser_message": msg, 
+                                                    "sysadmin_createuser_success": successcheck,
+                                                    "username" : username, "role": role})
+
+@app.post("/sysadmin_create_project_jp", response_class=HTMLResponse)
+async def sysadmin_create_project(request: Request, newproject_name: str = Form(...), 
+                                        newproject_description: str = Form(...),
+                                        newproject_startdate: str = Form(...), 
+                                        newproject_starttime: str = Form(...), 
+                                        newproject_enddate: str = Form(...),
+                                        newproject_endtime: str = Form(...),
+                                        newproject_status: str = Form(...),
+                                        username: str = Form(...), role: str = Form(...)):
+    newproject_starttime = newproject_startdate + " " + newproject_starttime
+    newproject_endtime = newproject_enddate + " " + newproject_endtime
+    msg, successcheck = create_project(newproject_name, newproject_description, newproject_starttime, 
+                         newproject_endtime, newproject_status)
+    return templates.TemplateResponse("home-jp.html", {"request": request, "sysadmin_createproject_message": msg,
                                                     "sysadmin_createproject_success": successcheck,
                                                     "username" : username, "role": role})

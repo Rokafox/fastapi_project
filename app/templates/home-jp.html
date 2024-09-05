@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    <title>ホーム</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
         .header-container h1 {
             margin: 0;
         }
-        .JPpage {
+        .ENpage {
             color: #fff;
             text-decoration: none;
             font-size: 1.2rem;
@@ -29,7 +29,7 @@
             border-radius: 5px;
             transition: background-color 0.3s;
         }
-        .JPpage:hover {
+        .ENpage:hover {
             background-color: #555;
         }
         .container {
@@ -91,36 +91,36 @@
 </head>
 <body>
     <div class="header-container">
-        <h1>Welcome, {{ username }}!</h1>
-        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}">JP page</a>
+        <h1>ようこそ, {{ username }}さん!</h1>
+        <a class="ENpage" href="/home?username={{ username }}&role={{ role }}">英語のページ</a>
     </div>
 
     <div class="container">
-        <p>You have successfully logged in.</p>
+        <p>ログインに成功しました！</p>
         <form action="/logout" method="post">
-            <input type="submit" value="Logout">
+            <input type="submit" value="ログアウト">
         </form>
         
         {% if role == 'sysadmin' %}
-            <p>You are system administrator.</p>
-            <p>Create a user:</p>
+            <p>あなたはシステム管理者です。</p>
+            <p>ユーザー作成:</p>
             <form action="/sysadmin_create_user" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
 
-                <label for="newuser_name">Username:</label>
+                <label for="newuser_name">ユーザーネーム:</label>
                 <input type="text" id="newuser_name" name="newuser_name" required>
 
-                <label for="newuser_password">Password:</label>
+                <label for="newuser_password">パスワード:</label>
                 <input type="password" id="newuser_password" name="newuser_password" required>
 
-                <label for="newuser_role">Role:</label>
+                <label for="newuser_role">ロール:</label>
                 <select id="newuser_role" name="newuser_role">
-                    <option value="hiruchaaru">Hiruchaaru</option>
-                    <option value="projectmanager">Project Manager</option>
+                    <option value="hiruchaaru">ヒルチャール</option>
+                    <option value="projectmanager">プロジェクトマネージャー</option>
                 </select>
 
-                <input type="submit" value="Create User">
+                <input type="submit" value="ユーザー作成">
             </form>
 
             {% if sysadmin_createuser_message %}
@@ -129,36 +129,36 @@
                 </div>
             {% endif %}
 
-            <p>Create a new project:</p>
+            <p>プロジェクト作成:</p>
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
 
-                <label for="newproject_name">Project Name:</label>
+                <label for="newproject_name">プロジェクト名:</label>
                 <input type="text" id="newproject_name" name="newproject_name" required>
 
-                <label for="newproject_description">Project Description:</label>
+                <label for="newproject_description">プロジェクト説明:</label>
                 <textarea id="newproject_description" name="newproject_description" rows="4" required></textarea>
 
-                <label for="newproject_startdate">Start Date:</label>
+                <label for="newproject_startdate">開始日:</label>
                 <input type="date" id="newproject_startdate" name="newproject_startdate" required>
 
-                <label for="newproject_starttime">Start Time:</label>
+                <label for="newproject_starttime">開始時間:</label>
                 <input type="time" id="newproject_starttime" name="newproject_starttime" required>
 
-                <label for="newproject_enddate">End Date:</label>
+                <label for="newproject_enddate">終了日:</label>
                 <input type="date" id="newproject_enddate" name="newproject_enddate" required>
 
-                <label for="newproject_endtime">End Time:</label>
+                <label for="newproject_endtime">終了時間:</label>
                 <input type="time" id="newproject_endtime" name="newproject_endtime" required>
 
-                <label for="newproject_status">Status:</label>
+                <label for="newproject_status">状態:</label>
                 <select id="newproject_status" name="newproject_status">
-                    <option value="scheduled">Scheduled</option>
-                    <option value="ongoing">Ongoing</option>
+                    <option value="scheduled">スケジュール</option>
+                    <option value="ongoing">進行中</option>
                 </select>
 
-                <input type="submit" value="Create Project">
+                <input type="submit" value="プロジェクト作成">
             </form>
 
             {% if sysadmin_createproject_message %}
@@ -169,13 +169,13 @@
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
-            <p>You are Hiruchaaru.</p>
-            <p>View your registered projects:</p>
+            <p>あなたはヒルチャールです！</p>
+            <p>参加してるプロジェクト一覧:</p>
         {% endif %}
 
         {% if role == 'projectmanager' %}
-            <p>You are Project Manager.</p>
-            <p>View projects:</p>
+            <p>あなたはプロジェクトマネージャーです！</p>
+            <p>プロジェクト一覧:</p>
         {% endif %}
 
         {% if error %}
