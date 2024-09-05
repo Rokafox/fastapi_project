@@ -50,9 +50,15 @@ app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="app/templates")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+#英語
 @app.get("/", response_class=HTMLResponse)
 async def read_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+#日本語
+@app.get("/login-jp", response_class=HTMLResponse)
+async def read_login(request: Request):
+    return templates.TemplateResponse("login-jp.html", {"request": request})
 
 @app.post("/login", response_class=HTMLResponse)
 async def login(request: Request, username: str = Form(...), password: str = Form(...), lang: str = Form("en")):
@@ -62,8 +68,6 @@ async def login(request: Request, username: str = Form(...), password: str = For
         return templates.TemplateResponse(template_name, {"request": request, "username": username, "role": user_role})
     else:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
-
-
 
 @app.post("/logout", response_class=HTMLResponse)
 async def logout(request: Request):
