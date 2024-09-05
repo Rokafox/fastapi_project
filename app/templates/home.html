@@ -25,12 +25,80 @@
             <select id="newuser_role" name="newuser_role">
                 <option value="hiruchaaru">Hiruchaaru</option>
                 <option value="projectmanager">Project Manager</option>
+                <!-- TODO: delete this later-->
+                <!-- <option value="test_value">Test Value</option> -->
             </select><br><br>
             <input type="submit" value="Create User">
         </form>
-        {% if sysadmin_createuser_message %}
+        {% if sysadmin_createuser_message and sysadmin_createuser_success %}
             <p style="color:green;">{{ sysadmin_createuser_message }}</p>
         {% endif %}
+        {% if sysadmin_createuser_message and not sysadmin_createuser_success %}
+            <p style="color:red;">{{ sysadmin_createuser_message }}</p>
+        {% endif %}
+
+        <p>Create a new project:</p>
+        <form action="/sysadmin_create_project" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+
+            <label for="newproject_name">Project Name:</label><br>
+            <input type="text" id="newproject_name" name="newproject_name" required><br>
+            <label for="newproject_description">Project Description:</label><br>
+            <textarea id="newproject_description" name="newproject_description" rows="4" cols="50" required></textarea><br><br>
+            <!-- 注意: datetime-localをサポートしていないブラウザがあるぞ！ -->
+            <label for="newproject_startdate">Start Date:</label><br>
+            <input type="date" id="newproject_startdate" name="newproject_startdate" required><br>
+            <label for="newproject_starttime">Start Time:</label><br>
+            <input type="time" id="newproject_starttime" name="newproject_starttime" required><br>
+            
+            <label for="newproject_enddate">End Date:</label><br>
+            <input type="date" id="newproject_enddate" name="newproject_enddate" required><br>
+            <label for="newproject_endtime">End Time:</label><br>
+            <input type="time" id="newproject_endtime" name="newproject_endtime" required><br>
+
+            <label for="newproject_status">Status:</label><br>
+            <select id="newproject_status" name="newproject_status">
+                <option value="scheduled">Scheduled</option>
+                <option value="ongoing">Ongoing</option>
+            </select><br><br>
+
+            <input type="submit" value="Create Project">
+        </form>
+        {% if sysadmin_createproject_message and sysadmin_createproject_success %}
+            <p style="color:green;">{{ sysadmin_createproject_message }}</p>
+        {% endif %}
+        {% if sysadmin_createproject_message and not sysadmin_createproject_success %}
+            <p style="color:red;">{{ sysadmin_createproject_message }}</p>
+        {% endif %}
     {% endif %}
+
+    {% if role == 'hiruchaaru' %}
+        <p>You are Hiruchaaru.</p>
+        <!--ヒルチャールのお兄さんが病気になった♪
+            ヒルチャールのお姉さんが看病して♪
+            ヒルチャールのお兄さんが薬を飲んでも治らない♪-->
+        <p>View your registered projects:</p>
+        <!-- <form action="/hiruchaaru_view_projects" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="submit" value="View Projects">
+        </form> -->
+    {% endif %}
+
+    {% if role == 'projectmanager' %}
+        <p>You are Project Manager.</p>
+        <p>View projects:</p>
+        <!-- <form action="/projectmanager_view_projects" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="submit" value="View Projects">
+        </form> -->
+    {% endif %}
+
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
 </body>
 </html>
