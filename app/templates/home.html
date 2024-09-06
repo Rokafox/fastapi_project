@@ -2,103 +2,19 @@
 <html>
 <head>
     <title>Home</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #333;
-            color: #fff;
-        }
-        .header-container h1 {
-            margin: 0;
-        }
-        .JPpage {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            padding: 0.5rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .JPpage:hover {
-            background-color: #555;
-        }
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        form {
-            margin-bottom: 1.5rem;
-        }
-        form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        form input[type="text"],
-        form input[type="password"],
-        form input[type="date"],
-        form input[type="time"],
-        form textarea,
-        form select {
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        form input[type="submit"] {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        form input[type="submit"]:hover {
-            background-color: #555;
-        }
-        .message {
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
 </head>
 <body>
     <div class="header-container">
         <h1>Welcome, {{ username }}!</h1>
-        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}">JP page</a>
+        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}">Japanese</a>
     </div>
 
     <div class="container">
         <p>You have successfully logged in.</p>
         <form action="/logout" method="post">
             <input type="submit" value="Logout">
+            <input type="hidden" name="lang" value="en">
         </form>
         
         {% if role == 'sysadmin' %}
@@ -107,11 +23,13 @@
             <form action="/sysadmin_create_user" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="lang" value="en">
 
                 <label for="newuser_name">Username:</label>
                 <input type="text" id="newuser_name" name="newuser_name" required>
 
                 <label for="newuser_password">Password:</label>
+                <p>Password must be at least 4 characters long.</p>
                 <input type="password" id="newuser_password" name="newuser_password" required>
 
                 <label for="newuser_role">Role:</label>
@@ -133,6 +51,7 @@
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="lang" value="en">
 
                 <label for="newproject_name">Project Name:</label>
                 <input type="text" id="newproject_name" name="newproject_name" required>

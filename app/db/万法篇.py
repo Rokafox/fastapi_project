@@ -44,11 +44,11 @@ def create_project(newproject_name: str, newproject_description: str,
         Project.model_validate(new_project)
     except ValidationError as e:
         for error in e.errors():
-            return "Failed: " + error["msg"], False
+            return "Creation Failed: " + error["msg"], False
     with Session(engine) as session:
         session.add(new_project)
         try:
             session.commit()
         except IntegrityError:
-            return "Failed: Project with the same name already exists!", False
+            return "Creation Failed: Project with the same name already exists!", False
         return "Project created successfully!", True

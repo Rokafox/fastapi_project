@@ -2,103 +2,19 @@
 <html>
 <head>
     <title>ホーム</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #333;
-            color: #fff;
-        }
-        .header-container h1 {
-            margin: 0;
-        }
-        .ENpage {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            padding: 0.5rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .ENpage:hover {
-            background-color: #555;
-        }
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        form {
-            margin-bottom: 1.5rem;
-        }
-        form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        form input[type="text"],
-        form input[type="password"],
-        form input[type="date"],
-        form input[type="time"],
-        form textarea,
-        form select {
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        form input[type="submit"] {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        form input[type="submit"]:hover {
-            background-color: #555;
-        }
-        .message {
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
 </head>
 <body>
     <div class="header-container">
         <h1>ようこそ, {{ username }}さん!</h1>
-        <a class="ENpage" href="/home?username={{ username }}&role={{ role }}">英語のページ</a>
+        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}">英語</a>
     </div>
 
     <div class="container">
         <p>ログインに成功しました！</p>
         <form action="/logout" method="post">
             <input type="submit" value="ログアウト">
+            <input type="hidden" name="lang" value="jp">
         </form>
         
         {% if role == 'sysadmin' %}
@@ -107,11 +23,13 @@
             <form action="/sysadmin_create_user" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="lang" value="jp">
 
                 <label for="newuser_name">ユーザーネーム:</label>
                 <input type="text" id="newuser_name" name="newuser_name" required>
 
                 <label for="newuser_password">パスワード:</label>
+                <p>パスワードは最低4文字でなければならない。</p>
                 <input type="password" id="newuser_password" name="newuser_password" required>
 
                 <label for="newuser_role">ロール:</label>
@@ -133,6 +51,7 @@
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="lang" value="jp">
 
                 <label for="newproject_name">プロジェクト名:</label>
                 <input type="text" id="newproject_name" name="newproject_name" required>
