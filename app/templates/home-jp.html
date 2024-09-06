@@ -7,7 +7,7 @@
 <body>
     <div class="header-container">
         <h1>ようこそ, {{ username }}さん!</h1>
-        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}">英語</a>
+        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}&password={{ password }}">英語</a>
     </div>
 
     <div class="container">
@@ -23,6 +23,7 @@
             <form action="/sysadmin_create_user" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="jp">
 
                 <label for="newuser_name">ユーザーネーム:</label>
@@ -51,6 +52,7 @@
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="jp">
 
                 <label for="newproject_name">プロジェクト名:</label>

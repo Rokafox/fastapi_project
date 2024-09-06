@@ -11,6 +11,8 @@
 
 def 日本語になーれ(inputstring : str) -> str:
     match inputstring:
+        case "Invalid credentials":
+            return "資格情報が無効です"
         case "Creation failed: String should have at least 4 characters":
             return "作成失敗: 文字列は少なくとも4文字でなければならない"
         case "Creation failed: User with the same name already exists!":
@@ -22,4 +24,4 @@ def 日本語になーれ(inputstring : str) -> str:
         case "Creation Failed: Project with the same name already exists!":
             return "作成失敗: 同じ名前のプロジェクトがすでに存在します"
         case _:
-            return inputstring
+            return f"日本語になーれ()に未対応の文字列が渡されました: {inputstring}"

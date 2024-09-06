@@ -7,7 +7,7 @@
 <body>
     <div class="header-container">
         <h1>Welcome, {{ username }}!</h1>
-        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}">Japanese</a>
+        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Japanese</a>
     </div>
 
     <div class="container">
@@ -23,6 +23,7 @@
             <form action="/sysadmin_create_user" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="en">
 
                 <label for="newuser_name">Username:</label>
@@ -51,6 +52,7 @@
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="en">
 
                 <label for="newproject_name">Project Name:</label>
