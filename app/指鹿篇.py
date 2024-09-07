@@ -10,6 +10,9 @@
 
 
 def 日本語になーれ(inputstring : str) -> str:
+    """
+    鹿よ、馬に！
+    """
     match inputstring:
         case "Invalid credentials":
             return "資格情報が無効です"

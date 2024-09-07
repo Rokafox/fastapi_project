@@ -37,3 +37,10 @@ class ProjectCreate(ProjectBase):
 
 class ProjectPublic(ProjectBase):
     id: int
+
+class ProjectUpdate(ProjectBase):
+    name: str | None = None
+    description: str | None = None
+    starttime: str | None = None
+    endtime: str | None = None
+    status: str | None = None

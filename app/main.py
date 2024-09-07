@@ -9,7 +9,9 @@ import time
 from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
-from .db.万法篇 import validate_user_when_login, create_user, create_project
+from .db.万法篇 import validate_user_when_login, create_user, create_project, order_get_all_projects, \
+order_delete_project_by_id, order_update_project_by_id
+from .db.万象篇 import ProjectPublic, ProjectUpdate
 
 
 @asynccontextmanager
@@ -127,3 +129,18 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
     return templates.TemplateResponse(template_name, {"request": request, "sysadmin_createproject_message": msg,
                                                     "sysadmin_createproject_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
+
+
+@app.get("/projects", response_model=list[ProjectPublic])
+async def read_projects():
+    return order_get_all_projects()
+
+@app.delete("/projects/{project_id}")
+async def delete_project(project_id: int):
+    msg, successcheck = order_delete_project_by_id(project_id)
+    return {"message": msg, "success": successcheck}
+
+@app.patch("/projects/{project_id}")
+async def update_project(project_id: int, project: ProjectUpdate):
+    msg, successcheck = order_update_project_by_id(project_id, project)
+    return {"message": msg, "success": successcheck}
