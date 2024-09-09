@@ -230,8 +230,8 @@
                         const updatedProject = {
                             name: document.getElementById('edit-name').value,
                             description: document.getElementById('edit-description').value,
-                            starttime: document.getElementById('edit-starttime').value,
-                            endtime: document.getElementById('edit-endtime').value,
+                            starttime: document.getElementById('edit-starttime').value.replace('T', ' '),
+                            endtime: document.getElementById('edit-endtime').value.replace('T', ' '),
                             status: document.getElementById('edit-status').value,
                         };
 
@@ -320,6 +320,109 @@
 
                 </form>
             </div>
+
+            <p>Assign project to user:</p>
+            <form action="/pm_create_attendance" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+
+                <label for="the_project_name">Project Name:</label>
+                <input type="text" id="the_project_name" name="the_project_name" required>
+
+                <label for="the_user_name">User Name:</label>
+                <input type="text" id="the_user_name" name="the_user_name" required>
+
+                <input type="submit" value="Submit">
+            </form>
+            {% if pm_createattendance_message %}
+                <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
+                    {{ pm_createattendance_message }}
+                </div>
+            {% endif %}
+
+
+            <p>View attendances:</p>
+
+            <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Attendances</button>
+            <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Attendances</button>
+            
+            <input type="text" id="filter-input-attendance" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            
+            <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Calculate Attendance Rate</button>
+            
+            <ul id="attendance-list" style="display: none;">
+                <!-- 出席リストがここに表示されます -->
+            </ul>
+            
+            <p id="calculate-output" style="display: none;">This feature is not implemented yet.</p>
+            
+            <script>
+                let attendances = [];
+            
+                document.getElementById('show-attendances-btn').addEventListener('click', () => {
+                    fetchAttendances();
+                    document.getElementById('filter-input-attendance').style.display = 'block';
+                    document.getElementById('attendance-list').style.display = 'block';
+                    document.getElementById('calculate-btn').style.display = 'block';
+                    document.getElementById('show-attendances-btn').style.display = 'none';
+                    document.getElementById('hide-attendances-btn').style.display = 'block';
+                });
+            
+                document.getElementById('hide-attendances-btn').addEventListener('click', () => {
+                    document.getElementById('filter-input-attendance').style.display = 'none';
+                    document.getElementById('attendance-list').style.display = 'none';
+                    document.getElementById('calculate-btn').style.display = 'none';
+                    document.getElementById('hide-attendances-btn').style.display = 'none';
+                    document.getElementById('show-attendances-btn').style.display = 'block';
+                    document.getElementById('calculate-output').style.display = 'none';
+                });
+            
+                document.getElementById('filter-input-attendance').addEventListener('input', filterAttendances);
+            
+                async function fetchAttendances() {
+                    const response = await fetch('/attendances');
+                    attendances = await response.json();
+                    displayAttendances(attendances);
+                }
+            
+                function displayAttendances(attendanceList) {
+                    const attendanceListElement = document.getElementById('attendance-list');
+                    attendanceListElement.innerHTML = ''; // リストをクリア
+            
+                    attendanceList.forEach(attendance => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>User Name:</strong> ${attendance.user_name} <br>
+                            <strong>Project Name:</strong> ${attendance.project_name} <br>
+                            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
+                            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
+                            <strong>Check In:</strong> ${attendance.check_in} <br>
+                            <strong>Check Out:</strong> ${attendance.check_out} <br>
+                        `;
+                        attendanceListElement.appendChild(listItem);
+                    });
+                }
+            
+                function filterAttendances() {
+                    const filterValue = document.getElementById('filter-input-attendance').value.toLowerCase();
+                    const filteredAttendances = attendances.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValue) ||
+                        attendance.project_name.toLowerCase().includes(filterValue)
+                    );
+                    displayAttendances(filteredAttendances);
+                }
+            
+                document.getElementById('calculate-btn').addEventListener('click', () => {
+                    document.getElementById('calculate-output').style.display = 'block';
+                });
+            </script>
+
+
+
+
+
 
         {% endif %}
 

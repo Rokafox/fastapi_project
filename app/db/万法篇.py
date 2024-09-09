@@ -54,6 +54,33 @@ def create_project(newproject_name: str, newproject_description: str,
             return "Creation Failed: Project with the same name already exists!", False
         return "Project created successfully!", True
     
+def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None):
+    # Get user and project
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Creation failed: User not found!", False
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Creation failed: Project not found!", False
+    user_id = user.id
+    project_id = project.id
+    try:
+        new_attendance = Attendance(user_id=user_id, project_id=project_id, check_in=check_in, check_out=check_out)
+        Attendance.model_validate(new_attendance)
+    except ValidationError as e:
+        for error in e.errors():
+            return "Creation failed, unhandled error: " + error["msg"], False
+    with Session(engine) as session:
+        session.add(new_attendance)
+        try:
+            session.commit()
+        except Exception as e:
+            return "Creation failed, unhandled error: " + str(e), False
+        return "Attendance created successfully!", True
+
 def order_get_all_projects():
     with Session(engine) as session:
         statement = select(Project)
@@ -100,3 +127,25 @@ def order_update_project_by_id(project_id: int, project: ProjectUpdate):
             return "Update failed: Project with the same name already exists!", False
         session.refresh(db_project)
         return "Project updated successfully!", True
+    
+    
+def order_get_all_attendances():
+    with Session(engine) as session:
+        # Attendanceと関連するUser、Projectを取得する
+        statement = select(Attendance, User.name, Project.name).join(Attendance.user).join(Attendance.project)
+        results = session.exec(statement).all()
+        
+        attendances_with_details = []
+        for attendance, user_name, project_name in results:
+            attendances_with_details.append({
+                "id": attendance.id,
+                "user_id": attendance.user_id,
+                "user_name": user_name,
+                "project_id": attendance.project_id,
+                "project_name": project_name,
+                "project_starttime": attendance.project.starttime.split(" ")[-1],
+                "project_endtime": attendance.project.endtime.split(" ")[-1],
+                "check_in": attendance.check_in,
+                "check_out": attendance.check_out,
+            })
+        return attendances_with_details

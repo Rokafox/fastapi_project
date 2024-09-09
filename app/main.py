@@ -9,9 +9,9 @@ import time
 from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
-from .db.万法篇 import validate_user_when_login, create_user, create_project, order_get_all_projects, \
-order_delete_project_by_id, order_update_project_by_id
-from .db.万象篇 import ProjectPublic, ProjectUpdate
+from .db.万法篇 import create_attendance, validate_user_when_login, create_user, create_project, order_get_all_projects, \
+order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances
+from .db.万象篇 import ProjectPublic, ProjectUpdate, AttendancePublic
 
 
 @asynccontextmanager
@@ -130,6 +130,21 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
                                                     "sysadmin_createproject_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
 
+@app.post("/pm_create_attendance", response_class=HTMLResponse)
+async def pm_create_attendance(request: Request, the_user_name: str = Form(...), the_project_name: str = Form(...),
+                               username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
+                               password: str = Form(...)):
+    if not validate_user_when_login(username, password):
+        return templates.TemplateResponse("login.html", {"request": request})
+    msg, successcheck = create_attendance(the_user_name, the_project_name)
+    if lang == "jp":
+        msg = 日本語になーれ(msg)
+    template_name = "home.html" if lang == "en" else "home-jp.html"
+    return templates.TemplateResponse(template_name, {"request": request, "pm_createattendance_message": msg,
+                                                    "pm_createattendance_success": successcheck,
+                                                    "username" : username, "role": role, "password": password})
+
+
 
 @app.get("/projects", response_model=list[ProjectPublic])
 async def read_projects():
@@ -144,3 +159,7 @@ async def delete_project(project_id: int):
 async def update_project(project_id: int, project: ProjectUpdate):
     msg, successcheck = order_update_project_by_id(project_id, project)
     return {"message": msg, "success": successcheck}
+
+@app.get("/attendances", response_model=list[AttendancePublic])
+async def read_attendances():
+    return order_get_all_attendances()
