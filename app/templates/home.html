@@ -275,9 +275,10 @@
                                 'Content-Type': 'application/json'
                             }
                         });
+                        const response_result = await response.json();
             
-                        if (response.ok) {
-                            location.reload();
+                        if (response_result.success) {
+                            fetchProjects();
                         } else {
                             const errorData = await response.json();
                             alert(`Failed to delete project: ${errorData.detail}`);
