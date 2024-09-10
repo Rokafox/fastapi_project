@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
+from datetime import datetime
 from .万象篇 import *
 from .創造篇 import engine
 
@@ -38,6 +39,20 @@ def create_user(newuser_name: str, newuser_password: str, newuser_role: str):
 def create_project(newproject_name: str, newproject_description: str, 
                    newproject_starttime: str, newproject_endtime: str,
                    newproject_status: str):
+    
+    start_date = newproject_starttime.split()[0] # gives 2024-09-10
+    start_time = newproject_starttime.split()[-1] # gives 12:00
+    end_date = newproject_endtime.split()[0]
+    end_time = newproject_endtime.split()[-1]
+
+    # compare start date and end date
+    if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
+        return "Creation Failed: Start date is greater than end date!", False
+
+    # compare start time and end time
+    if datetime.strptime(start_time, "%H:%M") > datetime.strptime(end_time, "%H:%M"):
+        return "Creation Failed: Start time is greater than end time!", False
+
     try:
         new_project = Project(name=newproject_name, description=newproject_description, 
                               starttime=newproject_starttime, endtime=newproject_endtime
@@ -77,6 +92,9 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
     
     # 開始日から終了日までの日数を計算
     current_date = project_start_date
+    # If startdate is previous to today, set it to today
+    if project_start_date < datetime.now():
+        current_date = datetime.now()
     
     # 出席情報を各日付ごとに作成
     try:
@@ -117,12 +135,76 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
             return "Creation failed, validation error: " + error["msg"], False
         
 
+def order_delete_attendanc_given_name(user_name: str, project_name: str):
+    # Could have many entries for the same user and project
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).all()
+        if not user:
+            return "Deletion failed: User not found!", False
+        
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).all()
+        if not project:
+            return "Deletion failed: Project not found!", False
+        
+        for u in user:
+            for p in project:
+                statement = select(Attendance).where(Attendance.user_id == u.id).where(Attendance.project_id == p.id)
+                attendance = session.exec(statement).all()
+                if not attendance:
+                    return "Deletion failed: Attendance not found!", False
+                for a in attendance:
+                    session.delete(a)
+        try:
+            session.commit()
+        except Exception as e:
+            return "Deletion failed, unhandled error: " + str(e), False
+        return "Attendance deleted successfully!", True
+
+
+
+
 def order_get_all_projects():
     with Session(engine) as session:
         statement = select(Project)
         projects = session.exec(statement).all()
         return projects
-    
+
+def order_hiruchaaru_get_assigned_projects(user_name: str):
+    # Get records from attendances.
+    # Get from User where name = user_name then get from attendances where user_id = user.id,
+    # then get from attendances where date matches today's date, triple filter
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "User not found!", False
+        
+        statement = select(Attendance).where(Attendance.user_id == user.id)
+        attendances = session.exec(statement).all()
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        attendances = [attendance for attendance in attendances if attendance.date.split()[0] == today]
+        
+        assigned_projects = []
+        for attendance in attendances:
+            assigned_projects.append({
+                "id": attendance.id,
+                "project_id": attendance.project_id,
+                "project_name": attendance.project.name,
+                "project_starttime": attendance.project.starttime.split(" ")[-1],
+                "project_endtime": attendance.project.endtime.split(" ")[-1],
+                "date": attendance.date,
+                "check_in": attendance.check_in,
+                "check_out": attendance.check_out,
+            })
+        return assigned_projects
+
+
+
+
+
 def order_get_projects_with_limit(limit: int = 100, offset: int = 100):
     with Session(engine) as session:
         statement = select(Project).limit(limit).offset(offset)
@@ -186,3 +268,24 @@ def order_get_all_attendances():
                 "check_out": attendance.check_out,
             })
         return attendances_with_details
+    
+
+def order_hiruchaaru_checkin(attendance_id: int):
+    with Session(engine) as session:
+        attendance = session.get(Attendance, attendance_id)
+        if attendance is None:
+            return "Check-in failed: Attendance not found!", False
+        attendance.check_in = datetime.now().strftime("%H:%M")
+        session.add(attendance)
+        session.commit()
+        return "Check-in successful!", True
+    
+def order_hiruchaaru_checkout(attendance_id: int):
+    with Session(engine) as session:
+        attendance = session.get(Attendance, attendance_id)
+        if attendance is None:
+            return "Check-out failed: Attendance not found!", False
+        attendance.check_out = datetime.now().strftime("%H:%M")
+        session.add(attendance)
+        session.commit()
+        return "Check-out successful!", True

@@ -10,7 +10,8 @@ from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
 from .db.万法篇 import create_attendance, validate_user_when_login, create_user, create_project, order_get_all_projects, \
-order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances
+order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances, order_delete_attendanc_given_name, \
+order_hiruchaaru_get_assigned_projects, order_hiruchaaru_checkin, order_hiruchaaru_checkout
 from .db.万象篇 import ProjectPublic, ProjectUpdate, AttendancePublic
 
 
@@ -147,6 +148,22 @@ async def pm_create_attendance(request: Request, the_user_name: str = Form(...),
                                                     "pm_createattendance_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
 
+# pm delete attendance
+@app.post("/pm_delete_attendance", response_class=HTMLResponse)
+async def pm_delete_attendance(request: Request, the_user_name: str = Form(...), the_project_name: str = Form(...),
+                               username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
+                               password: str = Form(...)):
+    if not validate_user_when_login(username, password):
+        return templates.TemplateResponse("login.html", {"request": request})
+    msg, successcheck = order_delete_attendanc_given_name(the_user_name, the_project_name)
+    if lang == "jp":
+        msg = 日本語になーれ(msg)
+    template_name = "home.html" if lang == "en" else "home-jp.html"
+    return templates.TemplateResponse(template_name, {"request": request, "pm_deleteattendance_message": msg,
+                                                    "pm_deleteattendance_success": successcheck,
+                                                    "username" : username, "role": role, "password": password})
+
+
 
 
 @app.get("/projects", response_model=list[ProjectPublic])
@@ -166,3 +183,17 @@ async def update_project(project_id: int, project: ProjectUpdate):
 @app.get("/attendances", response_model=list[AttendancePublic])
 async def read_attendances():
     return order_get_all_attendances()
+
+@app.get("/attendances/{user_name}")
+async def read_attendances_by_user_name(user_name: str):
+    return order_hiruchaaru_get_assigned_projects(user_name=user_name)
+
+@app.post("/attendances/{attendance_id}/checkin")
+async def checkin(attendance_id: int):
+    msg, successcheck = order_hiruchaaru_checkin(attendance_id)
+    return {"message": msg, "success": successcheck}
+
+@app.post("/attendances/{attendance_id}/checkout")
+async def checkout(attendance_id: int):
+    msg, successcheck = order_hiruchaaru_checkout(attendance_id)
+    return {"message": msg, "success": successcheck}

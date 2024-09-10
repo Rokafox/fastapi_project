@@ -64,11 +64,11 @@
                 <label for="newproject_startdate">Start Date:</label>
                 <input type="date" id="newproject_startdate" name="newproject_startdate" required>
 
-                <label for="newproject_starttime">Start Time:</label>
-                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
-
                 <label for="newproject_enddate">End Date:</label>
                 <input type="date" id="newproject_enddate" name="newproject_enddate" required>
+
+                <label for="newproject_starttime">Start Time:</label>
+                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
 
                 <label for="newproject_endtime">End Time:</label>
                 <input type="time" id="newproject_endtime" name="newproject_endtime" required>
@@ -94,7 +94,116 @@
             ヒルチャールのお姉さんが看病して♪
             ヒルチャールのお兄さんが薬を飲んでも治らない♪-->
             <p>You are Hiruchaaru.</p>
-            <p>View your registered projects:</p>
+            <p>View your registered projects today:</p>
+            <p>You can only check in during the scheduled time.</p>
+
+            <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Projects</button>
+            <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Projects</button>
+            
+            <input type="text" id="filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            
+            <ul id="attendance-list" style="display: none;">
+                <!-- 出席リストがここに表示されます -->
+            </ul>
+            
+            <script>
+                let hiruchaaru_attendances = [];
+            
+                document.getElementById('show-attendances-btn').addEventListener('click', () => {
+                    fetchAttendances();
+                    document.getElementById('filter-input').style.display = 'block';
+                    document.getElementById('attendance-list').style.display = 'block';
+                    document.getElementById('show-attendances-btn').style.display = 'none';
+                    document.getElementById('hide-attendances-btn').style.display = 'block';
+                });
+            
+                document.getElementById('hide-attendances-btn').addEventListener('click', () => {
+                    document.getElementById('filter-input').style.display = 'none';
+                    document.getElementById('attendance-list').style.display = 'none';
+                    document.getElementById('hide-attendances-btn').style.display = 'none';
+                    document.getElementById('show-attendances-btn').style.display = 'block';
+                });
+            
+                document.getElementById('filter-input').addEventListener('input', filterAttendances);
+            
+                async function fetchAttendances() {
+                    const userName = '{{ username }}';
+                    const response = await fetch(`/attendances/${userName}`);
+                    hiruchaaru_attendances = await response.json();
+                    displayAttendances(hiruchaaru_attendances);
+                }
+            
+                function displayAttendances(attendanceList) {
+                    const attendanceListElement = document.getElementById('attendance-list');
+                    attendanceListElement.innerHTML = ''; // リストをクリア
+            
+                    attendanceList.forEach(attendance => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Project:</strong> ${attendance.project_name} <br>
+                            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
+                            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
+                            <strong>Date:</strong> ${attendance.date} <br>
+                            <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : 'Not checked in yet'} <br>
+                            <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : 'Not checked out yet'} <br>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="checkIn('${attendance.id}')">Check In</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="checkOut('${attendance.id}')">Check Out</button>
+                        `;
+                        attendanceListElement.appendChild(listItem);
+                    });
+                }
+            
+                async function checkIn(attendanceId) {
+                    const response = await fetch(`/attendances/${attendanceId}/checkin`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: ''
+                    });
+                    const response_result = await response.json();
+
+                    if (response_result.success) {
+                        alert('Successfully checked in!');
+                        fetchAttendances(); // 再読み込みしてリストを更新
+                    } else {
+                        alert('Failed to check in');
+                    }
+                }
+            
+                async function checkOut(attendanceId) {
+                    const response = await fetch(`/attendances/${attendanceId}/checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: ''
+                    });
+                    const response_result = await response.json();
+            
+                    if (response_result.success) {
+                        alert('Successfully checked out!');
+                        fetchAttendances(); // 再読み込みしてリストを更新
+                    } else {
+                        alert('Failed to check out');
+                    }
+                }
+            
+                function filterAttendances() {
+                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
+                    const filteredAttendances = hiruchaaru_attendances.filter(attendance => 
+                        attendance.project_name.toLowerCase().includes(filterValue) ||
+                        attendance.project_starttime.toLowerCase().includes(filterValue) ||
+                        attendance.project_endtime.toLowerCase().includes(filterValue) ||
+                        attendance.date.toLowerCase().includes(filterValue)
+                    );
+                    displayAttendances(filteredAttendances);
+                }
+            </script>
+            
+
+
+
         {% endif %}
 
         {% if role == 'projectmanager' %}
@@ -116,11 +225,11 @@
                 <label for="newproject_startdate">Start Date:</label>
                 <input type="date" id="newproject_startdate" name="newproject_startdate" required>
 
-                <label for="newproject_starttime">Start Time:</label>
-                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
-
                 <label for="newproject_enddate">End Date:</label>
                 <input type="date" id="newproject_enddate" name="newproject_enddate" required>
+
+                <label for="newproject_starttime">Start Time:</label>
+                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
 
                 <label for="newproject_endtime">End Time:</label>
                 <input type="time" id="newproject_endtime" name="newproject_endtime" required>
@@ -322,6 +431,8 @@
             </div>
 
             <p>Assign project to user:</p>
+            <p>Attendance records before today will not be added.</p>
+            <!--今日より前の出勤記録は登録できないぞ！-->
             <form action="/pm_create_attendance" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
@@ -339,6 +450,28 @@
             {% if pm_createattendance_message %}
                 <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
                     {{ pm_createattendance_message }}
+                </div>
+            {% endif %}
+
+
+            <p>Unassign project to user:</p>
+            <form action="/pm_delete_attendance" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+
+                <label for="the_project_name">Project Name:</label>
+                <input type="text" id="the_project_name" name="the_project_name" required>
+
+                <label for="the_user_name">User Name:</label>
+                <input type="text" id="the_user_name" name="the_user_name" required>
+
+                <input type="submit" value="Delete">
+            </form>
+            {% if pm_deleteattendance_message %}
+                <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
+                    {{ pm_deleteattendance_message }}
                 </div>
             {% endif %}
 

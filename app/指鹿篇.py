@@ -26,5 +26,9 @@ def 日本語になーれ(inputstring : str) -> str:
             return "プロジェクトが正常に作成されました"
         case "Creation Failed: Project with the same name already exists!":
             return "作成失敗: 同じ名前のプロジェクトがすでに存在します"
+        case "Creation Failed: Start date is greater than end date!":
+            return "作成失敗: 開始日が終了日よりも後になります"
+        case "Creation Failed: Start time is greater than end time!":
+            return "作成失敗: 開始時間が終了時間よりも後になります"
         case _:
             return f"日本語になーれ()に未対応の文字列が渡されました: {inputstring}"
