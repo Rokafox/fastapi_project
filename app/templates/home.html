@@ -396,6 +396,7 @@
                         listItem.innerHTML = `
                             <strong>User Name:</strong> ${attendance.user_name} <br>
                             <strong>Project Name:</strong> ${attendance.project_name} <br>
+                            <strong>Scheduled Date:</strong> ${attendance.date} <br>
                             <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
                             <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
                             <strong>Check In:</strong> ${attendance.check_in} <br>
@@ -409,7 +410,8 @@
                     const filterValue = document.getElementById('filter-input-attendance').value.toLowerCase();
                     const filteredAttendances = attendances.filter(attendance => 
                         attendance.user_name.toLowerCase().includes(filterValue) ||
-                        attendance.project_name.toLowerCase().includes(filterValue)
+                        attendance.project_name.toLowerCase().includes(filterValue) ||
+                        attendance.date.toLowerCase().includes(filterValue) 
                     );
                     displayAttendances(filteredAttendances);
                 }
@@ -418,10 +420,6 @@
                     document.getElementById('calculate-output').style.display = 'block';
                 });
             </script>
-
-
-
-
 
 
         {% endif %}

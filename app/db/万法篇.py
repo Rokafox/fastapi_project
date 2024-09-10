@@ -1,4 +1,4 @@
-from fastapi import Query
+from datetime import datetime, timedelta
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
@@ -54,6 +54,7 @@ def create_project(newproject_name: str, newproject_description: str,
             return "Creation Failed: Project with the same name already exists!", False
         return "Project created successfully!", True
     
+
 def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None):
     # Get user and project
     with Session(engine) as session:
@@ -61,25 +62,60 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
         user = session.exec(statement).one_or_none()
         if user is None:
             return "Creation failed: User not found!", False
+        
         statement = select(Project).where(Project.name == project_name)
         project = session.exec(statement).one_or_none()
         if project is None:
             return "Creation failed: Project not found!", False
+    
     user_id = user.id
     project_id = project.id
+    
+    # プロジェクトの開始日と終了日を取得
+    project_start_date = datetime.strptime(project.starttime.split()[0], "%Y-%m-%d")
+    project_end_date = datetime.strptime(project.endtime.split()[0], "%Y-%m-%d")
+    
+    # 開始日から終了日までの日数を計算
+    current_date = project_start_date
+    
+    # 出席情報を各日付ごとに作成
     try:
-        new_attendance = Attendance(user_id=user_id, project_id=project_id, check_in=check_in, check_out=check_out)
-        Attendance.model_validate(new_attendance)
+        with Session(engine) as session:
+            while current_date <= project_end_date:
+                # 既存の出席情報を確認
+                existing_attendance = session.exec(
+                    select(Attendance)
+                    .where(Attendance.user_id == user_id)
+                    .where(Attendance.project_id == project_id)
+                    .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
+                ).one_or_none()
+
+                if existing_attendance:
+                    return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+
+                # 新しい出席情報を作成
+                new_attendance = Attendance(
+                    user_id=user_id,
+                    project_id=project_id,
+                    date=current_date.strftime("%Y-%m-%d"),
+                    check_in=check_in,
+                    check_out=check_out
+                )
+                Attendance.model_validate(new_attendance)
+                session.add(new_attendance)
+                current_date += timedelta(days=1)
+            
+            try:
+                session.commit()
+            except Exception as e:
+                return "Creation failed, unhandled error: " + str(e), False
+            
+        return "Attendance created successfully!", True
+
     except ValidationError as e:
         for error in e.errors():
-            return "Creation failed, unhandled error: " + error["msg"], False
-    with Session(engine) as session:
-        session.add(new_attendance)
-        try:
-            session.commit()
-        except Exception as e:
-            return "Creation failed, unhandled error: " + str(e), False
-        return "Attendance created successfully!", True
+            return "Creation failed, validation error: " + error["msg"], False
+        
 
 def order_get_all_projects():
     with Session(engine) as session:
@@ -145,6 +181,7 @@ def order_get_all_attendances():
                 "project_name": project_name,
                 "project_starttime": attendance.project.starttime.split(" ")[-1],
                 "project_endtime": attendance.project.endtime.split(" ")[-1],
+                "date": attendance.date,
                 "check_in": attendance.check_in,
                 "check_out": attendance.check_out,
             })

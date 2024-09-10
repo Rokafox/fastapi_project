@@ -51,6 +51,7 @@ class ProjectUpdate(ProjectBase):
 class AttendanceBase(SQLModel):
     user_id: int | None = Field(default=None, foreign_key="user.id")
     project_id: int | None = Field(default=None, foreign_key="project.id")
+    date: str | None = Field(default=None)
     check_in: str | None = Field(default=None)
     check_out: str | None = Field(default=None)
 

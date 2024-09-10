@@ -29,6 +29,9 @@ async def lifespan(app: FastAPI):
         files.sort(key=lambda x: os.path.getmtime(f"./old_db/{x}"))
         # move the most recent file to ./app/db/database.db
         shutil.move(f"./old_db/{files[-1]}", "./app/db/database.db")
+    # else if database.db exists in ./app/db, do nothing
+    elif os.path.exists("./app/db/database.db"):
+        pass
     else:
         create_db_and_tables()
         create_sysadmin()
