@@ -22,6 +22,8 @@ def 日本語になーれ(inputstring : str) -> str:
             return "作成失敗: 同じ名のユーザーがすでに存在します"
         case "User created successfully!":
             return "ユーザーが正常に作成されました"
+        case "You cannot delete yourself!":
+            return "自分を消さないでください"
         case "Project created successfully!":
             return "プロジェクトが正常に作成されました"
         case "Creation Failed: Project with the same name already exists!":
@@ -30,5 +32,35 @@ def 日本語になーれ(inputstring : str) -> str:
             return "作成失敗: 開始日が終了日よりも後になります"
         case "Creation Failed: Start time is greater than end time!":
             return "作成失敗: 開始時間が終了時間よりも後になります"
+        case "Creation failed: User not found!":
+            return "作成失敗： ユーザーが見つかりません"
+        case "Creation failed: Project not found!":
+            return "作成失敗： プロジェクトが見つかりません"
+        case "Creation failed: Same attendance already exists for \d{4}-\d{2}-\d{2}":
+            return f"作成失敗: 同じ出勤記録がすでに存在します: {inputstring}"
+        case "Attendance created successfully!":
+            return "出勤記録が正常に作成されました"
+        case "Deletion failed: User not found!":
+            return "削除失敗： ユーザーが見つかりません"
+        case "Deletion failed: Project not found!":
+            return "削除失敗： プロジェクトが見つかりません"
+        case "Deletion failed: Attendance not found!":
+            return "削除失敗： 出勤記録が見つかりません"
+        case "Attendance deleted successfully!":
+            return "出勤記録が正常に削除されました"
+        case "User deleted successfully!":
+            return "ユーザーが正常に削除されました"
+        case "Project deleted successfully!":
+            return "プロジェクトが正常に削除されました"
+        case "Update failed: Project not found!":
+            return "更新失敗： プロジェクトが見つかりません"
+        case "Update failed: Project with the same name already exists!":
+            return "更新失敗: 同じ名前のプロジェクトがすでに存在します"
+        case "Project updated successfully!":
+            return "プロジェクトが正常に更新されました"
+        case "Check-in successful!":
+            return "出勤を記録しました"
+        case "Check-out successful!":
+            return "退勤を記録しました"
         case _:
             return f"日本語になーれ()に未対応の文字列が渡されました: {inputstring}"

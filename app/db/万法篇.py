@@ -204,6 +204,18 @@ def order_hiruchaaru_get_assigned_projects(user_name: str):
 
 
 
+def order_delete_user_given_name(user_name: str):
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Deletion failed: User not found!", False
+        session.delete(user)
+        try:
+            session.commit()
+        except Exception as e:
+            return "Deletion failed, unhandled error: " + str(e), False
+        return "User deleted successfully!", True
 
 def order_get_projects_with_limit(limit: int = 100, offset: int = 100):
     with Session(engine) as session:
