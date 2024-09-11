@@ -451,7 +451,7 @@
 
             <p>Assign project to user:</p>
             <p>Attendance records before today will not be added.</p>
-            <p>If project date is changed, the attendance record will be updated.</p>
+            <p>If project date is changed by edit, the attendance record will be updated accordingly.</p>
             <!--今日より前の出勤記録は登録できないぞ！-->
             <form action="/pm_create_attendance" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
@@ -501,7 +501,9 @@
             <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Attendances</button>
             <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Attendances</button>
             
-            <input type="text" id="filter-input-attendance" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterA" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterB" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterC" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
             <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Calculate Attendance Rate</button>
             
@@ -516,7 +518,9 @@
             
                 document.getElementById('show-attendances-btn').addEventListener('click', () => {
                     fetchAttendances();
-                    document.getElementById('filter-input-attendance').style.display = 'block';
+                    document.getElementById('attendance-and-filterA').style.display = 'block';
+                    document.getElementById('attendance-and-filterB').style.display = 'block';
+                    document.getElementById('attendance-and-filterC').style.display = 'block';
                     document.getElementById('attendance-list').style.display = 'block';
                     document.getElementById('calculate-btn').style.display = 'block';
                     document.getElementById('show-attendances-btn').style.display = 'none';
@@ -524,7 +528,9 @@
                 });
             
                 document.getElementById('hide-attendances-btn').addEventListener('click', () => {
-                    document.getElementById('filter-input-attendance').style.display = 'none';
+                    document.getElementById('attendance-and-filterA').style.display = 'none';
+                    document.getElementById('attendance-and-filterB').style.display = 'none';
+                    document.getElementById('attendance-and-filterC').style.display = 'none';
                     document.getElementById('attendance-list').style.display = 'none';
                     document.getElementById('calculate-btn').style.display = 'none';
                     document.getElementById('hide-attendances-btn').style.display = 'none';
@@ -532,7 +538,9 @@
                     document.getElementById('calculate-output').style.display = 'none';
                 });
             
-                document.getElementById('filter-input-attendance').addEventListener('input', filterAttendances);
+                document.getElementById('attendance-and-filterA').addEventListener('input', filterAttendances);
+                document.getElementById('attendance-and-filterB').addEventListener('input', filterAttendances);
+                document.getElementById('attendance-and-filterC').addEventListener('input', filterAttendances);
             
                 async function fetchAttendances() {
                     const response = await fetch('/attendances');
@@ -560,13 +568,33 @@
                 }
             
                 function filterAttendances() {
-                    const filterValue = document.getElementById('filter-input-attendance').value.toLowerCase();
-                    const filteredAttendances = attendances.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValue) ||
-                        attendance.project_name.toLowerCase().includes(filterValue) ||
-                        attendance.date.toLowerCase().includes(filterValue) 
+                    const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
+                    const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
+                    const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
+
+                    // フィルターAを適用
+                    const filteredAttendancesA = attendances.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueA) ||
+                        attendance.project_name.toLowerCase().includes(filterValueA) ||
+                        attendance.date.toLowerCase().includes(filterValueA)
                     );
-                    displayAttendances(filteredAttendances);
+
+                    // フィルターBを適用
+                    const filteredAttendancesB = filteredAttendancesA.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueB) ||
+                        attendance.project_name.toLowerCase().includes(filterValueB) ||
+                        attendance.date.toLowerCase().includes(filterValueB)
+                    );
+
+                    // フィルターCを適用
+                    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueC) ||
+                        attendance.project_name.toLowerCase().includes(filterValueC) ||
+                        attendance.date.toLowerCase().includes(filterValueC)
+                    );
+
+                    // 絞り込んだ結果を表示
+                    displayAttendances(filteredAttendancesC);
                 }
             
                 document.getElementById('calculate-btn').addEventListener('click', () => {
@@ -575,31 +603,58 @@
                 });
 
                 function calculateAttendanceRate() {
-                    const filteredAttendances = attendances.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(document.getElementById('filter-input-attendance').value.toLowerCase()) ||
-                        attendance.project_name.toLowerCase().includes(document.getElementById('filter-input-attendance').value.toLowerCase()) ||
-                        attendance.date.toLowerCase().includes(document.getElementById('filter-input-attendance').value.toLowerCase())
+                    const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
+                    const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
+                    const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
+
+                    const filteredAttendancesA = attendances.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueA) ||
+                        attendance.project_name.toLowerCase().includes(filterValueA) ||
+                        attendance.date.toLowerCase().includes(filterValueA)
                     );
-                
+
+                    const filteredAttendancesB = filteredAttendancesA.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueB) ||
+                        attendance.project_name.toLowerCase().includes(filterValueB) ||
+                        attendance.date.toLowerCase().includes(filterValueB)
+                    );
+
+                    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
+                        attendance.user_name.toLowerCase().includes(filterValueC) ||
+                        attendance.project_name.toLowerCase().includes(filterValueC) ||
+                        attendance.date.toLowerCase().includes(filterValueC)
+                    );
+
                     let outputText = "";
-                
-                    filteredAttendances.forEach(attendance => {
+                    let totalRate = 0;
+                    let validCount = 0; // 有効な出席レートの数
+
+                    filteredAttendancesC.forEach(attendance => {
                         const scheduledStart = new Date(`1970-01-01T${attendance.project_starttime}:00`);
                         const scheduledEnd = new Date(`1970-01-01T${attendance.project_endtime}:00`);
                         const checkIn = new Date(`1970-01-01T${attendance.check_in}:00`);
                         const checkOut = new Date(`1970-01-01T${attendance.check_out}:00`);
-                
+
                         const scheduledTime = (scheduledEnd - scheduledStart) / (1000 * 60); // スケジュールされた時間 (分)
                         const actualTime = (checkOut - checkIn) / (1000 * 60); // 実際の働いた時間 (分)
-                
+
                         let attendanceRate = 0;
                         if (scheduledTime > 0) {
                             attendanceRate = (actualTime / scheduledTime) * 100; // 出席率 (パーセンテージ)
                         }
-                
+
+                        totalRate += attendanceRate;
+                        validCount++; // 有効な出席の数を増加
+
                         outputText += `<strong>${attendance.user_name} - ${attendance.project_name} - ${attendance.date}:</strong> Attendance Rate: ${attendanceRate.toFixed(2)}%<br>`;
                     });
-                
+
+                    // 出席率の平均を計算
+                    let averageRate = validCount > 0 ? (totalRate / validCount).toFixed(2) : 0;
+
+                    // 平均出席率を追加
+                    outputText += `<br><strong>Average Attendance Rate:</strong> ${averageRate}%`;
+
                     document.getElementById('calculate-output').innerHTML = outputText;
                 }
             </script>
