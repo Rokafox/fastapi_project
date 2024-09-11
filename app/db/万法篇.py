@@ -96,9 +96,21 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
     if project_start_date < datetime.now():
         current_date = datetime.now()
     
-    # 出席情報を各日付ごとに作成
     try:
         with Session(engine) as session:
+            # get all attendances for this user and project, if there are any whose date is before than the project start date, delete them
+            statement = select(Attendance).where(Attendance.user_id == user_id).where(Attendance.project_id == project_id)
+            attendances = session.exec(statement).all()
+            if attendances:
+                for attendance in attendances:
+                    if datetime.strptime(attendance.date, "%Y-%m-%d") < project_start_date:
+                        session.delete(attendance)
+                    # or if the date is after the project end date
+                    elif datetime.strptime(attendance.date, "%Y-%m-%d") > project_end_date:
+                        session.delete(attendance)
+            else:
+                pass
+
             while current_date <= project_end_date:
                 # 既存の出席情報を確認
                 existing_attendance = session.exec(
@@ -109,7 +121,10 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
                 ).one_or_none()
 
                 if existing_attendance:
-                    return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+                    # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+                    # instead of returning, we can just skip this date
+                    current_date += timedelta(days=1)
+                    continue
 
                 # 新しい出席情報を作成
                 new_attendance = Attendance(

@@ -451,6 +451,7 @@
 
             <p>Assign project to user:</p>
             <p>Attendance records before today will not be added.</p>
+            <p>If project date is changed, the attendance record will be updated.</p>
             <!--今日より前の出勤記録は登録できないぞ！-->
             <form action="/pm_create_attendance" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
@@ -464,7 +465,7 @@
                 <label for="the_user_name">User Name:</label>
                 <input type="text" id="the_user_name" name="the_user_name" required>
 
-                <input type="submit" value="Submit">
+                <input type="submit" value="Submit or Update">
             </form>
             {% if pm_createattendance_message %}
                 <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
