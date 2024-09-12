@@ -259,6 +259,17 @@ def order_delete_project_by_id(project_id: int):
         return "Project deleted successfully!", True
     
 def order_update_project_by_id(project_id: int, project: ProjectUpdate):
+    start_date = project.starttime.split()[0] # gives 2024-09-10
+    start_time = project.starttime.split()[-1] # gives 12:00
+    end_date = project.endtime.split()[0]
+    end_time = project.endtime.split()[-1]
+    # compare start date and end date
+    if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
+        return "Update failed: Start date is greater than end date!", False
+    # compare start time and end time
+    if datetime.strptime(start_time, "%H:%M") > datetime.strptime(end_time, "%H:%M"):
+        return "Update failed: Start time is greater than end time!", False
+
     with Session(engine) as session:
         db_project = session.get(Project, project_id)
         if db_project is None:
