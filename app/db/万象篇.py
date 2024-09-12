@@ -27,7 +27,7 @@ class ProjectBase(SQLModel):
     endtime: str
     status: str = Field(
         default="scheduled",
-        schema_extra={'pattern': '^(ongoing|completed|scheduled|failed|canceled)$'}
+        schema_extra={'pattern': '^(ongoing|completed|scheduled|failed|canceled|Requirements_Definition|Basic_Design|Detailed_Design|Programming|Unit_Testing|Integration_Testing|System_Testing)$'}
     )
 
 class Project(ProjectBase, table=True):

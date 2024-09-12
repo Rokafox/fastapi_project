@@ -96,6 +96,13 @@
                 <select id="newproject_status" name="newproject_status">
                     <option value="scheduled">Scheduled</option>
                     <option value="ongoing">Ongoing</option>
+                    <option value="Requirements_Definition">Requirements Definition</option>
+                    <option value="Basic_Design">Basic Design</option>
+                    <option value="Detailed_Design">Detailed Design</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Unit_Testing">Unit Testing</option>
+                    <option value="Integration_Testing">Integration Testing</option>
+                    <option value="System_Testing">System Testing</option>
                 </select>
 
                 <input type="submit" value="Create Project">
@@ -257,6 +264,13 @@
                 <select id="newproject_status" name="newproject_status">
                     <option value="scheduled">Scheduled</option>
                     <option value="ongoing">Ongoing</option>
+                    <option value="Requirements_Definition">Requirements Definition</option>
+                    <option value="Basic_Design">Basic Design</option>
+                    <option value="Detailed_Design">Detailed Design</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Unit_Testing">Unit Testing</option>
+                    <option value="Integration_Testing">Integration Testing</option>
+                    <option value="System_Testing">System Testing</option>
                 </select>
 
                 <input type="submit" value="Create Project">
@@ -438,9 +452,16 @@
                         <option value="scheduled">Scheduled</option>
                         <option value="ongoing">Ongoing</option>
                         <!-- completed, failed, canceled -->
-                        <option value="completed">Completed</option>
+                        {% comment %} <option value="completed">Completed</option>
                         <option value="failed">Failed</option>
-                        <option value="canceled">Canceled</option>
+                        <option value="canceled">Canceled</option> {% endcomment %}
+                        <option value="Requirements_Definition">Requirements Definition</option>
+                        <option value="Basic_Design">Basic Design</option>
+                        <option value="Detailed_Design">Detailed Design</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Unit_Testing">Unit Testing</option>
+                        <option value="Integration_Testing">Integration Testing</option>
+                        <option value="System_Testing">System Testing</option>
                     </select><br>
 
                     <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
