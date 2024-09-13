@@ -39,7 +39,7 @@
                     <option value="projectmanager">プロジェクトマネージャー</option>
                 </select>
 
-                <input type="submit" value="ユーザー作る">
+                <input type="submit" value="ユーザー作成">
             </form>
 
             {% if sysadmin_createuser_message %}
@@ -105,7 +105,7 @@
                     <option value="System_Testing">システムテスト</option>
                 </select>
 
-                <input type="submit" value="プロジェクト作る">
+                <input type="submit" value="プロジェクト作成">
             </form>
 
             {% if sysadmin_createproject_message %}
@@ -269,7 +269,7 @@
                     <option value="System_Testing">システムテスト</option>
                 </select>
 
-                <input type="submit" value="プロジェクト作る">
+                <input type="submit" value="プロジェクト作成">
             </form>
 
             {% if sysadmin_createproject_message %}
@@ -478,7 +478,7 @@
                 <label for="the_user_name">ユーザー名：</label>
                 <input type="text" id="the_user_name" name="the_user_name" required>
 
-                <input type="submit" value="提出または更新">
+                <input type="submit" value="割り当て">
             </form>
             {% if pm_createattendance_message %}
                 <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
@@ -500,7 +500,7 @@
                 <label for="the_user_name">ユーザー名：</label>
                 <input type="text" id="the_user_name" name="the_user_name" required>
 
-                <input type="submit" value="削除">
+                <input type="submit" value="割り当て解除">
             </form>
             {% if pm_deleteattendance_message %}
                 <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
