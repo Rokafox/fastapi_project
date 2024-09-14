@@ -232,6 +232,25 @@ def order_delete_user_given_name(user_name: str):
             return "Deletion failed, unhandled error: " + str(e), False
         return "User deleted successfully!", True
 
+def order_change_password_given_name(user_name: str, new_password: str):
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Update failed: User not found!", False
+        user.password = new_password
+        try:
+            User.model_validate(user)
+        except ValidationError as e:
+            for error in e.errors():
+                return "Update failed: " + error["msg"], False
+        try:
+            session.add(user)
+            session.commit()
+        except Exception as e:
+            return "Update failed, unhandled error: " + str(e), False
+        return "Password updated successfully!", True
+
 def order_get_projects_with_limit(limit: int = 100, offset: int = 100):
     with Session(engine) as session:
         statement = select(Project).limit(limit).offset(offset)

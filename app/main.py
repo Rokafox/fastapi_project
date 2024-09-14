@@ -11,7 +11,8 @@ from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
 from .db.万法篇 import create_attendance, validate_user_when_login, create_user, create_project, order_get_all_projects, \
 order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances, order_delete_attendanc_given_name, \
-order_hiruchaaru_get_assigned_projects, order_hiruchaaru_checkin, order_hiruchaaru_checkout, order_delete_user_given_name
+order_hiruchaaru_get_assigned_projects, order_hiruchaaru_checkin, order_hiruchaaru_checkout, order_delete_user_given_name, \
+order_change_password_given_name
 from .db.万象篇 import ProjectPublic, ProjectUpdate, AttendancePublic
 
 
@@ -129,7 +130,20 @@ async def sysadmin_delete_user(request: Request, deleteuser_name: str = Form(...
                                                       "sysadmin_deleteuser_success": successcheck,
                                                       "username" : username, "role": role, "password": password})
 
-
+@app.post("/genericuser_change_password", response_class=HTMLResponse)
+async def genericuser_change_password(request: Request, newpassword: str = Form(...), username: str = Form(...),
+                                        role: str = Form(...), lang: str = Form("en"), password: str = Form(...)):
+    if not validate_user_when_login(username, password):
+        return templates.TemplateResponse("login.html", {"request": request})
+    msg, successcheck = order_change_password_given_name(username, newpassword)
+    if lang == "jp":
+        msg = 日本語になーれ(msg)
+    template_name = "home.html" if lang == "en" else "home-jp.html"
+    if not successcheck:
+        newpassword = password
+    return templates.TemplateResponse(template_name, {"request": request, "genericuser_changepassword_message": msg,
+                                                    "genericuser_changepassword_success": successcheck,
+                                                    "username" : username, "role": role, "password": newpassword})
 
 @app.post("/sysadmin_create_project", response_class=HTMLResponse)
 async def sysadmin_create_project(request: Request, newproject_name: str = Form(...), 
