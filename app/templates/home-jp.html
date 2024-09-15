@@ -84,6 +84,162 @@
                 </div>
             {% endif %}
 
+
+
+            <p>View users:</p>
+
+            <button id="show-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Users</button>
+            <button id="hide-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Users</button>
+
+            <input type="text" id="filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+
+            <ul id="user-list" style="display: none;">
+                <!-- ユーザーリストがここに表示されます -->
+            </ul>
+
+            <script>
+                let users = [];
+
+                document.getElementById('show-users-btn').addEventListener('click', () => {
+                    fetchUsers();
+                    document.getElementById('filter-input').style.display = 'block';
+                    document.getElementById('user-list').style.display = 'block';
+                    document.getElementById('show-users-btn').style.display = 'none';
+                    document.getElementById('hide-users-btn').style.display = 'block';
+                });
+
+                document.getElementById('hide-users-btn').addEventListener('click', () => {
+                    document.getElementById('filter-input').style.display = 'none';
+                    document.getElementById('user-list').style.display = 'none';
+                    document.getElementById('hide-users-btn').style.display = 'none';
+                    document.getElementById('show-users-btn').style.display = 'block';
+                });
+
+                document.getElementById('filter-input').addEventListener('input', filterUsers);
+
+                async function fetchUsers() {
+                    const response = await fetch('/users');
+                    users = await response.json();
+                    displayUsers(users);
+                }
+
+                function displayUsers(userList) {
+                    const userListElement = document.getElementById('user-list');
+                    userListElement.innerHTML = '';
+
+                    userList.forEach(user => {
+                        const listItem = document.createElement('li');
+                        let editButtonHTML = '';
+
+                        // 現在のユーザー名と一致しない場合のみ編集ボタンを表示
+                        if (user.name !== "{{ username }}") {
+                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
+                        }
+                        // can't edit sysadmin
+                        // if (user.role !== "sysadmin") {
+                        //     editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
+                        // }
+
+                        let password = user.name === "rokafox" ? "???" : user.password;
+                        let role = user.name === "rokafox" ? "???" : user.role;
+                        if (user.name === "rokafox") {
+                            editButtonHTML = '';
+                        }
+
+                        listItem.innerHTML = `
+                            <strong>Name:</strong> ${user.name} <br>
+                            <strong>Password:</strong> ${password} <br>
+                            <strong>Role:</strong> ${role} <br>
+                            ${editButtonHTML}
+                        `;
+                        userListElement.appendChild(listItem);
+                    });
+                }
+
+
+                function filterUsers() {
+                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
+                    const filteredUsers = users.filter(user => 
+                        user.name.toLowerCase().includes(filterValue) ||
+                        user.password.toLowerCase().includes(filterValue) ||
+                        user.role.toLowerCase().includes(filterValue)
+                    );
+                    displayUsers(filteredUsers);
+                }
+
+                async function editUser(userId) {
+                    // 選択したユーザーのデータを取得
+                    const user = users.find(u => u.id === userId);
+
+                    // フォームにユーザーのデータをセット
+                    document.getElementById('edit-name').value = user.name;
+                    document.getElementById('edit-password').value = user.password;
+                    document.getElementById('edit-role').value = user.role;
+
+                    // 編集モーダルを表示
+                    document.getElementById('edit-user-modal').style.display = 'block';
+
+                    // フォームのサブミット処理
+                    document.getElementById('edit-user-form').onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        // フォームからデータを取得
+                        const updatedUser = {
+                            name: document.getElementById('edit-name').value,
+                            password: document.getElementById('edit-password').value,
+                            role: document.getElementById('edit-role').value,
+                        };
+
+                        // サーバーにPATCHリクエストを送信
+                        const response = await fetch(`/users/${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedUser),
+                        });
+
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchUsers();
+                            // モーダルを非表示
+                            document.getElementById('edit-user-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update user: ' + response_result.message);  // エラーメッセージを表示
+                        }
+                    };
+
+                    // キャンセルボタンの処理
+                    document.getElementById('cancel-edit').addEventListener('click', () => {
+                        document.getElementById('edit-user-modal').style.display = 'none';
+                    });
+                }
+            </script>
+
+            <div id="edit-user-modal" style="display: none;">
+                <p>Edit user:</p>
+                <form id="edit-user-form">
+                    <label for="edit-name">Name:</label>
+                    <input type="text" id="edit-name" required><br>
+
+                    <label for="edit-password">Password:</label>
+                    <input type="text" id="edit-password" required><br>
+
+                    <label for="edit-role">Role:</label>
+                    <select id="edit-role" required>
+                        <option value="sysadmin">Sysadmin</option>
+                        <option value="projectmanager">Project Manager</option>
+                        <option value="hiruchaaru">Hiruchaaru</option>
+                    </select><br>
+
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+
+                </form>
+            </div>
+
+
+
             <p>新規プロジェクト作成：</p>
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
@@ -179,45 +335,45 @@
             {% endif %}
 
 
-            <p>プロジェクト閲覧：</p>
+            <p>View projects:</p>
 
-            <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
-            <button id="hide-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
+            <button id="sysadmin-show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Projects</button>
+            <button id="sysadmin-hide-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Projects</button>
             
-            <input type="text" id="filter-input" placeholder="高性能フィルター" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="sysadmin-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
-            <ul id="project-list" style="display: none;">
+            <ul id="sysadmin-project-list" style="display: none;">
                 <!-- プロジェクトリストがここに表示されます -->
             </ul>
             
             <script>
-                let projects_superuser = [];
+                let sysadmin_projects = [];
             
-                document.getElementById('show-projects-btn').addEventListener('click', () => {
-                    fetchProjects();
-                    document.getElementById('filter-input').style.display = 'block';
-                    document.getElementById('project-list').style.display = 'block';
-                    document.getElementById('show-projects-btn').style.display = 'none';
-                    document.getElementById('hide-projects-btn').style.display = 'block';
+                document.getElementById('sysadmin-show-projects-btn').addEventListener('click', () => {
+                    sysadminFetchProjects();
+                    document.getElementById('sysadmin-filter-input').style.display = 'block';
+                    document.getElementById('sysadmin-project-list').style.display = 'block';
+                    document.getElementById('sysadmin-show-projects-btn').style.display = 'none';
+                    document.getElementById('sysadmin-hide-projects-btn').style.display = 'block';
                 });
             
-                document.getElementById('hide-projects-btn').addEventListener('click', () => {
-                    document.getElementById('filter-input').style.display = 'none';
-                    document.getElementById('project-list').style.display = 'none';
-                    document.getElementById('hide-projects-btn').style.display = 'none';
-                    document.getElementById('show-projects-btn').style.display = 'block';
+                document.getElementById('sysadmin-hide-projects-btn').addEventListener('click', () => {
+                    document.getElementById('sysadmin-filter-input').style.display = 'none';
+                    document.getElementById('sysadmin-project-list').style.display = 'none';
+                    document.getElementById('sysadmin-hide-projects-btn').style.display = 'none';
+                    document.getElementById('sysadmin-show-projects-btn').style.display = 'block';
                 });
             
-                document.getElementById('filter-input').addEventListener('input', filterProjects);
+                document.getElementById('sysadmin-filter-input').addEventListener('input', sysadminFilterProjects);
             
-                async function fetchProjects() {
+                async function sysadminFetchProjects() {
                     const response = await fetch('/projects');
-                    projects_superuser = await response.json();
-                    displayProjects(projects_superuser);
+                    sysadmin_projects = await response.json();
+                    sysadminDisplayProjects(sysadmin_projects);
                 }
             
-                function displayProjects(projectList) {
-                    const projectListElement = document.getElementById('project-list');
+                function sysadminDisplayProjects(projectList) {
+                    const projectListElement = document.getElementById('sysadmin-project-list');
                     projectListElement.innerHTML = ''; // リストをクリア
             
                     projectList.forEach(project => {
@@ -229,16 +385,16 @@
                             <strong>End Time:</strong> ${project.endtime} <br>
                             <strong>Status:</strong> ${project.status} <br>
                             <strong>Project Manager:</strong> ${project.managers} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editProject(${project.id})">編集</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteProject(${project.id})">削除</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminEditProject(${project.id})">Edit</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminDeleteProject(${project.id})">Delete</button>
                         `;
                         projectListElement.appendChild(listItem);
                     });
                 }
             
-                function filterProjects() {
-                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
-                    const filteredProjects = projects_superuser.filter(project => 
+                function sysadminFilterProjects() {
+                    const filterValue = document.getElementById('sysadmin-filter-input').value.toLowerCase();
+                    const filteredProjects = sysadmin_projects.filter(project => 
                         project.name.toLowerCase().includes(filterValue) ||
                         project.description.toLowerCase().includes(filterValue) ||
                         project.starttime.toLowerCase().includes(filterValue) ||
@@ -246,37 +402,31 @@
                         project.status.toLowerCase().includes(filterValue) ||
                         project.managers.toLowerCase().includes(filterValue)
                     );
-                    displayProjects(filteredProjects);
+                    sysadminDisplayProjects(filteredProjects);
                 }
             
-                async function editProject(projectId) {
-                    // 選択したプロジェクトのデータを取得
-                    const project = projects_superuser.find(p => p.id === projectId);
-
-                    // フォームにプロジェクトのデータをセット
-                    document.getElementById('edit-name').value = project.name;
-                    document.getElementById('edit-description').value = project.description;
-                    document.getElementById('edit-starttime').value = project.starttime;
-                    document.getElementById('edit-endtime').value = project.endtime;
-                    document.getElementById('edit-status').value = project.status;
-
-                    // 編集モーダルを表示
-                    document.getElementById('edit-project-modal').style.display = 'block';
-
-                    // フォームのサブミット処理
-                    document.getElementById('edit-project-form').onsubmit = async (e) => {
+                async function sysadminEditProject(projectId) {
+                    const project = sysadmin_projects.find(p => p.id === projectId);
+            
+                    document.getElementById('sysadmin-edit-name').value = project.name;
+                    document.getElementById('sysadmin-edit-description').value = project.description;
+                    document.getElementById('sysadmin-edit-starttime').value = project.starttime;
+                    document.getElementById('sysadmin-edit-endtime').value = project.endtime;
+                    document.getElementById('sysadmin-edit-status').value = project.status;
+            
+                    document.getElementById('sysadmin-edit-project-modal').style.display = 'block';
+            
+                    document.getElementById('sysadmin-edit-project-form').onsubmit = async (e) => {
                         e.preventDefault();
-
-                        // フォームからデータを取得
+            
                         const updatedProject = {
-                            name: document.getElementById('edit-name').value,
-                            description: document.getElementById('edit-description').value,
-                            starttime: document.getElementById('edit-starttime').value.replace('T', ' '),
-                            endtime: document.getElementById('edit-endtime').value.replace('T', ' '),
-                            status: document.getElementById('edit-status').value,
+                            name: document.getElementById('sysadmin-edit-name').value,
+                            description: document.getElementById('sysadmin-edit-description').value,
+                            starttime: document.getElementById('sysadmin-edit-starttime').value.replace('T', ' '),
+                            endtime: document.getElementById('sysadmin-edit-endtime').value.replace('T', ' '),
+                            status: document.getElementById('sysadmin-edit-status').value,
                         };
-
-                        // サーバーにPATCHリクエストを送信
+            
                         const response = await fetch(`/projects/${projectId}`, {
                             method: 'PATCH',
                             headers: {
@@ -284,27 +434,24 @@
                             },
                             body: JSON.stringify(updatedProject),
                         });
-
+            
                         const response_result = await response.json();
                         if (response_result.success) {
-                            fetchProjects();
-                            // モーダルを非表示
-                            document.getElementById('edit-project-modal').style.display = 'none';
+                            sysadminFetchProjects();
+                            document.getElementById('sysadmin-edit-project-modal').style.display = 'none';
                         } else {
-                            alert('Failed to update project: ' + response_result.message);  // エラーメッセージを表示
+                            alert('Failed to update project: ' + response_result.message);
                         }
-
+            
                     };
-
-                    // キャンセルボタンの処理
-                    document.getElementById('cancel-edit').addEventListener('click', () => {
-                        document.getElementById('edit-project-modal').style.display = 'none';
+            
+                    document.getElementById('sysadmin-cancel-edit').addEventListener('click', () => {
+                        document.getElementById('sysadmin-edit-project-modal').style.display = 'none';
                     });
                 }
-
             
-                async function deleteProject(projectId) {
-                    const confirmation = confirm(`本当にこのプロジェクトを削除します？`);
+                async function sysadminDeleteProject(projectId) {
+                    const confirmation = confirm(`Are you sure you want to delete this project?`);
                     if (!confirmation) {
                         return;
                     }
@@ -319,51 +466,52 @@
                         const response_result = await response.json();
             
                         if (response_result.success) {
-                            fetchProjects();
+                            sysadminFetchProjects();
                         } else {
                             const errorData = await response.json();
-                            alert(`削除失敗： ${errorData.detail}`);
+                            alert(`Failed to delete project: ${errorData.detail}`);
                         }
                     } catch (error) {
                         console.error('Error deleting project:', error);
-                        alert('削除処理中にエラーがありました。');
+                        alert('An error occurred while deleting the project.');
                     }
                 }
             </script>
-
-            <div id="edit-project-modal" style="display: none;">
-                <p>プロジェクト編集：</p>
-                <form id="edit-project-form">
-                    <label for="edit-name">プロジェクト名：</label>
-                    <input type="text" id="edit-name" required><br>
-
-                    <label for="edit-description">プロジェクト詳細：</label>
-                    <textarea id="edit-description" rows="4" required></textarea><br>
-
-                    <label for="edit-starttime">開始日時：</label>
-                    <input type="datetime-local" id="edit-starttime" required><br>
-
-                    <label for="edit-endtime">終了日時</label>
-                    <input type="datetime-local" id="edit-endtime" required><br>
-
-                    <label for="edit-status">状態：</label>
-                    <select id="edit-status" required>
-                        <option value="scheduled">予定</option>
-                        <option value="ongoing">進行中</option>
-                        <option value="Requirements_Definition">要件定義</option>
-                        <option value="Basic_Design">基本設計</option>
-                        <option value="Detailed_Design">詳細設計</option>
-                        <option value="Programming">プログラミング</option>
-                        <option value="Unit_Testing">単体テスト</option>
-                        <option value="Integration_Testing">結合テスト</option>
-                        <option value="System_Testing">システムテスト</option>
+            
+            <div id="sysadmin-edit-project-modal" style="display: none;">
+                <p>Edit project:</p>
+                <form id="sysadmin-edit-project-form">
+                    <label for="sysadmin-edit-name">Name:</label>
+                    <input type="text" id="sysadmin-edit-name" required><br>
+            
+                    <label for="sysadmin-edit-description">Description:</label>
+                    <textarea id="sysadmin-edit-description" rows="4" required></textarea><br>
+            
+                    <label for="sysadmin-edit-starttime">Start Time:</label>
+                    <input type="datetime-local" id="sysadmin-edit-starttime" required><br>
+            
+                    <label for="sysadmin-edit-endtime">End Time:</label>
+                    <input type="datetime-local" id="sysadmin-edit-endtime" required><br>
+            
+                    <label for="sysadmin-edit-status">Status:</label>
+                    <select id="sysadmin-edit-status" required>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="ongoing">Ongoing</option>
+                        <option value="Requirements_Definition">Requirements Definition</option>
+                        <option value="Basic_Design">Basic Design</option>
+                        <option value="Detailed_Design">Detailed Design</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Unit_Testing">Unit Testing</option>
+                        <option value="Integration_Testing">Integration Testing</option>
+                        <option value="System_Testing">System Testing</option>
                     </select><br>
+            
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
 
-                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
-                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">取り消す</button>
-
+                    <button type="button" id="sysadmin-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
                 </form>
             </div>
+
 
 
 

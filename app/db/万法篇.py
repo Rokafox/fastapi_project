@@ -17,7 +17,9 @@ def order_get_all_users():
         user_list = []
         for user in users:
             user_list.append({
+                "id": user.id,
                 "name": user.name,
+                "password": user.password,
                 "role": user.role
             })
         return user_list
@@ -33,6 +35,11 @@ def validate_user_when_login(username: str, password: str):
         return False
     
 def create_user(newuser_name: str, newuser_password: str, newuser_role: str):
+    # if username contains any english special characters, return error
+    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
+    for char in not_allowed_characters:
+        if char in newuser_name:
+            return "Creation failed: Username is not allowed to contain english special characters!", False
     try:
         new_user = User(name=newuser_name, password=newuser_password, role=newuser_role)
         User.model_validate(new_user)
@@ -265,6 +272,7 @@ def order_get_all_projects():
         for project in projects:
             managers = [manager.name for manager in project.project_managers]  # プロジェクトマネージャーの名前を取得
             project_info = {
+                "id": project.id,
                 "name": project.name,
                 "description": project.description,
                 "starttime": project.starttime,
@@ -313,6 +321,11 @@ def order_delete_user_given_name(user_name: str):
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
+        if user.name == "rokafox":
+            return "Deletion failed: Cannot delete the divine fox!", False
+        # if user is sysadmin, return error
+        if user.role == "sysadmin":
+            return "Deletion failed: Cannot delete sysadmin!", False
         if user is None:
             return "Deletion failed: User not found!", False
         session.delete(user)
@@ -393,7 +406,32 @@ def order_update_project_by_id(project_id: int, project: ProjectUpdate):
         session.refresh(db_project)
         return "Project updated successfully!", True
     
-    
+
+def order_update_user_by_id(user_id: int, user: UserUpdate):
+    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
+    for char in not_allowed_characters:
+        if char in user.name:
+            return "Update failed: Username is not allowed to contain english special characters!", False
+    try:
+        User.model_validate(user)
+    except ValidationError as e:
+        for error in e.errors():
+            return "Update failed: " + error["msg"], False
+    with Session(engine) as session:
+        db_user = session.get(User, user_id)
+        if db_user is None:
+            return "Update failed: User not found!", False
+        user_data = user.model_dump(exclude_unset=True)
+        db_user.sqlmodel_update(user_data)
+        session.add(db_user)
+        try:
+            session.commit()
+        except IntegrityError:
+            return "Update failed: User with the same name already exists!", False
+        session.refresh(db_user)
+        return "User updated successfully!", True
+
+
 def order_get_all_attendances():
     with Session(engine) as session:
         # Attendanceと関連するUser、Projectを取得する

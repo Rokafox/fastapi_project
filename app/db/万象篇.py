@@ -28,6 +28,12 @@ class UserCreate(UserBase):
 class UserPublic(UserBase):
     id: int
 
+class UserUpdate(UserBase):
+    name: str | None = None
+    password: str | None = None
+    role: str | None = None
+
+
 
 class ProjectBase(SQLModel):
     name: str = Field(unique=True)

@@ -9,11 +9,7 @@ import time
 from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
-from .db.万法篇 import create_attendance, validate_user_when_login, create_user, create_project, order_get_all_projects, \
-order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances, order_delete_attendanc_given_name, \
-order_hiruchaaru_get_assigned_projects, order_hiruchaaru_checkin, order_hiruchaaru_checkout, order_delete_user_given_name, \
-order_change_password_given_name, order_retire_project_manager, order_assign_project_manager, order_get_all_users
-from .db.万象篇 import ProjectPublic, ProjectUpdate, AttendancePublic
+from .db.万法篇 import *
 
 
 @asynccontextmanager
@@ -249,6 +245,11 @@ async def pm_delete_attendance(request: Request, the_user_name: str = Form(...),
 @app.get("/users")
 async def read_users():
     return order_get_all_users()
+
+@app.patch("/users/{user_name}")
+async def update_user(user_name: str, user: UserUpdate):
+    msg, successcheck = order_update_user_by_id(user_name, user)
+    return {"message": msg, "success": successcheck}
 
 @app.get("/projects")
 async def read_projects():
