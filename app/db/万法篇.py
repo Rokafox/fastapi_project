@@ -10,6 +10,17 @@ from .創造篇 import engine
 def 万法帰一(*args, **kwargs):
     return 1
 
+def order_get_all_users():
+    with Session(engine) as session:
+        statement = select(User)
+        users = session.exec(statement).all()
+        user_list = []
+        for user in users:
+            user_list.append({
+                "name": user.name,
+                "role": user.role
+            })
+        return user_list
 
 def validate_user_when_login(username: str, password: str):
     with Session(engine) as session:
@@ -35,13 +46,14 @@ def create_user(newuser_name: str, newuser_password: str, newuser_role: str):
         except IntegrityError:
             return "Creation failed: User with the same name already exists!", False
         return "User created successfully!", True
-    
+
+
 def create_project(newproject_name: str, newproject_description: str, 
                    newproject_starttime: str, newproject_endtime: str,
-                   newproject_status: str):
+                   newproject_status: str, project_manager_names: list[str]):
     
-    start_date = newproject_starttime.split()[0] # gives 2024-09-10
-    start_time = newproject_starttime.split()[-1] # gives 12:00
+    start_date = newproject_starttime.split()[0]  # gives 2024-09-10
+    start_time = newproject_starttime.split()[-1]  # gives 12:00
     end_date = newproject_endtime.split()[0]
     end_time = newproject_endtime.split()[-1]
 
@@ -55,20 +67,85 @@ def create_project(newproject_name: str, newproject_description: str,
 
     try:
         new_project = Project(name=newproject_name, description=newproject_description, 
-                              starttime=newproject_starttime, endtime=newproject_endtime
-                              , status=newproject_status)
+                              starttime=newproject_starttime, endtime=newproject_endtime,
+                              status=newproject_status)
         Project.model_validate(new_project)
     except ValidationError as e:
         for error in e.errors():
             return "Creation Failed: " + error["msg"], False
+
     with Session(engine) as session:
+        # プロジェクトマネージャーの取得
+        project_managers = session.exec(select(User).where(User.name.in_(project_manager_names))).all()
+        
+        # プロジェクトマネージャーが全員存在するか確認
+        if len(project_managers) != len(project_manager_names):
+            return "Creation Failed: One or more user does not exist!", False
+
+        # プロジェクトマネージャーのロールを確認
+        for manager in project_managers:
+            if manager.role != "projectmanager":
+                return f"Creation Failed: {manager.name} is not a projectmanager!", False
+
+        # プロジェクトとプロジェクトマネージャーのリレーションシップを設定
+        new_project.project_managers = project_managers
+        
         session.add(new_project)
         try:
             session.commit()
         except IntegrityError:
             return "Creation Failed: Project with the same name already exists!", False
-        return "Project created successfully!", True
-    
+        
+        return "Project created successfully with managers!", True
+
+def order_retire_project_manager(user_name: str, project_name: str):
+    with Session(engine) as session:
+        # Get user and project
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Retirement failed: User not found!", False
+        
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Retirement failed: Project not found!", False
+        
+        # Remove the project manager from the project
+        project.project_managers.remove(user)
+        session.add(project)
+        try:
+            session.commit()
+        except Exception as e:
+            return "Retirement failed, unhandled error: " + str(e), False
+        return "Project manager retired successfully!", True
+
+def order_assign_project_manager(user_name: str, project_name: str):
+    with Session(engine) as session:
+        # Get user and project
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Assignment failed: User not found!", False
+        # Give error if user is not a project manager
+        if user.role != "projectmanager":
+            return "Assignment failed: User is not a project manager!", False
+        
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Assignment failed: Project not found!", False
+        
+        # Add the project manager to the project
+        project.project_managers.append(user)
+        session.add(project)
+        try:
+            session.commit()
+        except IntegrityError:
+            return "Assignment failed: User is already a project manager for this project!", False
+        except Exception as e:
+            return "Assignment failed, unhandled error: " + str(e), False
+        return "Project manager assigned successfully!", True
 
 def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None):
     # Get user and project
@@ -184,7 +261,20 @@ def order_get_all_projects():
     with Session(engine) as session:
         statement = select(Project)
         projects = session.exec(statement).all()
-        return projects
+        project_list = []
+        for project in projects:
+            managers = [manager.name for manager in project.project_managers]  # プロジェクトマネージャーの名前を取得
+            project_info = {
+                "name": project.name,
+                "description": project.description,
+                "starttime": project.starttime,
+                "endtime": project.endtime,
+                "status": project.status,
+                "managers": managers  # プロジェクトマネージャーのリストを追加
+            }
+            project_list.append(project_info)
+        
+        return project_list
 
 def order_hiruchaaru_get_assigned_projects(user_name: str):
     # Get records from attendances.

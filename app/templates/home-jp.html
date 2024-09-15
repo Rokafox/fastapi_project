@@ -121,7 +121,9 @@
                     <option value="Integration_Testing">結合テスト</option>
                     <option value="System_Testing">システムテスト</option>
                 </select>
-
+                <label for="project_manager_names">プロジェクトマネージャー(カンマで区切って複数記入可):</label>
+                <input type="text" id="project_manager_names" name="project_manager_names" placeholder="マネージャー名を入力" required>
+            
                 <input type="submit" value="プロジェクト作成">
             </form>
 
@@ -130,6 +132,242 @@
                     {{ sysadmin_createproject_message }}
                 </div>
             {% endif %}
+
+            <p>プロジェクトマネージャーをプロジェクトから退任させる：</p>
+            <form action="/sysadmin_retire_project_manager" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="jp">
+
+                <label for="retireprojectmanager_name">プロジェクトマネージャー名：</label>
+                <input type="text" id="retireprojectmanager_name" name="retireprojectmanager_name" required>
+
+                <label for="retireproject_name">プロジェクト名：</label>
+                <input type="text" id="retireproject_name" name="retireproject_name" required>
+            
+                <input type="submit" value="クビ">
+            </form>
+            
+            {% if sysadmin_retireprojectmanager_message %}
+                <div class="message {% if sysadmin_retireprojectmanager_success %}success{% else %}error{% endif %}">
+                    {{ sysadmin_retireprojectmanager_message }}
+                </div>
+            {% endif %}
+
+
+            <p>プロジェクトマネージャをプロジェクトに割り当てる：</p>
+            <form action="/sysadmin_assign_project_manager" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="jp">
+
+                <label for="assignprojectmanager_name">プロジェクトマネージャー名：</label>
+                <input type="text" id="assignprojectmanager_name" name="assignprojectmanager_name" required>
+
+                <label for="assignproject_name">プロジェクト名：</label>
+                <input type="text" id="assignproject_name" name="assignproject_name" required>
+            
+                <input type="submit" value="割り当てる">
+            </form>
+                
+            {% if sysadmin_assignprojectmanager_message %}
+                <div class="message {% if sysadmin_assignprojectmanager_success %}success{% else %}error{% endif %}">
+                    {{ sysadmin_assignprojectmanager_message }}
+                </div>
+            {% endif %}
+
+
+            <p>プロジェクト閲覧：</p>
+
+            <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
+            <button id="hide-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
+            
+            <input type="text" id="filter-input" placeholder="高性能フィルター" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            
+            <ul id="project-list" style="display: none;">
+                <!-- プロジェクトリストがここに表示されます -->
+            </ul>
+            
+            <script>
+                let projects_superuser = [];
+            
+                document.getElementById('show-projects-btn').addEventListener('click', () => {
+                    fetchProjects();
+                    document.getElementById('filter-input').style.display = 'block';
+                    document.getElementById('project-list').style.display = 'block';
+                    document.getElementById('show-projects-btn').style.display = 'none';
+                    document.getElementById('hide-projects-btn').style.display = 'block';
+                });
+            
+                document.getElementById('hide-projects-btn').addEventListener('click', () => {
+                    document.getElementById('filter-input').style.display = 'none';
+                    document.getElementById('project-list').style.display = 'none';
+                    document.getElementById('hide-projects-btn').style.display = 'none';
+                    document.getElementById('show-projects-btn').style.display = 'block';
+                });
+            
+                document.getElementById('filter-input').addEventListener('input', filterProjects);
+            
+                async function fetchProjects() {
+                    const response = await fetch('/projects');
+                    projects_superuser = await response.json();
+                    displayProjects(projects_superuser);
+                }
+            
+                function displayProjects(projectList) {
+                    const projectListElement = document.getElementById('project-list');
+                    projectListElement.innerHTML = ''; // リストをクリア
+            
+                    projectList.forEach(project => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Name:</strong> ${project.name} <br>
+                            <strong>Description:</strong> ${project.description} <br>
+                            <strong>Start Time:</strong> ${project.starttime} <br>
+                            <strong>End Time:</strong> ${project.endtime} <br>
+                            <strong>Status:</strong> ${project.status} <br>
+                            <strong>Project Manager:</strong> ${project.managers} <br>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editProject(${project.id})">編集</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteProject(${project.id})">削除</button>
+                        `;
+                        projectListElement.appendChild(listItem);
+                    });
+                }
+            
+                function filterProjects() {
+                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
+                    const filteredProjects = projects_superuser.filter(project => 
+                        project.name.toLowerCase().includes(filterValue) ||
+                        project.description.toLowerCase().includes(filterValue) ||
+                        project.starttime.toLowerCase().includes(filterValue) ||
+                        project.endtime.toLowerCase().includes(filterValue) ||
+                        project.status.toLowerCase().includes(filterValue) ||
+                        project.managers.toLowerCase().includes(filterValue)
+                    );
+                    displayProjects(filteredProjects);
+                }
+            
+                async function editProject(projectId) {
+                    // 選択したプロジェクトのデータを取得
+                    const project = projects_superuser.find(p => p.id === projectId);
+
+                    // フォームにプロジェクトのデータをセット
+                    document.getElementById('edit-name').value = project.name;
+                    document.getElementById('edit-description').value = project.description;
+                    document.getElementById('edit-starttime').value = project.starttime;
+                    document.getElementById('edit-endtime').value = project.endtime;
+                    document.getElementById('edit-status').value = project.status;
+
+                    // 編集モーダルを表示
+                    document.getElementById('edit-project-modal').style.display = 'block';
+
+                    // フォームのサブミット処理
+                    document.getElementById('edit-project-form').onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        // フォームからデータを取得
+                        const updatedProject = {
+                            name: document.getElementById('edit-name').value,
+                            description: document.getElementById('edit-description').value,
+                            starttime: document.getElementById('edit-starttime').value.replace('T', ' '),
+                            endtime: document.getElementById('edit-endtime').value.replace('T', ' '),
+                            status: document.getElementById('edit-status').value,
+                        };
+
+                        // サーバーにPATCHリクエストを送信
+                        const response = await fetch(`/projects/${projectId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedProject),
+                        });
+
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchProjects();
+                            // モーダルを非表示
+                            document.getElementById('edit-project-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update project: ' + response_result.message);  // エラーメッセージを表示
+                        }
+
+                    };
+
+                    // キャンセルボタンの処理
+                    document.getElementById('cancel-edit').addEventListener('click', () => {
+                        document.getElementById('edit-project-modal').style.display = 'none';
+                    });
+                }
+
+            
+                async function deleteProject(projectId) {
+                    const confirmation = confirm(`本当にこのプロジェクトを削除します？`);
+                    if (!confirmation) {
+                        return;
+                    }
+            
+                    try {
+                        const response = await fetch(`/projects/${projectId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const response_result = await response.json();
+            
+                        if (response_result.success) {
+                            fetchProjects();
+                        } else {
+                            const errorData = await response.json();
+                            alert(`削除失敗： ${errorData.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Error deleting project:', error);
+                        alert('削除処理中にエラーがありました。');
+                    }
+                }
+            </script>
+
+            <div id="edit-project-modal" style="display: none;">
+                <p>プロジェクト編集：</p>
+                <form id="edit-project-form">
+                    <label for="edit-name">プロジェクト名：</label>
+                    <input type="text" id="edit-name" required><br>
+
+                    <label for="edit-description">プロジェクト詳細：</label>
+                    <textarea id="edit-description" rows="4" required></textarea><br>
+
+                    <label for="edit-starttime">開始日時：</label>
+                    <input type="datetime-local" id="edit-starttime" required><br>
+
+                    <label for="edit-endtime">終了日時</label>
+                    <input type="datetime-local" id="edit-endtime" required><br>
+
+                    <label for="edit-status">状態：</label>
+                    <select id="edit-status" required>
+                        <option value="scheduled">予定</option>
+                        <option value="ongoing">進行中</option>
+                        <option value="Requirements_Definition">要件定義</option>
+                        <option value="Basic_Design">基本設計</option>
+                        <option value="Detailed_Design">詳細設計</option>
+                        <option value="Programming">プログラミング</option>
+                        <option value="Unit_Testing">単体テスト</option>
+                        <option value="Integration_Testing">結合テスト</option>
+                        <option value="System_Testing">システムテスト</option>
+                    </select><br>
+
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
+                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">取り消す</button>
+
+                </form>
+            </div>
+
+
+
+
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
@@ -247,54 +485,6 @@
 
         {% if role == 'projectmanager' %}
             <p>貴方はプロジェクトマネージャーです</p>
-
-            <p>新規プロジェクト作成：</p>
-            <form action="/sysadmin_create_project" method="post">
-                <input type="hidden" name="username" value="{{ username }}">
-                <input type="hidden" name="role" value="{{ role }}">
-                <input type="hidden" name="password" value="{{ password }}">
-                <input type="hidden" name="lang" value="jp">
-
-                <label for="newproject_name">プロジェクト名：</label>
-                <input type="text" id="newproject_name" name="newproject_name" required>
-
-                <label for="newproject_description">プロジェクト内容：</label>
-                <textarea id="newproject_description" name="newproject_description" rows="4" required></textarea>
-
-                <label for="newproject_startdate">開始日：</label>
-                <input type="date" id="newproject_startdate" name="newproject_startdate" required>
-
-                <label for="newproject_enddate">締切日：</label>
-                <input type="date" id="newproject_enddate" name="newproject_enddate" required>
-
-                <label for="newproject_starttime">開始時間：</label>
-                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
-
-                <label for="newproject_endtime">終了時間：</label>
-                <input type="time" id="newproject_endtime" name="newproject_endtime" required>
-
-                <label for="newproject_status">状態：</label>
-                <select id="newproject_status" name="newproject_status">
-                    <option value="scheduled">予定</option>
-                    <option value="ongoing">進行中</option>
-                    <option value="Requirements_Definition">要件定義</option>
-                    <option value="Basic_Design">基本設計</option>
-                    <option value="Detailed_Design">詳細設計</option>
-                    <option value="Programming">プログラミング</option>
-                    <option value="Unit_Testing">単体テスト</option>
-                    <option value="Integration_Testing">結合テスト</option>
-                    <option value="System_Testing">システムテスト</option>
-                </select>
-
-                <input type="submit" value="プロジェクト作成">
-            </form>
-
-            {% if sysadmin_createproject_message %}
-                <div class="message {% if sysadmin_createproject_success %}success{% else %}error{% endif %}">
-                    {{ sysadmin_createproject_message }}
-                </div>
-            {% endif %}
-
             <p>プロジェクト閲覧：</p>
 
             <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>

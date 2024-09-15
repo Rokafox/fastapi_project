@@ -36,8 +36,8 @@ def 日本語になーれ(inputstring : str) -> str:
             return "作成失敗： ユーザーが見つかりません"
         case "Creation failed: Project not found!":
             return "作成失敗： プロジェクトが見つかりません"
-        case "Creation failed: Same attendance already exists for \d{4}-\d{2}-\d{2}":
-            return f"作成失敗: 同じ出勤記録がすでに存在します: {inputstring}"
+        # case "Creation failed: Same attendance already exists for \d{4}-\d{2}-\d{2}":
+        #     return f"作成失敗: 同じ出勤記録がすでに存在します: {inputstring}"
         case "Attendance created successfully!":
             return "出勤記録が正常に作成されました"
         case "Deletion failed: User not found!":
@@ -63,4 +63,11 @@ def 日本語になーれ(inputstring : str) -> str:
         case "Check-out successful!":
             return "退勤を記録しました"
         case _:
-            return f"日本語になーれ()に未対応の文字列が渡されました: {inputstring}"
+            final = 今一度日本語になろう(inputstring)
+            if not final:
+                return f"日本語になーれ()或は今一度日本語になろう()に未対応の文字列が渡されました: {inputstring}"
+            return final
+        
+
+def 今一度日本語になろう(inputstring : str) -> str:
+    return None

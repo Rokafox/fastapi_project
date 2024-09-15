@@ -1,6 +1,11 @@
 from sqlmodel import Relationship, SQLModel, Field
 
 
+class ProjectManagerAssign(SQLModel, table=True):
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    project_id: int = Field(foreign_key="project.id", primary_key=True)
+
+
 class UserBase(SQLModel):
     name: str = Field(unique=True)
     password: str = Field(min_length=4)
@@ -12,6 +17,10 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     attendances: list["Attendance"] = Relationship(back_populates="user")
+    managed_projects: list["Project"] = Relationship(
+        back_populates="project_managers", link_model=ProjectManagerAssign
+    )
+
 
 class UserCreate(UserBase):
     pass
@@ -33,6 +42,9 @@ class ProjectBase(SQLModel):
 class Project(ProjectBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     attendances: list["Attendance"] = Relationship(back_populates="project")
+    project_managers: list["User"] = Relationship(
+        back_populates="managed_projects", link_model=ProjectManagerAssign
+    )
 
 class ProjectCreate(ProjectBase):
     pass

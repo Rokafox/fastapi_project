@@ -12,7 +12,7 @@ from .db.創造篇 import create_db_and_tables, create_sysadmin
 from .db.万法篇 import create_attendance, validate_user_when_login, create_user, create_project, order_get_all_projects, \
 order_delete_project_by_id, order_update_project_by_id, order_get_all_attendances, order_delete_attendanc_given_name, \
 order_hiruchaaru_get_assigned_projects, order_hiruchaaru_checkin, order_hiruchaaru_checkout, order_delete_user_given_name, \
-order_change_password_given_name
+order_change_password_given_name, order_retire_project_manager, order_assign_project_manager, order_get_all_users
 from .db.万象篇 import ProjectPublic, ProjectUpdate, AttendancePublic
 
 
@@ -145,6 +145,7 @@ async def genericuser_change_password(request: Request, newpassword: str = Form(
                                                     "genericuser_changepassword_success": successcheck,
                                                     "username" : username, "role": role, "password": newpassword})
 
+
 @app.post("/sysadmin_create_project", response_class=HTMLResponse)
 async def sysadmin_create_project(request: Request, newproject_name: str = Form(...), 
                                         newproject_description: str = Form(...),
@@ -153,20 +154,66 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
                                         newproject_enddate: str = Form(...),
                                         newproject_endtime: str = Form(...),
                                         newproject_status: str = Form(...),
-                                        username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
-                                        password: str = Form(...)):
+                                        project_manager_names: str = Form(...),  # 追加されたプロジェクトマネージャー名
+                                        username: str = Form(...), role: str = Form(...), 
+                                        lang: str = Form("en"), password: str = Form(...)):
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login-jp.html", {"request": request})
     newproject_starttime = newproject_startdate + " " + newproject_starttime
     newproject_endtime = newproject_enddate + " " + newproject_endtime
+    # プロジェクトマネージャー名をリストに変換（複数の名前がカンマで区切られている場合を想定）
+    project_manager_name_list = [name.strip() for name in project_manager_names.split(",")]
     msg, successcheck = create_project(newproject_name, newproject_description, newproject_starttime, 
-                         newproject_endtime, newproject_status)
+                                       newproject_endtime, newproject_status, project_manager_name_list)
     if lang == "jp":
         msg = 日本語になーれ(msg)
     template_name = "home.html" if lang == "en" else "home-jp.html"
-    return templates.TemplateResponse(template_name, {"request": request, "sysadmin_createproject_message": msg,
-                                                    "sysadmin_createproject_success": successcheck,
-                                                    "username" : username, "role": role, "password": password})
+    return templates.TemplateResponse(template_name, {
+        "request": request, 
+        "sysadmin_createproject_message": msg,
+        "sysadmin_createproject_success": successcheck,
+        "username": username, 
+        "role": role, 
+        "password": password
+    })
+
+@app.post("/sysadmin_retire_project_manager", response_class=HTMLResponse)
+async def sysadmin_retire_project_manager(request: Request, retireproject_name: str = Form(...),
+                                            retireprojectmanager_name: str = Form(...), username: str = Form(...),
+                                            role: str = Form(...), lang: str = Form("en"), password: str = Form(...)):
+        if not validate_user_when_login(username, password):
+            return templates.TemplateResponse("login.html", {"request": request})
+        msg, successcheck = order_retire_project_manager(retireprojectmanager_name, retireproject_name)
+        if lang == "jp":
+            msg = 日本語になーれ(msg)
+        template_name = "home.html" if lang == "en" else "home-jp.html"
+        return templates.TemplateResponse(template_name, {
+            "request": request, 
+            "sysadmin_retireprojectmanager_message": msg,
+            "sysadmin_retireprojectmanager_success": successcheck,
+            "username": username, 
+            "role": role, 
+            "password": password
+        })
+
+@app.post("/sysadmin_assign_project_manager", response_class=HTMLResponse)
+async def sysadmin_assign_project_manager(request: Request, assignproject_name: str = Form(...),
+                                            assignprojectmanager_name: str = Form(...), username: str = Form(...),
+                                            role: str = Form(...), lang: str = Form("en"), password: str = Form(...)):
+        if not validate_user_when_login(username, password):
+            return templates.TemplateResponse("login.html", {"request": request})
+        msg, successcheck = order_assign_project_manager(assignprojectmanager_name, assignproject_name)
+        if lang == "jp":
+            msg = 日本語になーれ(msg)
+        template_name = "home.html" if lang == "en" else "home-jp.html"
+        return templates.TemplateResponse(template_name, {
+            "request": request, 
+            "sysadmin_assignprojectmanager_message": msg,
+            "sysadmin_assignprojectmanager_success": successcheck,
+            "username": username, 
+            "role": role, 
+            "password": password
+        })
 
 @app.post("/pm_create_attendance", response_class=HTMLResponse)
 async def pm_create_attendance(request: Request, the_user_name: str = Form(...), the_project_name: str = Form(...),
@@ -199,8 +246,11 @@ async def pm_delete_attendance(request: Request, the_user_name: str = Form(...),
 
 
 
+@app.get("/users")
+async def read_users():
+    return order_get_all_users()
 
-@app.get("/projects", response_model=list[ProjectPublic])
+@app.get("/projects")
 async def read_projects():
     return order_get_all_projects()
 
