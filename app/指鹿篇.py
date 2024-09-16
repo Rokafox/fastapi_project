@@ -18,6 +18,8 @@ def 日本語になーれ(inputstring : str) -> str:
             return "資格情報が無効です"
         case "Creation failed: String should have at least 4 characters":
             return "作成失敗: 文字列は少なくとも4文字でなければならない"
+        case "Creation failed: Username is not allowed to contain english special characters!":
+            return "作成失敗: ユーザー名に英語の幾つの特殊文字を含めることはできません"
         case "Creation failed: User with the same name already exists!":
             return "作成失敗: 同じ名のユーザーがすでに存在します"
         case "User created successfully!":

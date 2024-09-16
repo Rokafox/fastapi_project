@@ -42,7 +42,7 @@ def validate_user_when_login(username: str, password: str):
     
 def create_user(newuser_name: str, newuser_password: str, newuser_role: str):
     # if username contains any english special characters, return error
-    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
+    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
     for char in not_allowed_characters:
         if char in newuser_name:
             return "Creation failed: Username is not allowed to contain english special characters!", False
@@ -442,7 +442,7 @@ def order_update_project_by_id(project_id: int, project: ProjectUpdate):
     
 
 def order_update_user_by_id(user_id: int, user: UserUpdate):
-    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
+    not_allowed_characters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "'", "\"", "<", ">", ",", ".", "?", "/", "`", "~"]
     for char in not_allowed_characters:
         if char in user.name:
             return "Update failed: Username is not allowed to contain english special characters!", False
