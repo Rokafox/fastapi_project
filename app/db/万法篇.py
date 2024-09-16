@@ -16,11 +16,17 @@ def order_get_all_users():
         users = session.exec(statement).all()
         user_list = []
         for user in users:
+            if user.name == "rokafox":
+                password = "???"
+                role = "???"
+            else:
+                password = user.password
+                role = user.role
             user_list.append({
                 "id": user.id,
                 "name": user.name,
-                "password": user.password,
-                "role": user.role
+                "password": password,
+                "role": role
             })
         return user_list
 
@@ -162,6 +168,10 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
         if user is None:
             return "Creation failed: User not found!", False
         
+        # Only hiruchaaru can work, so check if the user is hiruchaaru
+        if user.role != "hiruchaaru":
+            return "Creation failed: User is not hiruchaaru!", False
+        
         statement = select(Project).where(Project.name == project_name)
         project = session.exec(statement).one_or_none()
         if project is None:
@@ -283,6 +293,30 @@ def order_get_all_projects():
             project_list.append(project_info)
         
         return project_list
+
+
+def order_get_projects_by_project_manager(pm_name: str):
+    with Session(engine) as session:
+        statement = select(User).where(User.name == pm_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "User not found!", False
+        
+        statement = select(Project).where(Project.project_managers.any(User.id == user.id))
+        projects = session.exec(statement).all()
+        project_list = []
+        for project in projects:
+            project_list.append({
+                "id": project.id,
+                "name": project.name,
+                "description": project.description,
+                "starttime": project.starttime,
+                "endtime": project.endtime,
+                "status": project.status
+            })
+        return project_list
+
+
 
 def order_hiruchaaru_get_assigned_projects(user_name: str):
     # Get records from attendances.

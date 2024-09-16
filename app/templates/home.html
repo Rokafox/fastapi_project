@@ -139,8 +139,13 @@
                         //     editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
                         // }
 
-                        let password = user.name === "rokafox" ? "???" : user.password;
-                        let role = user.name === "rokafox" ? "???" : user.role;
+                        // We will do it backend instead.
+                        // let password = user.name === "rokafox" ? "???" : user.password;
+                        // let role = user.name === "rokafox" ? "???" : user.role;
+
+
+                        let password = user.password;
+                        let role = user.role;
                         if (user.name === "rokafox") {
                             editButtonHTML = '';
                         }
@@ -389,13 +394,16 @@
             
                 function sysadminFilterProjects() {
                     const filterValue = document.getElementById('sysadmin-filter-input').value.toLowerCase();
+                    // log example project managers
+                    // console.log(sysadmin_projects[0].managers); output:
+                    // ["kkk"]
                     const filteredProjects = sysadmin_projects.filter(project => 
                         project.name.toLowerCase().includes(filterValue) ||
                         project.description.toLowerCase().includes(filterValue) ||
                         project.starttime.toLowerCase().includes(filterValue) ||
                         project.endtime.toLowerCase().includes(filterValue) ||
                         project.status.toLowerCase().includes(filterValue) ||
-                        project.managers.toLowerCase().includes(filterValue)
+                        project.managers.some(manager => manager.toLowerCase().includes(filterValue))
                     );
                     sysadminDisplayProjects(filteredProjects);
                 }
@@ -661,7 +669,9 @@
                 document.getElementById('filter-input').addEventListener('input', filterProjects);
             
                 async function fetchProjects() {
-                    const response = await fetch('/projects');
+                    // fetch from @app.get("/projects_pm/{project_manager_name}")
+                    const project_manager_name = '{{ username }}';
+                    const response = await fetch(`/projects_pm/${project_manager_name}`);
                     projects = await response.json();
                     displayProjects(projects);
                 }

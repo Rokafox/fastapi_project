@@ -255,6 +255,11 @@ async def update_user(user_name: str, user: UserUpdate):
 async def read_projects():
     return order_get_all_projects()
 
+# project manager will only see the projects that they are managing
+@app.get("/projects_pm/{project_manager_name}")
+async def read_projects_by_project_manager(project_manager_name: str):
+    return order_get_projects_by_project_manager(project_manager_name)
+
 @app.delete("/projects/{project_id}")
 async def delete_project(project_id: int):
     msg, successcheck = order_delete_project_by_id(project_id)
