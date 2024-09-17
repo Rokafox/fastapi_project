@@ -16,10 +16,11 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    attendances: list["Attendance"] = Relationship(back_populates="user")
+    attendances: list["Attendance"] = Relationship(back_populates="user", cascade_delete=True)
     managed_projects: list["Project"] = Relationship(
         back_populates="project_managers", link_model=ProjectManagerAssign
     )
+    tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 class UserCreate(UserBase):
@@ -47,10 +48,11 @@ class ProjectBase(SQLModel):
 
 class Project(ProjectBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    attendances: list["Attendance"] = Relationship(back_populates="project")
+    attendances: list["Attendance"] = Relationship(back_populates="project", cascade_delete=True)
     project_managers: list["User"] = Relationship(
         back_populates="managed_projects", link_model=ProjectManagerAssign
     )
+    tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=True)
 
 class ProjectCreate(ProjectBase):
     pass
@@ -67,8 +69,11 @@ class ProjectUpdate(ProjectBase):
 
 
 class AttendanceBase(SQLModel):
-    user_id: int | None = Field(default=None, foreign_key="user.id")
-    project_id: int | None = Field(default=None, foreign_key="project.id")
+    # Previous version
+    # user_id: int | None = Field(default=None, foreign_key="user.id")
+    # project_id: int | None = Field(default=None, foreign_key="project.id")
+    user_id: int = Field(foreign_key="user.id")
+    project_id: int = Field(foreign_key="project.id")
     date: str | None = Field(default=None)
     check_in: str | None = Field(default=None)
     check_out: str | None = Field(default=None)
@@ -91,3 +96,36 @@ class AttendancePublic(AttendanceBase):
     project_name: str
     project_starttime: str
     project_endtime: str
+
+
+class TaskBase(SQLModel):
+    user_id: int = Field(foreign_key="user.id")
+    project_id: int = Field(foreign_key="project.id")
+    start_date: str
+    end_date: str
+    status: str | None = Field(default=None)
+
+class Task(TaskBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user: User | None = Relationship(back_populates="tasks")
+    project: Project | None = Relationship(back_populates="tasks")
+
+class TaskCreate(TaskBase):
+    pass
+
+class TaskPublic(TaskBase):
+    id: int
+    user_id: int
+    user_name: str
+    project_id: int
+    project_name: str
+    start_date: str
+    end_date: str
+    status: str | None
+
+class TaskUpdate(TaskBase):
+    user_id: int | None = None
+    project_id: int | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    status: str | None = None

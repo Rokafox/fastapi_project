@@ -212,12 +212,12 @@ async def sysadmin_assign_project_manager(request: Request, assignproject_name: 
         })
 
 @app.post("/pm_create_attendance", response_class=HTMLResponse)
-async def pm_create_attendance(request: Request, the_user_name: str = Form(...), the_project_name: str = Form(...),
+async def pm_create_attendance(request: Request, pmasu_the_user_name: str = Form(...), pmasu_the_project_name: str = Form(...),
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
                                password: str = Form(...)):
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
-    msg, successcheck = create_attendance(the_user_name, the_project_name)
+    msg, successcheck = create_attendance(pmasu_the_user_name, pmasu_the_project_name)
     if lang == "jp":
         msg = 日本語になーれ(msg)
     template_name = "home.html" if lang == "en" else "home-jp.html"
@@ -227,18 +227,35 @@ async def pm_create_attendance(request: Request, the_user_name: str = Form(...),
 
 # pm delete attendance
 @app.post("/pm_delete_attendance", response_class=HTMLResponse)
-async def pm_delete_attendance(request: Request, the_user_name: str = Form(...), the_project_name: str = Form(...),
+async def pm_delete_attendance(request: Request, pmuasu_the_user_name: str = Form(...), pmuasu_the_project_name: str = Form(...),
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
                                password: str = Form(...)):
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
-    msg, successcheck = order_delete_attendanc_given_name(the_user_name, the_project_name)
+    msg, successcheck = order_delete_attendanc_given_name(pmuasu_the_user_name, pmuasu_the_project_name)
     if lang == "jp":
         msg = 日本語になーれ(msg)
     template_name = "home.html" if lang == "en" else "home-jp.html"
     return templates.TemplateResponse(template_name, {"request": request, "pm_deleteattendance_message": msg,
                                                     "pm_deleteattendance_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
+
+@app.post("/pm_create_task", response_class=HTMLResponse)
+async def pm_create_task(request: Request, pmcreatetask_the_user_name: str = Form(...), pmcreatetask_the_project_name: str = Form(...),
+                            the_task_status: str | None = Form(None), the_task_startdate: str = Form(...),
+                            the_task_enddate: str = Form(...), username: str = Form(...), role: str = Form(...),
+                            lang: str = Form("en"), password: str = Form(...)):
+        if not validate_user_when_login(username, password):
+            return templates.TemplateResponse("login.html", {"request": request})
+        msg, successcheck = order_create_task(pmcreatetask_the_user_name, pmcreatetask_the_project_name, the_task_startdate, the_task_enddate, the_task_status)
+        if lang == "jp":
+            msg = 日本語になーれ(msg)
+        template_name = "home.html" if lang == "en" else "home-jp.html"
+        return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": msg,
+                                                        "pm_createtask_success": successcheck,
+                                                        "username" : username, "role": role, "password": password})
+
+
 
 
 
@@ -286,4 +303,18 @@ async def checkin(attendance_id: int):
 @app.post("/attendances/{attendance_id}/checkout")
 async def checkout(attendance_id: int):
     msg, successcheck = order_hiruchaaru_checkout(attendance_id)
+    return {"message": msg, "success": successcheck}
+
+@app.get("/tasks", response_model=list[TaskPublic])
+async def read_tasks():
+    return order_get_all_tasks()
+
+@app.patch("/tasks/{task_id}")
+async def update_task(task_id: int, task: TaskUpdate):
+    msg, successcheck = order_update_task_by_id(task_id, task)
+    return {"message": msg, "success": successcheck}
+
+@app.delete("/tasks/{task_id}")
+async def delete_task(task_id: int):
+    msg, successcheck = order_delete_task_by_id(task_id)
     return {"message": msg, "success": successcheck}

@@ -34,8 +34,12 @@ def 日本語になーれ(inputstring : str) -> str:
             return "作成失敗: 開始日が終了日よりも後になります"
         case "Creation Failed: Start time is greater than end time!":
             return "作成失敗: 開始時間が終了時間よりも後になります"
+        case "Creation Failed: One or more user does not exist!":
+            return "作成失敗: 存在しないユーザーがいます"
         case "Creation failed: User not found!":
             return "作成失敗： ユーザーが見つかりません"
+        case "Creation failed: User is not hiruchaaru!":
+            return "作成失敗： ユーザーはヒルチャールではありません"
         case "Creation failed: Project not found!":
             return "作成失敗： プロジェクトが見つかりません"
         # case "Creation failed: Same attendance already exists for \d{4}-\d{2}-\d{2}":
@@ -71,5 +75,9 @@ def 日本語になーれ(inputstring : str) -> str:
             return final
         
 
-def 今一度日本語になろう(inputstring : str) -> str:
+def 今一度日本語になろう(inputstring: str) -> str:
+    if "Creation Failed" in inputstring and "is not a projectmanager!" in inputstring:
+        return "作成に失敗しました: {} はプロジェクトマネージャーではありません！".format(
+            inputstring.split(" ")[-4]
+        )
     return None

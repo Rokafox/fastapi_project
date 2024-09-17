@@ -265,10 +265,10 @@
                 <input type="date" id="newproject_enddate" name="newproject_enddate" required>
 
                 <label for="newproject_starttime">開始時間：</label>
-                <input type="time" id="newproject_starttime" name="newproject_starttime" required>
+                <input type="time" id="newproject_starttime" name="newproject_starttime" value="09:00" required>
 
                 <label for="newproject_endtime">終了時間：</label>
-                <input type="time" id="newproject_endtime" name="newproject_endtime" required>
+                <input type="time" id="newproject_endtime" name="newproject_endtime" value="16:00" required>
 
                 <label for="newproject_status">状態：</label>
                 <select id="newproject_status" name="newproject_status">
@@ -834,11 +834,11 @@
                 <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="jp">
 
-                <label for="the_project_name">プロジェクト名：</label>
-                <input type="text" id="the_project_name" name="the_project_name" required>
+                <label for="pmasu_the_project_name">プロジェクト名：</label>
+                <input type="text" id="pmasu_the_project_name" name="pmasu_the_project_name" required>
 
-                <label for="the_user_name">ユーザー名：</label>
-                <input type="text" id="the_user_name" name="the_user_name" required>
+                <label for="pmasu_the_user_name">ユーザー名：</label>
+                <input type="text" id="pmasu_the_user_name" name="pmasu_the_user_name" required>
 
                 <input type="submit" value="割り当て">
             </form>
@@ -856,11 +856,11 @@
                 <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="jp">
 
-                <label for="the_project_name">プロジェクト名：</label>
-                <input type="text" id="the_project_name" name="the_project_name" required>
+                <label for="pmuasu_the_project_name">プロジェクト名：</label>
+                <input type="text" id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
 
-                <label for="the_user_name">ユーザー名：</label>
-                <input type="text" id="the_user_name" name="the_user_name" required>
+                <label for="pmuasu_the_user_name">ユーザー名：</label>
+                <input type="text" id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
 
                 <input type="submit" value="割り当て解除">
             </form>
@@ -1033,6 +1033,201 @@
                     document.getElementById('calculate-output').innerHTML = outputText;
                 }
             </script>
+
+            <p>Create a new task:</p>
+            <form action="/pm_create_task" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+
+                <label for="pmcreatetask_the_project_name">Project Name:</label>
+                <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
+
+                <label for="pmcreatetask_the_user_name">User Name:</label>
+                <input type="text" id="pmcreatetask_the_user_name" name="pmcreatetask_the_user_name" required>
+
+                <label for="the_task_startdate">Task Start Date:</label>
+                <input type="date" id="the_task_startdate" name="the_task_startdate" required>
+
+                <label for="the_task_enddate">Task End Date:</label>
+                <input type="date" id="the_task_enddate" name="the_task_enddate" required>
+
+                <label for="the_task_status">Task Status (optional):</label>
+                <textarea id="the_task_status" name="the_task_status" rows="4" style="width: 100%;"></textarea>
+
+                <input type="submit" value="Submit">
+            </form>
+            {% if pm_createtask_message %}
+                <div class="message {% if pm_createtask_success %}success{% else %}error{% endif %}">
+                    {{ pm_createtask_message }}
+                </div>
+            {% endif %}
+
+            <p>View tasks:</p>
+
+            <button id="pmtsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Tasks</button>
+            <button id="pmtsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Tasks</button>
+
+            <input type="text" id="pmtsk-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+
+            <ul id="pmtsk-task-list" style="display: none;">
+                <!-- タスクリストがここに表示されます -->
+            </ul>
+
+            <script>
+                let tasks = [];
+
+                document.getElementById('pmtsk-show-tasks-btn').addEventListener('click', () => {
+                    fetchTasks();
+                    document.getElementById('pmtsk-filter-input').style.display = 'block';
+                    document.getElementById('pmtsk-task-list').style.display = 'block';
+                    document.getElementById('pmtsk-show-tasks-btn').style.display = 'none';
+                    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'block';
+                });
+
+                document.getElementById('pmtsk-hide-tasks-btn').addEventListener('click', () => {
+                    document.getElementById('pmtsk-filter-input').style.display = 'none';
+                    document.getElementById('pmtsk-task-list').style.display = 'none';
+                    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'none';
+                    document.getElementById('pmtsk-show-tasks-btn').style.display = 'block';
+                });
+
+                document.getElementById('pmtsk-filter-input').addEventListener('input', filterTasks);
+
+                async function fetchTasks() {
+                    const response = await fetch(`/tasks`);
+                    tasks = await response.json();
+                    displayTasks(tasks);
+                }
+
+                function displayTasks(taskList) {
+                    const taskListElement = document.getElementById('pmtsk-task-list');
+                    taskListElement.innerHTML = ''; // リストをクリア
+
+                    taskList.forEach(task => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Project:</strong> ${task.project_name} <br>
+                            <strong>User:</strong> ${task.user_name} <br>
+                            <strong>Start Date:</strong> ${task.start_date} <br>
+                            <strong>End Date:</strong> ${task.end_date} <br>
+                            <strong>Status:</strong> ${task.status} <br>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">Edit</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">Delete</button>
+                        `;
+                        taskListElement.appendChild(listItem);
+                    });
+                }
+
+                function filterTasks() {
+                    const filterValue = document.getElementById('pmtsk-filter-input').value.toLowerCase();
+                    const filteredTasks = tasks.filter(task => 
+                        task.project_name.toLowerCase().includes(filterValue) ||
+                        task.user_name.toLowerCase().includes(filterValue) ||
+                        task.start_date.toLowerCase().includes(filterValue) ||
+                        task.end_date.toLowerCase().includes(filterValue) ||
+                        (task.status && task.status.toLowerCase().includes(filterValue))
+                    );
+                    displayTasks(filteredTasks);
+                }
+
+                async function editTask(taskId) {
+                    const task = tasks.find(t => t.id === taskId);
+
+                    // We could add this back later
+                    // document.getElementById('pmtsk-edit-project').value = task.project_name;
+                    // document.getElementById('pmtsk-edit-user').value = task.user_name;
+                    document.getElementById('pmtsk-edit-startdate').value = task.start_date;
+                    document.getElementById('pmtsk-edit-enddate').value = task.end_date;
+                    // sometimes status is null so this will gives Uncaught (in promise) TypeError: Cannot set properties of null (setting 'value')
+                    // task.status が null または undefined の場合は空文字列を設定
+                    document.getElementById('pmtsk-edit-status').value = task.status || '';
+
+                    document.getElementById('pmtsk-edit-task-modal').style.display = 'block';
+
+                    document.getElementById('pmtsk-edit-task-form').onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        const updatedTask = {
+                            // project_name: document.getElementById('pmtsk-edit-project').value,
+                            // user_name: document.getElementById('pmtsk-edit-user').value,
+                            start_date: document.getElementById('pmtsk-edit-startdate').value,
+                            end_date: document.getElementById('pmtsk-edit-enddate').value,
+                            status: document.getElementById('pmtsk-edit-status').value,
+                        };
+
+                        const response = await fetch(`/tasks/${taskId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedTask),
+                        });
+
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchTasks();
+                            document.getElementById('pmtsk-edit-task-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update task: ' + response_result.message);
+                        }
+                    };
+
+                    document.getElementById('pmtsk-cancel-edit').addEventListener('click', () => {
+                        document.getElementById('pmtsk-edit-task-modal').style.display = 'none';
+                    });
+                }
+
+                async function deleteTask(taskId) {
+                    const confirmation = confirm(`Are you sure you want to delete this task?`);
+                    if (!confirmation) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/tasks/${taskId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const response_result = await response.json();
+
+                        if (response_result.success) {
+                            fetchTasks();
+                        } else {
+                            alert(`Failed to delete task: ${response_result.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Error deleting task:', error);
+                        alert('An error occurred while deleting the task.');
+                    }
+                }
+            </script>
+
+            <div id="pmtsk-edit-task-modal" style="display: none;">
+                <p>Edit task:</p>
+                <form id="pmtsk-edit-task-form">
+                    <!-- <label for="pmtsk-edit-project">Project Name:</label>
+                    <input type="text" id="pmtsk-edit-project" required><br>
+
+                    <label for="pmtsk-edit-user">User Name:</label>
+                    <input type="text" id="pmtsk-edit-user" required><br> -->
+
+                    <label for="pmtsk-edit-startdate">Start Date:</label>
+                    <input type="date" id="pmtsk-edit-startdate" required><br>
+
+                    <label for="pmtsk-edit-enddate">End Date:</label>
+                    <input type="date" id="pmtsk-edit-enddate" required><br>
+
+                    <label for="pmtsk-edit-status">Status:</label>
+                    <textarea id="pmtsk-edit-status" rows="4" ></textarea><br>
+
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                </form>
+            </div>
 
 
         {% endif %}

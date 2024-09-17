@@ -352,6 +352,8 @@ def order_hiruchaaru_get_assigned_projects(user_name: str):
 
 
 def order_delete_user_given_name(user_name: str):
+    if not user_name:
+        return "Deletion failed: User not found!", False
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
@@ -508,3 +510,71 @@ def order_hiruchaaru_checkout(attendance_id: int):
         session.add(attendance)
         session.commit()
         return "Check-out successful!", True
+    
+
+def order_get_all_tasks():
+    with Session(engine) as session:
+        statement = select(Task, User.name, Project.name).join(Task.user).join(Task.project)
+        results = session.exec(statement).all()
+        task_list = []
+        for task, user_name, project_name in results:
+            task_list.append({
+                "id": task.id,
+                "user_id": task.user_id,
+                "user_name": user_name,
+                "project_id": task.project_id,
+                "project_name": project_name,
+                "start_date": task.start_date,
+                "end_date": task.end_date,
+                "status": task.status
+            })
+        return task_list
+    
+
+def order_create_task(user_name, project_name, start_date, end_date, status=None):
+    # Check date validity
+    if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
+        return "Creation failed: Start date is greater than end date!", False
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Creation failed: User not found!", False
+        if user.role != "hiruchaaru":
+            return "Creation failed: User is not hiruchaaru!", False
+
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Creation failed: Project not found!", False
+        
+        new_task = Task(user_id=user.id, project_id=project.id, start_date=start_date, end_date=end_date, status=status)
+        Task.model_validate(new_task)
+        session.add(new_task)
+        session.commit()
+        return "Task created successfully!", True
+    
+
+def order_delete_task_by_id(task_id: int):
+    with Session(engine) as session:
+        task = session.get(Task, task_id)
+        if task is None:
+            return "Deletion failed: Task not found!", False
+        session.delete(task)
+        session.commit()
+        return "Task deleted successfully!", True
+    
+
+def order_update_task_by_id(task_id: int, task: TaskUpdate):
+    # Check date validity
+    if datetime.strptime(task.start_date, "%Y-%m-%d") > datetime.strptime(task.end_date, "%Y-%m-%d"):
+        return "Update failed: Start date is greater than end date!", False
+    with Session(engine) as session:
+        db_task = session.get(Task, task_id)
+        if db_task is None:
+            return "Update failed: Task not found!", False
+        task_data = task.model_dump(exclude_unset=True)
+        db_task.sqlmodel_update(task_data)
+        session.add(db_task)
+        session.commit()
+        return "Task updated successfully!", True
