@@ -103,7 +103,7 @@ class TaskBase(SQLModel):
     project_id: int = Field(foreign_key="project.id")
     start_date: str
     end_date: str
-    status: str | None = Field(default=None)
+    status: str | None = Field(default=None) # Some message like "30% done", "almost done", also can include task name and description
 
 class Task(TaskBase, table=True):
     id: int | None = Field(default=None, primary_key=True)

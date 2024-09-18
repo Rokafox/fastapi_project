@@ -52,6 +52,10 @@ def 日本語になーれ(inputstring : str) -> str:
             return "削除失敗： プロジェクトが見つかりません"
         case "Deletion failed: Attendance not found!":
             return "削除失敗： 出勤記録が見つかりません"
+        case "Deletion failed: Cannot delete sysadmin!":
+            return "削除失敗： システム管理者を削除することはできません"
+        case "Deletion failed: Cannot delete the divine fox!":
+            return "削除失敗： 仙狐を削除することはできません"
         case "Attendance deleted successfully!":
             return "出勤記録が正常に削除されました"
         case "User deleted successfully!":
@@ -64,10 +68,40 @@ def 日本語になーれ(inputstring : str) -> str:
             return "更新失敗: 同じ名前のプロジェクトがすでに存在します"
         case "Project updated successfully!":
             return "プロジェクトが正常に更新されました"
+        case "Update failed: User with the same name already exists!":
+            return "更新失敗: 同じ名のユーザーがすでに存在します"
+        case "User updated successfully!":
+            return "ユーザーが正常に更新されました"
+        case "Update failed: User not found!":
+            return "更新失敗： ユーザーが見つかりません"
+        case "Update failed: Username is not allowed to contain english special characters!":
+            return "更新失敗: ユーザー名に英語の幾つの特殊文字を含めることはできません"
+        case "Retirement failed: User not found!":
+            return "退職失敗： ユーザーが見つかりません"
+        case "Retirement failed: Project not found!":
+            return "退職失敗： プロジェクトが見つかりません"
+        case "Project manager retired successfully!":
+            return "プロジェクトマネージャーが正常に退職しました"
+        case "Assignment failed: User not found!":
+            return "任命失敗： ユーザーが見つかりません"
+        case "Assignment failed: User is not a project manager!":
+            return "任命失敗： ユーザーはプロジェクトマネージャーではありません"
+        case "Assignment failed: Project not found!":
+            return "任命失敗： プロジェクトが見つかりません"
+        case "Assignment failed: User is already a project manager for this project!":
+            return "任命失敗： このプロジェクトのプロジェクトマネージャーにすでに任命されています"
+        case "Project manager assigned successfully!":
+            return "プロジェクトマネージャーが正常に任命されました"
         case "Check-in successful!":
             return "出勤を記録しました"
         case "Check-out successful!":
             return "退勤を記録しました"
+        case "Task deleted successfully!":
+            return "タスクが正常に削除されました"
+        case "Task updated successfully!":
+            return "タスクが正常に更新されました"
+        case "Task created successfully!":
+            return "タスクが正常に作成されました"
         case _:
             final = 今一度日本語になろう(inputstring)
             if not final:

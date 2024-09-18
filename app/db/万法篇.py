@@ -109,7 +109,7 @@ def create_project(newproject_name: str, newproject_description: str,
         except IntegrityError:
             return "Creation Failed: Project with the same name already exists!", False
         
-        return "Project created successfully with managers!", True
+        return "Project updated successfully!", True
 
 def order_retire_project_manager(user_name: str, project_name: str):
     with Session(engine) as session:
@@ -528,6 +528,54 @@ def order_get_all_tasks():
                 "end_date": task.end_date,
                 "status": task.status
             })
+        return task_list
+    
+def order_get_tasks_for_hiruchaaru(user_name: str):
+    # This function will get all tasks of a hinuchaaru, and also get all tasks of the project the hiruchaaru is assigned to
+    with Session(engine) as session:
+        user = session.exec(select(User).where(User.name == user_name)).one_or_none()
+        if user is None:
+            return "User not found!", False
+
+        # Get tasks assigned to the user
+        user_tasks = session.exec(select(Task).where(Task.user_id == user.id)).all()
+        task_list = []
+        enrolled_projects = set()
+
+        for task in user_tasks:
+            # Get the project name
+            project_name = session.exec(select(Project.name).where(Project.id == task.project_id)).one_or_none()
+            task_list.append({
+                "id": task.id,
+                "user_id": task.user_id,
+                "project_id": task.project_id,
+                "project_name": project_name,
+                "start_date": task.start_date,
+                "end_date": task.end_date,
+                "status": task.status,
+                "task_assigned_for_this_user": True
+            })
+            enrolled_projects.add(task.project_id)
+
+        # Get tasks from projects the user is enrolled in, excluding tasks already assigned to the user
+        for project_id in enrolled_projects:
+            project_tasks = session.exec(
+                select(Task).where(
+                    (Task.project_id == project_id) & (Task.user_id != user.id)
+                )
+            ).all()
+            for task in project_tasks:
+                project_name = session.exec(select(Project.name).where(Project.id == task.project_id)).one_or_none()
+                task_list.append({
+                    "id": task.id,
+                    "user_id": task.user_id,
+                    "project_id": task.project_id,
+                    "project_name": project_name,
+                    "start_date": task.start_date,
+                    "end_date": task.end_date,
+                    "status": task.status,
+                    "task_assigned_for_this_user": False
+                })
         return task_list
     
 

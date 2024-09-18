@@ -630,6 +630,124 @@
                 }
             </script>
             
+            <p>View tasks:</p>
+
+            <button id="hrctsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Tasks</button>
+            <button id="hrctsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Tasks</button>
+            
+            <input type="text" id="hrctsk-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            
+            <ul id="hrctsk-task-list" style="display: none;">
+                <!-- タスクリストがここに表示されます -->
+            </ul>
+            
+            <script>
+                let hrctasks = [];
+            
+                document.getElementById('hrctsk-show-tasks-btn').addEventListener('click', () => {
+                    fetchTasks();
+                    document.getElementById('hrctsk-filter-input').style.display = 'block';
+                    document.getElementById('hrctsk-task-list').style.display = 'block';
+                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'none';
+                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'block';
+                });
+            
+                document.getElementById('hrctsk-hide-tasks-btn').addEventListener('click', () => {
+                    document.getElementById('hrctsk-filter-input').style.display = 'none';
+                    document.getElementById('hrctsk-task-list').style.display = 'none';
+                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'none';
+                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'block';
+                });
+            
+                document.getElementById('hrctsk-filter-input').addEventListener('input', filterTasks);
+            
+                async function fetchTasks() {
+                    const response = await fetch(`/tasks_for_specific_hiruchaaru/{{ username }}`);
+                    hrctasks = await response.json();
+                    displayTasks(hrctasks);
+                }
+            
+                function displayTasks(taskList) {
+                    const taskListElement = document.getElementById('hrctsk-task-list');
+                    taskListElement.innerHTML = '';
+            
+                    taskList.forEach(task => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Project:</strong> ${task.project_name} <br>
+                            <strong>Start Date:</strong> ${task.start_date} <br>
+                            <strong>End Date:</strong> ${task.end_date} <br>
+                            <strong>Description:</strong> ${task.status} <br>
+                        `;
+                        // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
+                        if (task.task_assigned_for_this_user) {
+                            listItem.innerHTML += `
+                                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">Edit</button>
+                            `;
+                        }
+                        taskListElement.appendChild(listItem);
+                    });
+                }
+            
+                function filterTasks() {
+                    const filterValue = document.getElementById('hrctsk-filter-input').value.toLowerCase();
+                    const filteredTasks = hrctasks.filter(task => 
+                        task.project_name.toLowerCase().includes(filterValue) ||
+                        task.start_date.toLowerCase().includes(filterValue) ||
+                        task.end_date.toLowerCase().includes(filterValue) ||
+                        (task.status && task.status.toLowerCase().includes(filterValue))
+                    );
+                    displayTasks(filteredTasks);
+                }
+            
+                async function editTask(taskId) {
+                    const task = hrctasks.find(t => t.id === taskId);
+            
+                    document.getElementById('hrctsk-edit-status').value = task.status || '';
+            
+                    document.getElementById('hrctsk-edit-task-modal').style.display = 'block';
+            
+                    document.getElementById('hrctsk-edit-task-form').onsubmit = async (e) => {
+                        e.preventDefault();
+            
+                        const updatedTask = {
+                            status: document.getElementById('hrctsk-edit-status').value,
+                        };
+            
+                        const response = await fetch(`/tasks/${taskId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedTask),
+                        });
+            
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchTasks();
+                            document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update task: ' + response_result.message);
+                        }
+                    };
+            
+                    document.getElementById('hrctsk-cancel-edit').addEventListener('click', () => {
+                        document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
+                    });
+                }
+            </script>
+            
+            <div id="hrctsk-edit-task-modal" style="display: none;">
+                <p>Edit task:</p>
+                <form id="hrctsk-edit-task-form">
+                    <label for="hrctsk-edit-status">Status:</label>
+                    <textarea id="hrctsk-edit-status" rows="4"></textarea><br>
+            
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="hrctsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                </form>
+            </div>
+            
 
 
 
@@ -1044,7 +1162,7 @@
                 <label for="pmcreatetask_the_project_name">Project Name:</label>
                 <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
 
-                <label for="pmcreatetask_the_user_name">User Name:</label>
+                <label for="pmcreatetask_the_user_name">Username (separate multiple entries with commas):</label>
                 <input type="text" id="pmcreatetask_the_user_name" name="pmcreatetask_the_user_name" required>
 
                 <label for="the_task_startdate">Task Start Date:</label>
@@ -1053,8 +1171,9 @@
                 <label for="the_task_enddate">Task End Date:</label>
                 <input type="date" id="the_task_enddate" name="the_task_enddate" required>
 
-                <label for="the_task_status">Task Status (optional):</label>
-                <textarea id="the_task_status" name="the_task_status" rows="4" style="width: 100%;"></textarea>
+                <label for="the_task_status">Task Description (optional):</label>
+                <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" 
+                    placeholder="Make 7 pieces of sugar: 40% complete&#10;Hilichurl A: 3 pieces complete&#10;Hilichurl B: 1 piece complete, 2 pieces lost&#10;Hilichurl C: Met a hero on the roadside, death confirmation ongoing"></textarea>            
 
                 <input type="submit" value="Submit">
             </form>
@@ -1112,7 +1231,7 @@
                             <strong>User:</strong> ${task.user_name} <br>
                             <strong>Start Date:</strong> ${task.start_date} <br>
                             <strong>End Date:</strong> ${task.end_date} <br>
-                            <strong>Status:</strong> ${task.status} <br>
+                            <strong>Description:</strong> ${task.status} <br>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">Edit</button>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">Delete</button>
                         `;

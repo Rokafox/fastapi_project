@@ -247,15 +247,23 @@ async def pm_create_task(request: Request, pmcreatetask_the_user_name: str = For
                             lang: str = Form("en"), password: str = Form(...)):
         if not validate_user_when_login(username, password):
             return templates.TemplateResponse("login.html", {"request": request})
-        msg, successcheck = order_create_task(pmcreatetask_the_user_name, pmcreatetask_the_project_name, the_task_startdate, the_task_enddate, the_task_status)
-        if lang == "jp":
-            msg = 日本語になーれ(msg)
+        
+        user_names_list = pmcreatetask_the_user_name.split(',')
+        all_msgs = []
+        overall_success = True
+        for user_name in user_names_list:
+            msg, successcheck = order_create_task(user_name.strip(), pmcreatetask_the_project_name, the_task_startdate, the_task_enddate, the_task_status)
+            if lang == "jp":
+                msg = 日本語になーれ(msg)
+            all_msgs.append(msg)
+            overall_success = overall_success and successcheck
+        
+        final_msg = "\n".join(all_msgs)
+        
         template_name = "home.html" if lang == "en" else "home-jp.html"
-        return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": msg,
-                                                        "pm_createtask_success": successcheck,
+        return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": final_msg,
+                                                        "pm_createtask_success": overall_success,
                                                         "username" : username, "role": role, "password": password})
-
-
 
 
 
@@ -308,6 +316,10 @@ async def checkout(attendance_id: int):
 @app.get("/tasks", response_model=list[TaskPublic])
 async def read_tasks():
     return order_get_all_tasks()
+
+@app.get("/tasks_for_specific_hiruchaaru/{hiruchaaru_name}")
+async def read_tasks_for_specific_hiruchaaru(hiruchaaru_name: str):
+    return order_get_tasks_for_hiruchaaru(hiruchaaru_name)
 
 @app.patch("/tasks/{task_id}")
 async def update_task(task_id: int, task: TaskUpdate):

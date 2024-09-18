@@ -340,12 +340,12 @@
             {% endif %}
 
 
-            <p>View projects:</p>
+            <p>プロジェクト一覧：</p>
 
-            <button id="sysadmin-show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Projects</button>
-            <button id="sysadmin-hide-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Projects</button>
+            <button id="sysadmin-show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
+            <button id="sysadmin-hide-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
             
-            <input type="text" id="sysadmin-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="sysadmin-filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
             <ul id="sysadmin-project-list" style="display: none;">
                 <!-- プロジェクトリストがここに表示されます -->
@@ -384,14 +384,14 @@
                     projectList.forEach(project => {
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
-                            <strong>Name:</strong> ${project.name} <br>
-                            <strong>Description:</strong> ${project.description} <br>
-                            <strong>Start Time:</strong> ${project.starttime} <br>
-                            <strong>End Time:</strong> ${project.endtime} <br>
-                            <strong>Status:</strong> ${project.status} <br>
-                            <strong>Project Manager:</strong> ${project.managers} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminEditProject(${project.id})">Edit</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminDeleteProject(${project.id})">Delete</button>
+                            <strong>名:</strong> ${project.name} <br>
+                            <strong>説明:</strong> ${project.description} <br>
+                            <strong>開始時間:</strong> ${project.starttime} <br>
+                            <strong>終了時間:</strong> ${project.endtime} <br>
+                            <strong>状態:</strong> ${project.status} <br>
+                            <strong>マネージャー:</strong> ${project.managers} <br>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminEditProject(${project.id})">編集</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminDeleteProject(${project.id})">削除</button>
                         `;
                         projectListElement.appendChild(listItem);
                     });
@@ -484,36 +484,36 @@
             </script>
             
             <div id="sysadmin-edit-project-modal" style="display: none;">
-                <p>Edit project:</p>
+                <p>プロジェクト編集：</p>
                 <form id="sysadmin-edit-project-form">
-                    <label for="sysadmin-edit-name">Name:</label>
+                    <label for="sysadmin-edit-name">名：</label>
                     <input type="text" id="sysadmin-edit-name" required><br>
             
-                    <label for="sysadmin-edit-description">Description:</label>
+                    <label for="sysadmin-edit-description">説明：</label>
                     <textarea id="sysadmin-edit-description" rows="4" required></textarea><br>
             
-                    <label for="sysadmin-edit-starttime">Start Time:</label>
+                    <label for="sysadmin-edit-starttime">開始日と予定開始時間</label>
                     <input type="datetime-local" id="sysadmin-edit-starttime" required><br>
             
-                    <label for="sysadmin-edit-endtime">End Time:</label>
+                    <label for="sysadmin-edit-endtime">終了日と予定終了時間</label>
                     <input type="datetime-local" id="sysadmin-edit-endtime" required><br>
             
-                    <label for="sysadmin-edit-status">Status:</label>
+                    <label for="sysadmin-edit-status">状態：</label>
                     <select id="sysadmin-edit-status" required>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="ongoing">Ongoing</option>
-                        <option value="Requirements_Definition">Requirements Definition</option>
-                        <option value="Basic_Design">Basic Design</option>
-                        <option value="Detailed_Design">Detailed Design</option>
-                        <option value="Programming">Programming</option>
-                        <option value="Unit_Testing">Unit Testing</option>
-                        <option value="Integration_Testing">Integration Testing</option>
-                        <option value="System_Testing">System Testing</option>
+                        <option value="scheduled">予定済み</option>
+                        <option value="ongoing">進行中</option>
+                        <option value="Requirements_Definition">要件定義</option>
+                        <option value="Basic_Design">基本設計</option>
+                        <option value="Detailed_Design">詳細設計</option>
+                        <option value="Programming">プログラミング</option>
+                        <option value="Unit_Testing">単体テスト</option>
+                        <option value="Integration_Testing">統合テスト</option>
+                        <option value="System_Testing">システムテスト</option>                        
                     </select><br>
             
-                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
 
-                    <button type="button" id="sysadmin-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                    <button type="button" id="sysadmin-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
                 </form>
             </div>
 
@@ -533,7 +533,7 @@
             <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
             <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
             
-            <input type="text" id="filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
             <ul id="attendance-list" style="display: none;">
                 <!-- 出席リストがここに表示されます -->
@@ -633,7 +633,136 @@
                     displayAttendances(filteredAttendances);
                 }
             </script>
+
+            <p>タスクを表示:</p>
+
+            <button id="hrctsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">タスク表示</button>
+            <button id="hrctsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">タスク隠す</button>
+
+            <input type="text" id="hrctsk-filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+
+            <ul id="hrctsk-task-list" style="display: none;">
+                <!-- タスクリストがここに表示されます -->
+            </ul>
+
+            <script>
+                let hrctasks = [];
+
+                document.getElementById('hrctsk-show-tasks-btn').addEventListener('click', () => {
+                    fetchTasks();
+                    document.getElementById('hrctsk-filter-input').style.display = 'block';
+                    document.getElementById('hrctsk-task-list').style.display = 'block';
+                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'none';
+                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'block';
+                });
+
+                document.getElementById('hrctsk-hide-tasks-btn').addEventListener('click', () => {
+                    document.getElementById('hrctsk-filter-input').style.display = 'none';
+                    document.getElementById('hrctsk-task-list').style.display = 'none';
+                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'none';
+                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'block';
+                });
+
+                document.getElementById('hrctsk-filter-input').addEventListener('input', filterTasks);
+
+                async function fetchTasks() {
+                    const response = await fetch(`/tasks_for_specific_hiruchaaru/{{ username }}`);
+                    hrctasks = await response.json();
+                    displayTasks(hrctasks);
+                }
+
+                function displayTasks(taskList) {
+                    const taskListElement = document.getElementById('hrctsk-task-list');
+                    taskListElement.innerHTML = '';
+
+                    taskList.forEach(task => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>プロジェクト：</strong> ${task.project_name} <br>
+                            <strong>開始日：</strong> ${task.start_date} <br>
+                            <strong>終了日：</strong> ${task.end_date} <br>
+                            <strong>詳細情報：</strong> ${task.status} <br>
+                        `;
+                        // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
+                        if (task.task_assigned_for_this_user) {
+                            listItem.innerHTML += `
+                                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">編集</button>
+                            `;
+                        }
+                        taskListElement.appendChild(listItem);
+                    });
+                }
+
+                function filterTasks() {
+                    const filterValue = document.getElementById('hrctsk-filter-input').value.toLowerCase();
+                    const filteredTasks = hrctasks.filter(task => 
+                        task.project_name.toLowerCase().includes(filterValue) ||
+                        task.start_date.toLowerCase().includes(filterValue) ||
+                        task.end_date.toLowerCase().includes(filterValue) ||
+                        (task.status && task.status.toLowerCase().includes(filterValue))
+                    );
+                    displayTasks(filteredTasks);
+                }
+
+                async function editTask(taskId) {
+                    const task = hrctasks.find(t => t.id === taskId);
+
+                    document.getElementById('hrctsk-edit-status').value = task.status || '';
+
+                    document.getElementById('hrctsk-edit-task-modal').style.display = 'block';
+
+                    document.getElementById('hrctsk-edit-task-form').onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        const updatedTask = {
+                            status: document.getElementById('hrctsk-edit-status').value,
+                        };
+
+                        const response = await fetch(`/tasks/${taskId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedTask),
+                        });
+
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchTasks();
+                            document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update task: ' + response_result.message);
+                        }
+                    };
+
+                    document.getElementById('hrctsk-cancel-edit').addEventListener('click', () => {
+                        document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
+                    });
+                }
+            </script>
+
+            <div id="hrctsk-edit-task-modal" style="display: none;">
+                <p>タスク編集：</p>
+                <form id="hrctsk-edit-task-form">
+                    <label for="hrctsk-edit-status">詳細情報：</label>
+                    <textarea id="hrctsk-edit-status" rows="4"></textarea><br>
+
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="hrctsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                </form>
+            </div>
+            <div id="hrctsk-edit-task-modal" style="display: none;">
+                <p>タスク編集：</p>
+                <form id="hrctsk-edit-task-form">
+                    <label for="hrctsk-edit-status">詳細情報：</label>
+                    <textarea id="hrctsk-edit-status" rows="4"></textarea><br>
             
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="hrctsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                </form>
+            </div>
+            
+
         {% endif %}
 
         {% if role == 'projectmanager' %}
@@ -684,11 +813,11 @@
                     projectList.forEach(project => {
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
-                            <strong>Name:</strong> ${project.name} <br>
-                            <strong>Description:</strong> ${project.description} <br>
-                            <strong>Start Time:</strong> ${project.starttime} <br>
-                            <strong>End Time:</strong> ${project.endtime} <br>
-                            <strong>Status:</strong> ${project.status} <br>
+                            <strong>名前:</strong> ${project.name} <br>
+                            <strong>説明:</strong> ${project.description} <br>
+                            <strong>開始時間:</strong> ${project.starttime} <br>
+                            <strong>終了時間:</strong> ${project.endtime} <br>
+                            <strong>状態:</strong> ${project.status} <br>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editProject(${project.id})">編集</button>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteProject(${project.id})">削除</button>
                         `;
@@ -876,9 +1005,9 @@
             <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">出勤情報表示</button>
             <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">出勤情報隠す</button>
             
-            <input type="text" id="attendance-and-filterA" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            <input type="text" id="attendance-and-filterB" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            <input type="text" id="attendance-and-filterC" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterA" placeholder="論理積フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterB" placeholder="論理積フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="attendance-and-filterC" placeholder="論理積フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
             <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">出勤率計算</button>
             
@@ -930,13 +1059,13 @@
                     attendanceList.forEach(attendance => {
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
-                            <strong>User Name:</strong> ${attendance.user_name} <br>
-                            <strong>Project Name:</strong> ${attendance.project_name} <br>
-                            <strong>Scheduled Date:</strong> ${attendance.date} <br>
-                            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
-                            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
-                            <strong>Check In:</strong> ${attendance.check_in} <br>
-                            <strong>Check Out:</strong> ${attendance.check_out} <br>
+                            <strong>ユーザー名:</strong> ${attendance.user_name} <br>
+                            <strong>プロジェクト名:</strong> ${attendance.project_name} <br>
+                            <strong>予定日:</strong> ${attendance.date} <br>
+                            <strong>予定開始時間:</strong> ${attendance.project_starttime} <br>
+                            <strong>予定終了時間:</strong> ${attendance.project_endtime} <br>
+                            <strong>チェックイン:</strong> ${attendance.check_in} <br>
+                            <strong>チェックアウト:</strong> ${attendance.check_out} <br>
                         `;
                         attendanceListElement.appendChild(listItem);
                     });
@@ -1034,42 +1163,44 @@
                 }
             </script>
 
-            <p>Create a new task:</p>
+            <p>新しいタスクを作成する:</p>
             <form action="/pm_create_task" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
                 <input type="hidden" name="password" value="{{ password }}">
-                <input type="hidden" name="lang" value="en">
+                <input type="hidden" name="lang" value="jp">
 
-                <label for="pmcreatetask_the_project_name">Project Name:</label>
+                <label for="pmcreatetask_the_project_name">プロジェクト名:</label>
                 <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
 
-                <label for="pmcreatetask_the_user_name">User Name:</label>
+                <label for="pmcreatetask_the_user_name">ユーザー名(カンマで区切って複数記入可):</label>
                 <input type="text" id="pmcreatetask_the_user_name" name="pmcreatetask_the_user_name" required>
 
-                <label for="the_task_startdate">Task Start Date:</label>
+                <label for="the_task_startdate">タスク開始日:</label>
                 <input type="date" id="the_task_startdate" name="the_task_startdate" required>
 
-                <label for="the_task_enddate">Task End Date:</label>
+                <label for="the_task_enddate">タスク終了日:</label>
                 <input type="date" id="the_task_enddate" name="the_task_enddate" required>
 
-                <label for="the_task_status">Task Status (optional):</label>
-                <textarea id="the_task_status" name="the_task_status" rows="4" style="width: 100%;"></textarea>
+                <label for="the_task_status">タスクの説明 (任意):</label>
+                <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" 
+                    placeholder="砂糖を7個作る：40%完成&#10;ヒルチャールA：3個完成&#10;ヒルチャールB：1個完成、2個紛失&#10;ヒルチャールC：道端で勇者と出会い、死亡確認中"></textarea>
 
-                <input type="submit" value="Submit">
+                <input type="submit" value="送信">
             </form>
+
             {% if pm_createtask_message %}
                 <div class="message {% if pm_createtask_success %}success{% else %}error{% endif %}">
                     {{ pm_createtask_message }}
                 </div>
             {% endif %}
 
-            <p>View tasks:</p>
+            <p>タスクを表示:</p>
 
-            <button id="pmtsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Tasks</button>
-            <button id="pmtsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Tasks</button>
+            <button id="pmtsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">タスク表示</button>
+            <button id="pmtsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">タスク隠す</button>
 
-            <input type="text" id="pmtsk-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="pmtsk-filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
 
             <ul id="pmtsk-task-list" style="display: none;">
                 <!-- タスクリストがここに表示されます -->
@@ -1108,13 +1239,13 @@
                     taskList.forEach(task => {
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
-                            <strong>Project:</strong> ${task.project_name} <br>
-                            <strong>User:</strong> ${task.user_name} <br>
-                            <strong>Start Date:</strong> ${task.start_date} <br>
-                            <strong>End Date:</strong> ${task.end_date} <br>
-                            <strong>Status:</strong> ${task.status} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">Edit</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">Delete</button>
+                            <strong>プロジェクト：</strong> ${task.project_name} <br>
+                            <strong>ユーザー：</strong> ${task.user_name} <br>
+                            <strong>開始日</strong> ${task.start_date} <br>
+                            <strong>終了日</strong> ${task.end_date} <br>
+                            <strong>詳細情報：</strong> ${task.status} <br>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">編集</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">削除</button>
                         `;
                         taskListElement.appendChild(listItem);
                     });
@@ -1207,7 +1338,7 @@
             </script>
 
             <div id="pmtsk-edit-task-modal" style="display: none;">
-                <p>Edit task:</p>
+                <p>タスク編集：</p>
                 <form id="pmtsk-edit-task-form">
                     <!-- <label for="pmtsk-edit-project">Project Name:</label>
                     <input type="text" id="pmtsk-edit-project" required><br>
@@ -1215,17 +1346,17 @@
                     <label for="pmtsk-edit-user">User Name:</label>
                     <input type="text" id="pmtsk-edit-user" required><br> -->
 
-                    <label for="pmtsk-edit-startdate">Start Date:</label>
+                    <label for="pmtsk-edit-startdate">開始日：</label>
                     <input type="date" id="pmtsk-edit-startdate" required><br>
 
-                    <label for="pmtsk-edit-enddate">End Date:</label>
+                    <label for="pmtsk-edit-enddate">終了日：</label>
                     <input type="date" id="pmtsk-edit-enddate" required><br>
 
-                    <label for="pmtsk-edit-status">Status:</label>
+                    <label for="pmtsk-edit-status">詳細情報：</label>
                     <textarea id="pmtsk-edit-status" rows="4" ></textarea><br>
 
-                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
-                    <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
+                    <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
                 </form>
             </div>
 
