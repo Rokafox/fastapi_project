@@ -86,12 +86,12 @@
 
 
 
-            <p>View users:</p>
+            <p>ユーザー一覧：</p>
 
-            <button id="show-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Users</button>
-            <button id="hide-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Users</button>
+            <button id="show-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">表示</button>
+            <button id="hide-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">隠す</button>
 
-            <input type="text" id="filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+            <input type="text" id="filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
 
             <ul id="user-list" style="display: none;">
                 <!-- ユーザーリストがここに表示されます -->
@@ -133,7 +133,7 @@
 
                         // 現在のユーザー名と一致しない場合のみ編集ボタンを表示
                         if (user.name !== "{{ username }}") {
-                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
+                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">編集</button>`;
                         }
                         // can't edit sysadmin
                         // if (user.role !== "sysadmin") {
@@ -152,9 +152,9 @@
                         }
 
                         listItem.innerHTML = `
-                            <strong>Name:</strong> ${user.name} <br>
-                            <strong>Password:</strong> ${password} <br>
-                            <strong>Role:</strong> ${role} <br>
+                            <strong>名：</strong> ${user.name} <br>
+                            <strong>パスワード：</strong> ${password} <br>
+                            <strong>役割：</strong> ${role} <br>
                             ${editButtonHTML}
                         `;
                         userListElement.appendChild(listItem);
@@ -222,23 +222,23 @@
             </script>
 
             <div id="edit-user-modal" style="display: none;">
-                <p>Edit user:</p>
+                <p>ユーザー編集：</p>
                 <form id="edit-user-form">
-                    <label for="edit-name">Name:</label>
+                    <label for="edit-name">名：</label>
                     <input type="text" id="edit-name" required><br>
 
-                    <label for="edit-password">Password:</label>
+                    <label for="edit-password">パスワード：</label>
                     <input type="text" id="edit-password" required><br>
 
-                    <label for="edit-role">Role:</label>
+                    <label for="edit-role">役割：</label>
                     <select id="edit-role" required>
-                        <option value="sysadmin">Sysadmin</option>
-                        <option value="projectmanager">Project Manager</option>
-                        <option value="hiruchaaru">Hiruchaaru</option>
+                        <option value="sysadmin">システム管理者</option>
+                        <option value="projectmanager">プロジェクトマネージャー</option>
+                        <option value="hiruchaaru">ヒルチャール</option>
                     </select><br>
 
-                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
-                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
+                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
 
                 </form>
             </div>
