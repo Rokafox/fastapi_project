@@ -621,8 +621,9 @@ def order_delete_task_by_id(task_id: int):
 
 def order_update_task_by_id(task_id: int, task: TaskUpdate):
     # Check date validity
-    if datetime.strptime(task.start_date, "%Y-%m-%d") > datetime.strptime(task.end_date, "%Y-%m-%d"):
-        return "Update failed: Start date is greater than end date!", False
+    if task.start_date and task.end_date:
+        if datetime.strptime(task.start_date, "%Y-%m-%d") > datetime.strptime(task.end_date, "%Y-%m-%d"):
+            return "Update failed: Start date is greater than end date!", False
     with Session(engine) as session:
         db_task = session.get(Task, task_id)
         if db_task is None:
