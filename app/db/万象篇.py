@@ -103,7 +103,8 @@ class TaskBase(SQLModel):
     project_id: int = Field(foreign_key="project.id")
     start_date: str
     end_date: str
-    status: str | None = Field(default=None) # Some message like "30% done", "almost done", also can include task name and description
+    status: str | None = Field(default=None) # Some message, can be edited both by user and project manager
+    progress: int = Field(default=0, schema_extra={'min': 0, 'max': 100})
 
 class Task(TaskBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -122,6 +123,7 @@ class TaskPublic(TaskBase):
     start_date: str
     end_date: str
     status: str | None
+    progress: int
 
 class TaskUpdate(TaskBase):
     user_id: int | None = None
@@ -129,3 +131,4 @@ class TaskUpdate(TaskBase):
     start_date: str | None = None
     end_date: str | None = None
     status: str | None = None
+    progress: int | None = None

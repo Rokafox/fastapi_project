@@ -526,7 +526,8 @@ def order_get_all_tasks():
                 "project_name": project_name,
                 "start_date": task.start_date,
                 "end_date": task.end_date,
-                "status": task.status
+                "status": task.status,
+                "progress": task.progress
             })
         return task_list
     
@@ -553,6 +554,7 @@ def order_get_tasks_for_hiruchaaru(user_name: str):
                 "start_date": task.start_date,
                 "end_date": task.end_date,
                 "status": task.status,
+                "progress": task.progress,
                 "task_assigned_for_this_user": True
             })
             enrolled_projects.add(task.project_id)
@@ -574,15 +576,19 @@ def order_get_tasks_for_hiruchaaru(user_name: str):
                     "start_date": task.start_date,
                     "end_date": task.end_date,
                     "status": task.status,
+                    "progress": task.progress,
                     "task_assigned_for_this_user": False
                 })
         return task_list
     
 
-def order_create_task(user_name, project_name, start_date, end_date, status=None):
+def order_create_task(user_name, project_name, start_date, end_date, status=None, progress=None):
     # Check date validity
     if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
         return "Creation failed: Start date is greater than end date!", False
+    # Task does not allow progress to be None
+    if not progress:
+        progress = 0
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
@@ -596,7 +602,7 @@ def order_create_task(user_name, project_name, start_date, end_date, status=None
         if project is None:
             return "Creation failed: Project not found!", False
         
-        new_task = Task(user_id=user.id, project_id=project.id, start_date=start_date, end_date=end_date, status=status)
+        new_task = Task(user_id=user.id, project_id=project.id, start_date=start_date, end_date=end_date, status=status, progress=progress)
         Task.model_validate(new_task)
         session.add(new_task)
         session.commit()
