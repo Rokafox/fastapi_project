@@ -5,6 +5,10 @@ class ProjectManagerAssign(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", primary_key=True)
     project_id: int = Field(foreign_key="project.id", primary_key=True)
 
+# Link model for many-to-many relationship between Task and User
+class TaskAssignment(SQLModel, table=True):
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    task_id: int = Field(foreign_key="task.id", primary_key=True)
 
 class UserBase(SQLModel):
     name: str = Field(unique=True)
@@ -20,8 +24,9 @@ class User(UserBase, table=True):
     managed_projects: list["Project"] = Relationship(
         back_populates="project_managers", link_model=ProjectManagerAssign
     )
-    tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
-
+    tasks: list["Task"] = Relationship(
+        back_populates="users", link_model=TaskAssignment
+    )
 
 class UserCreate(UserBase):
     pass
@@ -99,7 +104,6 @@ class AttendancePublic(AttendanceBase):
 
 
 class TaskBase(SQLModel):
-    user_id: int = Field(foreign_key="user.id")
     project_id: int = Field(foreign_key="project.id")
     start_date: str
     end_date: str
@@ -108,16 +112,19 @@ class TaskBase(SQLModel):
 
 class Task(TaskBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    user: User | None = Relationship(back_populates="tasks")
+    users: list["User"] = Relationship(
+        back_populates="tasks", link_model=TaskAssignment
+    )
     project: Project | None = Relationship(back_populates="tasks")
 
 class TaskCreate(TaskBase):
-    pass
+    user_ids: list[int]  # List of user IDs to assign to the task
 
 class TaskPublic(TaskBase):
     id: int
-    user_id: int
-    user_name: str
+    # 'user_ids': [4, 5], 'user_names': ['h1', 'h2'],
+    user_ids: list[int]
+    user_names: list[str]
     project_id: int
     project_name: str
     start_date: str
@@ -125,10 +132,10 @@ class TaskPublic(TaskBase):
     status: str | None
     progress: int
 
-class TaskUpdate(TaskBase):
-    user_id: int | None = None
+class TaskUpdate(SQLModel):
     project_id: int | None = None
     start_date: str | None = None
     end_date: str | None = None
     status: str | None = None
     progress: int | None = None
+    user_ids: list[int] | None = None  # Optional list of user IDs to update assignment

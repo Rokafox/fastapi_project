@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 from datetime import datetime
 from .万象篇 import *
@@ -29,6 +30,21 @@ def order_get_all_users():
                 "role": role
             })
         return user_list
+    
+def order_get_all_hiruchaaru():
+    with Session(engine) as session:
+        statement = select(User).where(User.role == "hiruchaaru")
+        users = session.exec(statement).all()
+        user_list = []
+        for user in users:
+            user_list.append({
+                "id": user.id,
+                "name": user.name,
+                "password": user.password,
+                "role": user.role
+            })
+        return user_list
+
 
 def validate_user_when_login(username: str, password: str):
     with Session(engine) as session:
@@ -511,45 +527,66 @@ def order_hiruchaaru_checkout(attendance_id: int):
         session.commit()
         return "Check-out successful!", True
     
-
+    
 def order_get_all_tasks():
     with Session(engine) as session:
-        statement = select(Task, User.name, Project.name).join(Task.user).join(Task.project)
-        results = session.exec(statement).all()
+        tasks = session.exec(
+            select(Task)
+            .options(
+                selectinload(Task.users),
+                selectinload(Task.project)
+            )
+            .order_by(Task.start_date)  # Optional: Order tasks by start date
+        ).all()
         task_list = []
-        for task, user_name, project_name in results:
+        for task in tasks:
+            user_ids = [user.id for user in task.users]
+            user_names = [user.name for user in task.users]
             task_list.append({
                 "id": task.id,
-                "user_id": task.user_id,
-                "user_name": user_name,
-                "project_id": task.project_id,
-                "project_name": project_name,
+                "user_ids": user_ids,
+                "user_names": user_names,
+                "project_id": task.project.id if task.project else None,
+                "project_name": task.project.name if task.project else None,
                 "start_date": task.start_date,
                 "end_date": task.end_date,
                 "status": task.status,
                 "progress": task.progress
             })
         return task_list
-    
+
+
 def order_get_tasks_for_hiruchaaru(user_name: str):
-    # This function will get all tasks of a hinuchaaru, and also get all tasks of the project the hiruchaaru is assigned to
+    # This function will get all tasks of a hiruchaaru, and also get all tasks of the project the hiruchaaru is assigned to
     with Session(engine) as session:
         user = session.exec(select(User).where(User.name == user_name)).one_or_none()
         if user is None:
             return "User not found!", False
 
-        # Get tasks assigned to the user
-        user_tasks = session.exec(select(Task).where(Task.user_id == user.id)).all()
         task_list = []
         enrolled_projects = set()
 
+        # Get tasks assigned to the user
+        user_tasks = session.exec(
+            select(Task)
+            .join(TaskAssignment)
+            .where(TaskAssignment.user_id == user.id)
+            .options(
+                selectinload(Task.users),
+                selectinload(Task.project)
+            )
+        ).all()
+
         for task in user_tasks:
-            # Get the project name
-            project_name = session.exec(select(Project.name).where(Project.id == task.project_id)).one_or_none()
+            project = task.project
+            project_name = project.name if project else None
+            project_id = project.id if project else None
+
             task_list.append({
                 "id": task.id,
-                "user_id": task.user_id,
-                "project_id": task.project_id,
+                "user_ids": [u.id for u in task.users],
+                "user_names": [u.name for u in task.users],
+                "project_id": project_id,
                 "project_name": project_name,
                 "start_date": task.start_date,
                 "end_date": task.end_date,
@@ -557,57 +594,88 @@ def order_get_tasks_for_hiruchaaru(user_name: str):
                 "progress": task.progress,
                 "task_assigned_for_this_user": True
             })
-            enrolled_projects.add(task.project_id)
+            if project_id:
+                enrolled_projects.add(project_id)
 
         # Get tasks from projects the user is enrolled in, excluding tasks already assigned to the user
-        for project_id in enrolled_projects:
-            project_tasks = session.exec(
-                select(Task).where(
-                    (Task.project_id == project_id) & (Task.user_id != user.id)
-                )
-            ).all()
-            for task in project_tasks:
-                project_name = session.exec(select(Project.name).where(Project.id == task.project_id)).one_or_none()
-                task_list.append({
-                    "id": task.id,
-                    "user_id": task.user_id,
-                    "project_id": task.project_id,
-                    "project_name": project_name,
-                    "start_date": task.start_date,
-                    "end_date": task.end_date,
-                    "status": task.status,
-                    "progress": task.progress,
-                    "task_assigned_for_this_user": False
-                })
+        tasks_not_assigned_to_user = session.exec(
+            select(Task)
+            .where(
+                Task.project_id.in_(enrolled_projects),
+                ~Task.users.any(User.id == user.id)
+            )
+            .options(
+                selectinload(Task.users),
+                selectinload(Task.project)
+            )
+        ).all()
+
+        for task in tasks_not_assigned_to_user:
+            project = task.project
+            project_name = project.name if project else None
+            project_id = project.id if project else None
+
+            task_list.append({
+                "id": task.id,
+                "user_ids": [u.id for u in task.users],
+                "user_names": [u.name for u in task.users],
+                "project_id": project_id,
+                "project_name": project_name,
+                "start_date": task.start_date,
+                "end_date": task.end_date,
+                "status": task.status,
+                "progress": task.progress,
+                "task_assigned_for_this_user": False
+            })
         return task_list
     
-
-def order_create_task(user_name, project_name, start_date, end_date, status=None, progress=None):
+    
+def order_create_task(user_names: list[str], project_name: str, start_date: str, end_date: str, status: str = None, progress: int = 0):
     # Check date validity
     if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
         return "Creation failed: Start date is greater than end date!", False
-    # Task does not allow progress to be None
-    if not progress:
-        progress = 0
-    with Session(engine) as session:
-        statement = select(User).where(User.name == user_name)
-        user = session.exec(statement).one_or_none()
-        if user is None:
-            return "Creation failed: User not found!", False
-        if user.role != "hiruchaaru":
-            return "Creation failed: User is not hiruchaaru!", False
 
+    with Session(engine) as session:
+        users = []
+        for user_name in user_names:
+            statement = select(User).where(User.name == user_name)
+            user = session.exec(statement).one_or_none()
+            if user is None:
+                return f"Creation failed: User '{user_name}' not found!", False
+            if user.role != "hiruchaaru":
+                return f"Creation failed: User '{user_name}' is not a hiruchaaru!", False
+            users.append(user)
+
+        # Ensure at least one user is provided
+        if not users:
+            return "Creation failed: No valid users provided!", False
+
+        # Fetch the project
         statement = select(Project).where(Project.name == project_name)
         project = session.exec(statement).one_or_none()
         if project is None:
             return "Creation failed: Project not found!", False
-        
-        new_task = Task(user_id=user.id, project_id=project.id, start_date=start_date, end_date=end_date, status=status, progress=progress)
+
+        # Create the new task
+        new_task = Task(
+            project_id=project.id,
+            start_date=start_date,
+            end_date=end_date,
+            status=status,
+            progress=progress
+        )
+
+        # Assign users to the task
+        new_task.users = users
+
         Task.model_validate(new_task)
+
+        # Add and commit the new task
         session.add(new_task)
         session.commit()
+
         return "Task created successfully!", True
-    
+
 
 def order_delete_task_by_id(task_id: int):
     with Session(engine) as session:

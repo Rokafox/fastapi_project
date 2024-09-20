@@ -740,7 +740,7 @@
             <div id="hrctsk-edit-task-modal" style="display: none;">
                 <p>Edit task:</p>
                 <form id="hrctsk-edit-task-form">
-                    <label for="hrctsk-edit-status">Status:</label>
+                    <label for="hrctsk-edit-status">Description:</label>
                     <textarea id="hrctsk-edit-status" rows="4"></textarea><br>
             
                     <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
@@ -945,26 +945,67 @@
             <p>Assign project to user:</p>
             <p>Attendance records before today will not be added.</p>
             <p>If project date is changed by edit, the attendance record will be updated accordingly.</p>
-            <!--今日より前の出勤記録は登録できないぞ！-->
             <form action="/pm_create_attendance" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
                 <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="en">
-
+            
                 <label for="pmasu_the_project_name">Project Name:</label>
-                <input type="text" id="pmasu_the_project_name" name="pmasu_the_project_name" required>
-
+                <select id="pmasu_the_project_name" name="pmasu_the_project_name" required>
+                    <option value="">Select Project</option>
+                </select>
+            
                 <label for="pmasu_the_user_name">User Name:</label>
-                <input type="text" id="pmasu_the_user_name" name="pmasu_the_user_name" required>
-
+                <select id="pmasu_the_user_name" name="pmasu_the_user_name" required>
+                    <option value="">Select User</option>
+                </select>
+            
                 <input type="submit" value="Submit or Update">
             </form>
+            
             {% if pm_createattendance_message %}
                 <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
                     {{ pm_createattendance_message }}
                 </div>
             {% endif %}
+            
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // ユーザーの情報を取得してドロップダウンに追加
+                    fetch('/users_hiruchaaru')
+                    .then(response => response.json())
+                    .then(users => {
+                        const userSelect = document.getElementById('pmasu_the_user_name');
+                        users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.name;
+                            option.textContent = user.name;
+                            option.dataset.password = user.password;
+                            option.dataset.role = user.role;
+                            userSelect.appendChild(option);
+                        });
+            
+                    })
+                    .catch(error => console.error('Error fetching users:', error));
+            
+                    // プロジェクトの情報を取得してドロップダウンに追加
+                    const pmName = "{{ username }}";  // プロジェクトマネージャーの名前を取得
+                    fetch(`/projects_pm/${pmName}`)
+                    .then(response => response.json())
+                    .then(projects => {
+                        const projectSelect = document.getElementById('pmasu_the_project_name');
+                        projects.forEach(project => {
+                            const option = document.createElement('option');
+                            option.value = project.name;
+                            option.textContent = project.name;
+                            projectSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching projects:', error));
+                });
+            </script>
+            
 
 
             <p>Unassign project to user:</p>
@@ -1000,11 +1041,11 @@
             
             <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Calculate Attendance Rate</button>
             
+            <p id="calculate-output" style="display: none;">This feature is not implemented yet.</p>
+
             <ul id="attendance-list" style="display: none;">
                 <!-- 出席リストがここに表示されます -->
             </ul>
-            
-            <p id="calculate-output" style="display: none;">This feature is not implemented yet.</p>
             
             <script>
                 let attendances = [];
@@ -1162,8 +1203,8 @@
                 <label for="pmcreatetask_the_project_name">Project Name:</label>
                 <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
 
-                <label for="pmcreatetask_the_user_name">Username (separate multiple entries with commas):</label>
-                <input type="text" id="pmcreatetask_the_user_name" name="pmcreatetask_the_user_name" required>
+                <label for="pmcreatetask_the_user_names">Username (separate multiple entries with commas):</label>
+                <input type="text" id="pmcreatetask_the_user_names" name="pmcreatetask_the_user_names" required>
 
                 <label for="the_task_startdate">Task Start Date:</label>
                 <input type="date" id="the_task_startdate" name="the_task_startdate" required>
@@ -1182,6 +1223,8 @@
                     {{ pm_createtask_message }}
                 </div>
             {% endif %}
+
+            <p>Task alerts:</p>
 
             <p>View tasks:</p>
 
@@ -1228,10 +1271,11 @@
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
                             <strong>Project:</strong> ${task.project_name} <br>
-                            <strong>User:</strong> ${task.user_name} <br>
+                            <strong>User:</strong> ${task.user_names} <br>
                             <strong>Start Date:</strong> ${task.start_date} <br>
                             <strong>End Date:</strong> ${task.end_date} <br>
                             <strong>Description:</strong> ${task.status} <br>
+                            <strong>Progress:</strong> ${task.progress}% <br>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">Edit</button>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">Delete</button>
                         `;
@@ -1243,7 +1287,7 @@
                     const filterValue = document.getElementById('pmtsk-filter-input').value.toLowerCase();
                     const filteredTasks = tasks.filter(task => 
                         task.project_name.toLowerCase().includes(filterValue) ||
-                        task.user_name.toLowerCase().includes(filterValue) ||
+                        task.user_names.includes(filterValue) ||
                         task.start_date.toLowerCase().includes(filterValue) ||
                         task.end_date.toLowerCase().includes(filterValue) ||
                         (task.status && task.status.toLowerCase().includes(filterValue))
@@ -1340,7 +1384,7 @@
                     <label for="pmtsk-edit-enddate">End Date:</label>
                     <input type="date" id="pmtsk-edit-enddate" required><br>
             
-                    <label for="pmtsk-edit-status">Status:</label>
+                    <label for="pmtsk-edit-status">Description:</label>
                     <textarea id="pmtsk-edit-status" rows="4" ></textarea><br>
             
                     <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>

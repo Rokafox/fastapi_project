@@ -241,28 +241,23 @@ async def pm_delete_attendance(request: Request, pmuasu_the_user_name: str = For
                                                     "username" : username, "role": role, "password": password})
 
 @app.post("/pm_create_task", response_class=HTMLResponse)
-async def pm_create_task(request: Request, pmcreatetask_the_user_name: str = Form(...), pmcreatetask_the_project_name: str = Form(...),
+async def pm_create_task(request: Request, pmcreatetask_the_user_names: str = Form(...), pmcreatetask_the_project_name: str = Form(...),
                             the_task_status: str | None = Form(None), the_task_startdate: str = Form(...),
                             the_task_enddate: str = Form(...), username: str = Form(...), role: str = Form(...),
                             lang: str = Form("en"), password: str = Form(...)):
         if not validate_user_when_login(username, password):
             return templates.TemplateResponse("login.html", {"request": request})
         
-        user_names_list = pmcreatetask_the_user_name.split(',')
-        all_msgs = []
-        overall_success = True
-        for user_name in user_names_list:
-            msg, successcheck = order_create_task(user_name.strip(), pmcreatetask_the_project_name, the_task_startdate, the_task_enddate, the_task_status)
-            if lang == "jp":
-                msg = 日本語になーれ(msg)
-            all_msgs.append(msg)
-            overall_success = overall_success and successcheck
-        
-        final_msg = "\n".join(all_msgs)
-        
+        # user_names are comma separated, ie. "user1,user2,user3" ie. "doge"
+        # we need to make it a list of user names
+        user_names = [name.strip() for name in pmcreatetask_the_user_names.split(",")]
+        msg, successcheck = order_create_task(user_names, pmcreatetask_the_project_name, the_task_startdate, the_task_enddate, the_task_status)
+        if lang == "jp":
+            msg = 日本語になーれ(msg)
+    
         template_name = "home.html" if lang == "en" else "home-jp.html"
-        return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": final_msg,
-                                                        "pm_createtask_success": overall_success,
+        return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": msg,
+                                                        "pm_createtask_success": successcheck,
                                                         "username" : username, "role": role, "password": password})
 
 
@@ -270,6 +265,11 @@ async def pm_create_task(request: Request, pmcreatetask_the_user_name: str = For
 @app.get("/users")
 async def read_users():
     return order_get_all_users()
+
+@app.get("/users_hiruchaaru")
+async def read_users_hiruchaaru():
+    return order_get_all_hiruchaaru()
+
 
 @app.patch("/users/{user_name}")
 async def update_user(user_name: str, user: UserUpdate):
