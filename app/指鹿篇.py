@@ -42,8 +42,6 @@ def 日本語になーれ(inputstring : str) -> str:
             return "作成失敗： ユーザーはヒルチャールではありません"
         case "Creation failed: Project not found!":
             return "作成失敗： プロジェクトが見つかりません"
-        # case "Creation failed: Same attendance already exists for \d{4}-\d{2}-\d{2}":
-        #     return f"作成失敗: 同じ出勤記録がすでに存在します: {inputstring}"
         case "Attendance created successfully!":
             return "出勤記録が正常に作成されました"
         case "Deletion failed: User not found!":

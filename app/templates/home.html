@@ -3,6 +3,10 @@
 <head>
     <title>Home</title>
     <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+    </script>
+    <script src="/static/js/home.js"></script>
 </head>
 <body>
     <div class="header-container">
@@ -970,43 +974,6 @@
                 </div>
             {% endif %}
             
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    // ユーザーの情報を取得してドロップダウンに追加
-                    fetch('/users_hiruchaaru')
-                    .then(response => response.json())
-                    .then(users => {
-                        const userSelect = document.getElementById('pmasu_the_user_name');
-                        users.forEach(user => {
-                            const option = document.createElement('option');
-                            option.value = user.name;
-                            option.textContent = user.name;
-                            option.dataset.password = user.password;
-                            option.dataset.role = user.role;
-                            userSelect.appendChild(option);
-                        });
-            
-                    })
-                    .catch(error => console.error('Error fetching users:', error));
-            
-                    // プロジェクトの情報を取得してドロップダウンに追加
-                    const pmName = "{{ username }}";  // プロジェクトマネージャーの名前を取得
-                    fetch(`/projects_pm/${pmName}`)
-                    .then(response => response.json())
-                    .then(projects => {
-                        const projectSelect = document.getElementById('pmasu_the_project_name');
-                        projects.forEach(project => {
-                            const option = document.createElement('option');
-                            option.value = project.name;
-                            option.textContent = project.name;
-                            projectSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error fetching projects:', error));
-                });
-            </script>
-            
-
 
             <p>Unassign project to user:</p>
             <form action="/pm_delete_attendance" method="post">
@@ -1016,10 +983,16 @@
                 <input type="hidden" name="lang" value="en">
 
                 <label for="pmuasu_the_project_name">Project Name:</label>
-                <input type="text" id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
+                <!-- <input type="text" id="pmuasu_the_project_name" name="pmuasu_the_project_name" required> -->
+                <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
+                    <option value="">Select Project</option>
+                </select>
 
                 <label for="pmuasu_the_user_name">User Name:</label>
-                <input type="text" id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
+                <!-- <input type="text" id="pmuasu_the_user_name" name="pmuasu_the_user_name" required> -->
+                <select id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
+                    <option value="">Select User</option>
+                </select>
 
                 <input type="submit" value="Delete">
             </form>
@@ -1194,17 +1167,27 @@
             </script>
 
             <p>Create a new task:</p>
-            <form action="/pm_create_task" method="post">
+            <form id="pmcreateTaskForm" action="/pm_create_task" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
                 <input type="hidden" name="password" value="{{ password }}">
                 <input type="hidden" name="lang" value="en">
 
                 <label for="pmcreatetask_the_project_name">Project Name:</label>
-                <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
+                <!-- <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required> -->
+                <select id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
+                    <option value="">Select Project</option>
+                </select>
 
-                <label for="pmcreatetask_the_user_names">Username (separate multiple entries with commas):</label>
-                <input type="text" id="pmcreatetask_the_user_names" name="pmcreatetask_the_user_names" required>
+                <!-- <label for="pmcreatetask_the_user_names">Username (separate multiple entries with commas):</label>
+                <input type="text" id="pmcreatetask_the_user_names" name="pmcreatetask_the_user_names" required> -->
+
+                <label for="pmcreatetask_the_user_names">Select Users:</label>
+                <div id="pmcreatetask_the_user_names">
+                    <!-- ユーザーのチェックボックスがここに挿入されます -->
+                </div>
+                
+                <input type="hidden" id="pmcreatetask_user_list" name="pmcreatetask_the_user_names" value="">
 
                 <label for="the_task_startdate">Task Start Date:</label>
                 <input type="date" id="the_task_startdate" name="the_task_startdate" required>

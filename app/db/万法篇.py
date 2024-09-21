@@ -125,7 +125,7 @@ def create_project(newproject_name: str, newproject_description: str,
         except IntegrityError:
             return "Creation Failed: Project with the same name already exists!", False
         
-        return "Project updated successfully!", True
+        return "Project created successfully!", True
 
 def order_retire_project_manager(user_name: str, project_name: str):
     with Session(engine) as session:
@@ -633,7 +633,7 @@ def order_get_tasks_for_hiruchaaru(user_name: str):
 def order_create_task(user_names: list[str], project_name: str, start_date: str, end_date: str, status: str = None, progress: int = 0):
     # Check date validity
     if datetime.strptime(start_date, "%Y-%m-%d") > datetime.strptime(end_date, "%Y-%m-%d"):
-        return "Creation failed: Start date is greater than end date!", False
+        return "Creation Failed: Start date is greater than end date!", False
 
     with Session(engine) as session:
         users = []
@@ -696,6 +696,19 @@ def order_update_task_by_id(task_id: int, task: TaskUpdate):
         db_task = session.get(Task, task_id)
         if db_task is None:
             return "Update failed: Task not found!", False
+
+        if task.user_names:
+            # Get User objects matching the user_names
+            users = session.exec(select(User).where(User.name.in_(task.user_names))).all()
+            if len(users) != len(task.user_names):
+                return "Update failed: Some users not found!", False
+            task.users = users
+
+        # try:
+        #     Task.model_validate(task)
+        # except ValidationError as e:
+        #     for error in e.errors():
+        #         return "Unexpected update failed: " + error["msg"], False
         task_data = task.model_dump(exclude_unset=True)
         db_task.sqlmodel_update(task_data)
         session.add(db_task)
