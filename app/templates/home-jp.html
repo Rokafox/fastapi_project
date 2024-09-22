@@ -5,8 +5,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/home.css">
     <script>
         const current_user_name = "{{ username }}";
+        const page_language = "jp";
     </script>
-    <script src="/static/js/home.js"></script>
 </head>
 <body>
     <div class="header-container">
@@ -534,109 +534,14 @@
             <p>貴方はヒルチャールです。</p>
             <p>登録プロジェクトを表示：</p>
 
-            <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
-            <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
+            <button id="hrc_show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
+            <button id="hrc_hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">プロジェクト隠す</button>
             
             <input type="text" id="filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             
             <ul id="attendance-list" style="display: none;">
                 <!-- 出席リストがここに表示されます -->
             </ul>
-            
-            <script>
-                let hiruchaaru_attendances = [];
-            
-                document.getElementById('show-attendances-btn').addEventListener('click', () => {
-                    fetchAttendances();
-                    document.getElementById('filter-input').style.display = 'block';
-                    document.getElementById('attendance-list').style.display = 'block';
-                    document.getElementById('show-attendances-btn').style.display = 'none';
-                    document.getElementById('hide-attendances-btn').style.display = 'block';
-                });
-            
-                document.getElementById('hide-attendances-btn').addEventListener('click', () => {
-                    document.getElementById('filter-input').style.display = 'none';
-                    document.getElementById('attendance-list').style.display = 'none';
-                    document.getElementById('hide-attendances-btn').style.display = 'none';
-                    document.getElementById('show-attendances-btn').style.display = 'block';
-                });
-            
-                document.getElementById('filter-input').addEventListener('input', filterAttendances);
-            
-                async function fetchAttendances() {
-                    const userName = '{{ username }}';
-                    const response = await fetch(`/attendances/${userName}`);
-                    hiruchaaru_attendances = await response.json();
-                    displayAttendances(hiruchaaru_attendances);
-                }
-            
-                function displayAttendances(attendanceList) {
-                    const attendanceListElement = document.getElementById('attendance-list');
-                    attendanceListElement.innerHTML = ''; // リストをクリア
-            
-                    attendanceList.forEach(attendance => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <strong>Project:</strong> ${attendance.project_name} <br>
-                            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
-                            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
-                            <strong>Date:</strong> ${attendance.date} <br>
-                            <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : '出勤していません'} <br>
-                            <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : '退勤していません'} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="checkIn('${attendance.id}')">出勤</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="checkOut('${attendance.id}')">退勤</button>
-                        `;
-                        attendanceListElement.appendChild(listItem);
-                    });
-                }
-            
-                async function checkIn(attendanceId) {
-                    const response = await fetch(`/attendances/${attendanceId}/checkin`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: ''
-                    });
-                    const response_result = await response.json();
-
-                    if (response_result.success) {
-                        alert('出勤を記録したぞ！');
-                        fetchAttendances(); // 再読み込みしてリストを更新
-                    } else {
-                        alert('出勤失敗！これはバグであろう。');
-                    }
-                }
-            
-                async function checkOut(attendanceId) {
-                    const response = await fetch(`/attendances/${attendanceId}/checkout`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: ''
-                    });
-                    const response_result = await response.json();
-            
-                    if (response_result.success) {
-                        alert('退勤したぞ！');
-                        fetchAttendances(); // 再読み込みしてリストを更新
-                    } else {
-                        alert('失敗。これはバグであろう。');
-                    }
-                }
-            
-                function filterAttendances() {
-                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
-                    const filteredAttendances = hiruchaaru_attendances.filter(attendance => 
-                        attendance.project_name.toLowerCase().includes(filterValue) ||
-                        attendance.project_starttime.toLowerCase().includes(filterValue) ||
-                        attendance.project_endtime.toLowerCase().includes(filterValue) ||
-                        attendance.date.toLowerCase().includes(filterValue)
-                    );
-                    displayAttendances(filteredAttendances);
-                }
-            </script>
 
             <p>タスクを表示:</p>
 
@@ -649,107 +554,15 @@
                 <!-- タスクリストがここに表示されます -->
             </ul>
 
-            <script>
-                let hrctasks = [];
-
-                document.getElementById('hrctsk-show-tasks-btn').addEventListener('click', () => {
-                    fetchTasks();
-                    document.getElementById('hrctsk-filter-input').style.display = 'block';
-                    document.getElementById('hrctsk-task-list').style.display = 'block';
-                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'none';
-                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'block';
-                });
-
-                document.getElementById('hrctsk-hide-tasks-btn').addEventListener('click', () => {
-                    document.getElementById('hrctsk-filter-input').style.display = 'none';
-                    document.getElementById('hrctsk-task-list').style.display = 'none';
-                    document.getElementById('hrctsk-hide-tasks-btn').style.display = 'none';
-                    document.getElementById('hrctsk-show-tasks-btn').style.display = 'block';
-                });
-
-                document.getElementById('hrctsk-filter-input').addEventListener('input', filterTasks);
-
-                async function fetchTasks() {
-                    const response = await fetch(`/tasks_for_specific_hiruchaaru/{{ username }}`);
-                    hrctasks = await response.json();
-                    displayTasks(hrctasks);
-                }
-
-                function displayTasks(taskList) {
-                    const taskListElement = document.getElementById('hrctsk-task-list');
-                    taskListElement.innerHTML = '';
-
-                    taskList.forEach(task => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <strong>プロジェクト：</strong> ${task.project_name} <br>
-                            <strong>開始日：</strong> ${task.start_date} <br>
-                            <strong>終了日：</strong> ${task.end_date} <br>
-                            <strong>詳細情報：</strong> ${task.status} <br>
-                        `;
-                        // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
-                        if (task.task_assigned_for_this_user) {
-                            listItem.innerHTML += `
-                                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">編集</button>
-                            `;
-                        }
-                        taskListElement.appendChild(listItem);
-                    });
-                }
-
-                function filterTasks() {
-                    const filterValue = document.getElementById('hrctsk-filter-input').value.toLowerCase();
-                    const filteredTasks = hrctasks.filter(task => 
-                        task.project_name.toLowerCase().includes(filterValue) ||
-                        task.start_date.toLowerCase().includes(filterValue) ||
-                        task.end_date.toLowerCase().includes(filterValue) ||
-                        (task.status && task.status.toLowerCase().includes(filterValue))
-                    );
-                    displayTasks(filteredTasks);
-                }
-
-                async function editTask(taskId) {
-                    const task = hrctasks.find(t => t.id === taskId);
-
-                    document.getElementById('hrctsk-edit-status').value = task.status || '';
-
-                    document.getElementById('hrctsk-edit-task-modal').style.display = 'block';
-
-                    document.getElementById('hrctsk-edit-task-form').onsubmit = async (e) => {
-                        e.preventDefault();
-
-                        const updatedTask = {
-                            status: document.getElementById('hrctsk-edit-status').value,
-                        };
-
-                        const response = await fetch(`/tasks/${taskId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(updatedTask),
-                        });
-
-                        const response_result = await response.json();
-                        if (response_result.success) {
-                            fetchTasks();
-                            document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
-                        } else {
-                            alert('Failed to update task: ' + response_result.message);
-                        }
-                    };
-
-                    document.getElementById('hrctsk-cancel-edit').addEventListener('click', () => {
-                        document.getElementById('hrctsk-edit-task-modal').style.display = 'none';
-                    });
-                }
-            </script>
-
             <div id="hrctsk-edit-task-modal" style="display: none;">
                 <p>タスク編集：</p>
                 <form id="hrctsk-edit-task-form">
                     <label for="hrctsk-edit-status">詳細情報：</label>
                     <textarea id="hrctsk-edit-status" rows="4"></textarea><br>
+
+                    <label for="hrctsk-edit-task-progress">進行度：</label>
+                    <input type="number" id="hrctsk-edit-task-progress" name="pmtsk-edit-task-progress" min="0" max="100" required><br>
+
 
                     <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
                     <button type="button" id="hrctsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
@@ -771,147 +584,6 @@
             <ul id="project-list" style="display: none;">
                 <!-- プロジェクトリストがここに表示されます -->
             </ul>
-            
-            <script>
-                let projects = [];
-            
-                document.getElementById('show-projects-btn').addEventListener('click', () => {
-                    fetchProjects();
-                    document.getElementById('filter-input').style.display = 'block';
-                    document.getElementById('project-list').style.display = 'block';
-                    document.getElementById('show-projects-btn').style.display = 'none';
-                    document.getElementById('hide-projects-btn').style.display = 'block';
-                });
-            
-                document.getElementById('hide-projects-btn').addEventListener('click', () => {
-                    document.getElementById('filter-input').style.display = 'none';
-                    document.getElementById('project-list').style.display = 'none';
-                    document.getElementById('hide-projects-btn').style.display = 'none';
-                    document.getElementById('show-projects-btn').style.display = 'block';
-                });
-            
-                document.getElementById('filter-input').addEventListener('input', filterProjects);
-            
-                async function fetchProjects() {
-                    // fetch from @app.get("/projects_pm/{project_manager_name}")
-                    const project_manager_name = '{{ username }}';
-                    const response = await fetch(`/projects_pm/${project_manager_name}`);
-                    projects = await response.json();
-                    displayProjects(projects);
-                }
-            
-                function displayProjects(projectList) {
-                    const projectListElement = document.getElementById('project-list');
-                    projectListElement.innerHTML = ''; // リストをクリア
-            
-                    projectList.forEach(project => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <strong>名前:</strong> ${project.name} <br>
-                            <strong>説明:</strong> ${project.description} <br>
-                            <strong>開始時間:</strong> ${project.starttime} <br>
-                            <strong>終了時間:</strong> ${project.endtime} <br>
-                            <strong>状態:</strong> ${project.status} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editProject(${project.id})">編集</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteProject(${project.id})">削除</button>
-                        `;
-                        projectListElement.appendChild(listItem);
-                    });
-                }
-            
-                function filterProjects() {
-                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
-                    const filteredProjects = projects.filter(project => 
-                        project.name.toLowerCase().includes(filterValue) ||
-                        project.description.toLowerCase().includes(filterValue) ||
-                        project.starttime.toLowerCase().includes(filterValue) ||
-                        project.endtime.toLowerCase().includes(filterValue) ||
-                        project.status.toLowerCase().includes(filterValue)
-                    );
-                    displayProjects(filteredProjects);
-                }
-            
-                async function editProject(projectId) {
-                    // 選択したプロジェクトのデータを取得
-                    const project = projects.find(p => p.id === projectId);
-
-                    // フォームにプロジェクトのデータをセット
-                    document.getElementById('edit-name').value = project.name;
-                    document.getElementById('edit-description').value = project.description;
-                    document.getElementById('edit-starttime').value = project.starttime;
-                    document.getElementById('edit-endtime').value = project.endtime;
-                    document.getElementById('edit-status').value = project.status;
-
-                    // 編集モーダルを表示
-                    document.getElementById('edit-project-modal').style.display = 'block';
-
-                    // フォームのサブミット処理
-                    document.getElementById('edit-project-form').onsubmit = async (e) => {
-                        e.preventDefault();
-
-                        // フォームからデータを取得
-                        const updatedProject = {
-                            name: document.getElementById('edit-name').value,
-                            description: document.getElementById('edit-description').value,
-                            starttime: document.getElementById('edit-starttime').value.replace('T', ' '),
-                            endtime: document.getElementById('edit-endtime').value.replace('T', ' '),
-                            status: document.getElementById('edit-status').value,
-                        };
-
-                        // サーバーにPATCHリクエストを送信
-                        const response = await fetch(`/projects/${projectId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(updatedProject),
-                        });
-
-                        const response_result = await response.json();
-                        if (response_result.success) {
-                            fetchProjects();
-                            // モーダルを非表示
-                            document.getElementById('edit-project-modal').style.display = 'none';
-                        } else {
-                            alert('Failed to update project: ' + response_result.message);  // エラーメッセージを表示
-                        }
-
-                    };
-
-                    // キャンセルボタンの処理
-                    document.getElementById('cancel-edit').addEventListener('click', () => {
-                        document.getElementById('edit-project-modal').style.display = 'none';
-                    });
-                }
-
-            
-                async function deleteProject(projectId) {
-                    const confirmation = confirm(`本当にこのプロジェクトを削除します？`);
-                    if (!confirmation) {
-                        return;
-                    }
-            
-                    try {
-                        const response = await fetch(`/projects/${projectId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        const response_result = await response.json();
-            
-                        if (response_result.success) {
-                            fetchProjects();
-                        } else {
-                            const errorData = await response.json();
-                            alert(`削除失敗： ${errorData.detail}`);
-                        }
-                    } catch (error) {
-                        console.error('Error deleting project:', error);
-                        alert('削除処理中にエラーがありました。');
-                    }
-                }
-            </script>
 
             <div id="edit-project-modal" style="display: none;">
                 <p>プロジェクト編集：</p>
@@ -1003,8 +675,8 @@
 
             <p>出勤情報：</p>
 
-            <button id="show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">出勤情報表示</button>
-            <button id="hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">出勤情報隠す</button>
+            <button id="pmat_show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">出勤情報表示</button>
+            <button id="pmat_hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">出勤情報隠す</button>
             
             <input type="text" id="attendance-and-filterA" placeholder="論理積フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
             <input type="text" id="attendance-and-filterB" placeholder="論理積フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
@@ -1018,151 +690,6 @@
                 <!-- 出席リストがここに表示されます -->
             </ul>
             
-            <script>
-                let attendances = [];
-            
-                document.getElementById('show-attendances-btn').addEventListener('click', () => {
-                    fetchAttendances();
-                    document.getElementById('attendance-and-filterA').style.display = 'block';
-                    document.getElementById('attendance-and-filterB').style.display = 'block';
-                    document.getElementById('attendance-and-filterC').style.display = 'block';
-                    document.getElementById('attendance-list').style.display = 'block';
-                    document.getElementById('calculate-btn').style.display = 'block';
-                    document.getElementById('show-attendances-btn').style.display = 'none';
-                    document.getElementById('hide-attendances-btn').style.display = 'block';
-                });
-            
-                document.getElementById('hide-attendances-btn').addEventListener('click', () => {
-                    document.getElementById('attendance-and-filterA').style.display = 'none';
-                    document.getElementById('attendance-and-filterB').style.display = 'none';
-                    document.getElementById('attendance-and-filterC').style.display = 'none';
-                    document.getElementById('attendance-list').style.display = 'none';
-                    document.getElementById('calculate-btn').style.display = 'none';
-                    document.getElementById('hide-attendances-btn').style.display = 'none';
-                    document.getElementById('show-attendances-btn').style.display = 'block';
-                    document.getElementById('calculate-output').style.display = 'none';
-                });
-            
-                document.getElementById('attendance-and-filterA').addEventListener('input', filterAttendances);
-                document.getElementById('attendance-and-filterB').addEventListener('input', filterAttendances);
-                document.getElementById('attendance-and-filterC').addEventListener('input', filterAttendances);
-            
-                async function fetchAttendances() {
-                    const response = await fetch('/attendances');
-                    attendances = await response.json();
-                    displayAttendances(attendances);
-                }
-            
-                function displayAttendances(attendanceList) {
-                    const attendanceListElement = document.getElementById('attendance-list');
-                    attendanceListElement.innerHTML = ''; // リストをクリア
-            
-                    attendanceList.forEach(attendance => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <strong>ユーザー名:</strong> ${attendance.user_name} <br>
-                            <strong>プロジェクト名:</strong> ${attendance.project_name} <br>
-                            <strong>予定日:</strong> ${attendance.date} <br>
-                            <strong>予定開始時間:</strong> ${attendance.project_starttime} <br>
-                            <strong>予定終了時間:</strong> ${attendance.project_endtime} <br>
-                            <strong>チェックイン:</strong> ${attendance.check_in} <br>
-                            <strong>チェックアウト:</strong> ${attendance.check_out} <br>
-                        `;
-                        attendanceListElement.appendChild(listItem);
-                    });
-                }
-            
-                function filterAttendances() {
-                    const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
-                    const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
-                    const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
-
-                    // フィルターAを適用
-                    const filteredAttendancesA = attendances.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueA) ||
-                        attendance.project_name.toLowerCase().includes(filterValueA) ||
-                        attendance.date.toLowerCase().includes(filterValueA)
-                    );
-
-                    // フィルターBを適用
-                    const filteredAttendancesB = filteredAttendancesA.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueB) ||
-                        attendance.project_name.toLowerCase().includes(filterValueB) ||
-                        attendance.date.toLowerCase().includes(filterValueB)
-                    );
-
-                    // フィルターCを適用
-                    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueC) ||
-                        attendance.project_name.toLowerCase().includes(filterValueC) ||
-                        attendance.date.toLowerCase().includes(filterValueC)
-                    );
-
-                    // 絞り込んだ結果を表示
-                    displayAttendances(filteredAttendancesC);
-                }
-            
-                document.getElementById('calculate-btn').addEventListener('click', () => {
-                    calculateAttendanceRate();
-                    document.getElementById('calculate-output').style.display = 'block';
-                });
-
-                function calculateAttendanceRate() {
-                    const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
-                    const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
-                    const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
-
-                    const filteredAttendancesA = attendances.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueA) ||
-                        attendance.project_name.toLowerCase().includes(filterValueA) ||
-                        attendance.date.toLowerCase().includes(filterValueA)
-                    );
-
-                    const filteredAttendancesB = filteredAttendancesA.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueB) ||
-                        attendance.project_name.toLowerCase().includes(filterValueB) ||
-                        attendance.date.toLowerCase().includes(filterValueB)
-                    );
-
-                    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
-                        attendance.user_name.toLowerCase().includes(filterValueC) ||
-                        attendance.project_name.toLowerCase().includes(filterValueC) ||
-                        attendance.date.toLowerCase().includes(filterValueC)
-                    );
-
-                    let outputText = "";
-                    let totalRate = 0;
-                    let validCount = 0; // 有効な出席レートの数
-
-                    filteredAttendancesC.forEach(attendance => {
-                        const scheduledStart = new Date(`1970-01-01T${attendance.project_starttime}:00`);
-                        const scheduledEnd = new Date(`1970-01-01T${attendance.project_endtime}:00`);
-                        const checkIn = new Date(`1970-01-01T${attendance.check_in}:00`);
-                        const checkOut = new Date(`1970-01-01T${attendance.check_out}:00`);
-
-                        const scheduledTime = (scheduledEnd - scheduledStart) / (1000 * 60); // スケジュールされた時間 (分)
-                        const actualTime = (checkOut - checkIn) / (1000 * 60); // 実際の働いた時間 (分)
-
-                        let attendanceRate = 0;
-                        if (scheduledTime > 0) {
-                            attendanceRate = (actualTime / scheduledTime) * 100; // 出席率 (パーセンテージ)
-                        }
-
-                        totalRate += attendanceRate;
-                        validCount++; // 有効な出席の数を増加
-
-                        outputText += `<strong>${attendance.user_name} - ${attendance.project_name} - ${attendance.date}:</strong> 出勤率： ${attendanceRate.toFixed(2)}%<br>`;
-                    });
-
-                    // 出席率の平均を計算
-                    let averageRate = validCount > 0 ? (totalRate / validCount).toFixed(2) : 0;
-
-                    // 平均出席率を追加
-                    outputText += `<br><strong>平均出勤率：</strong> ${averageRate}%`;
-
-                    document.getElementById('calculate-output').innerHTML = outputText;
-                }
-            </script>
 
             <p>新しいタスクを作成する:</p>
             <form id="pmcreateTaskForm" action="/pm_create_task" method="post">
@@ -1219,138 +746,6 @@
                 <!-- タスクリストがここに表示されます -->
             </ul>
 
-            <script>
-                let tasks = [];
-
-                document.getElementById('pmtsk-show-tasks-btn').addEventListener('click', () => {
-                    fetchTasks();
-                    document.getElementById('pmtsk-filter-input').style.display = 'block';
-                    document.getElementById('pmtsk-task-list').style.display = 'block';
-                    document.getElementById('pmtsk-show-tasks-btn').style.display = 'none';
-                    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'block';
-                });
-
-                document.getElementById('pmtsk-hide-tasks-btn').addEventListener('click', () => {
-                    document.getElementById('pmtsk-filter-input').style.display = 'none';
-                    document.getElementById('pmtsk-task-list').style.display = 'none';
-                    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'none';
-                    document.getElementById('pmtsk-show-tasks-btn').style.display = 'block';
-                });
-
-                document.getElementById('pmtsk-filter-input').addEventListener('input', filterTasks);
-
-                async function fetchTasks() {
-                    const response = await fetch(`/tasks`);
-                    tasks = await response.json();
-                    displayTasks(tasks);
-                }
-
-                function displayTasks(taskList) {
-                    const taskListElement = document.getElementById('pmtsk-task-list');
-                    taskListElement.innerHTML = ''; // リストをクリア
-
-                    taskList.forEach(task => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <strong>プロジェクト：</strong> ${task.project_name} <br>
-                            <strong>ユーザー：</strong> ${task.user_names} <br>
-                            <strong>開始日</strong> ${task.start_date} <br>
-                            <strong>終了日</strong> ${task.end_date} <br>
-                            <strong>詳細情報：</strong> ${task.status} <br>
-                            <strong>進行状況：</strong> ${task.progress}% <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editTask(${task.id})">編集</button>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="deleteTask(${task.id})">削除</button>
-                        `;
-                        taskListElement.appendChild(listItem);
-                    });
-                }
-
-                function filterTasks() {
-                    const filterValue = document.getElementById('pmtsk-filter-input').value.toLowerCase();
-                    const filteredTasks = tasks.filter(task => 
-                        task.project_name.toLowerCase().includes(filterValue) ||
-                        task.user_names.includes(filterValue) ||
-                        task.start_date.toLowerCase().includes(filterValue) ||
-                        task.end_date.toLowerCase().includes(filterValue) ||
-                        (task.status && task.status.toLowerCase().includes(filterValue))
-                    );
-                    displayTasks(filteredTasks);
-                }
-
-                async function editTask(taskId) {
-                    const task = tasks.find(t => t.id === taskId);
-
-                    // We could add this back later
-                    // document.getElementById('pmtsk-edit-project').value = task.project_name;
-                    // document.getElementById('pmtsk-edit-user').value = task.user_name;
-                    document.getElementById('pmtsk-edit-startdate').value = task.start_date;
-                    document.getElementById('pmtsk-edit-enddate').value = task.end_date;
-                    // sometimes status is null so this will gives Uncaught (in promise) TypeError: Cannot set properties of null (setting 'value')
-                    // task.status が null または undefined の場合は空文字列を設定
-                    document.getElementById('pmtsk-edit-status').value = task.status || '';
-
-                    document.getElementById('pmtsk-edit-task-modal').style.display = 'block';
-
-                    document.getElementById('pmtsk-edit-task-form').onsubmit = async (e) => {
-                        e.preventDefault();
-
-                        const updatedTask = {
-                            // project_name: document.getElementById('pmtsk-edit-project').value,
-                            // user_name: document.getElementById('pmtsk-edit-user').value,
-                            start_date: document.getElementById('pmtsk-edit-startdate').value,
-                            end_date: document.getElementById('pmtsk-edit-enddate').value,
-                            status: document.getElementById('pmtsk-edit-status').value,
-                        };
-
-                        const response = await fetch(`/tasks/${taskId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(updatedTask),
-                        });
-
-                        const response_result = await response.json();
-                        if (response_result.success) {
-                            fetchTasks();
-                            document.getElementById('pmtsk-edit-task-modal').style.display = 'none';
-                        } else {
-                            alert('Failed to update task: ' + response_result.message);
-                        }
-                    };
-
-                    document.getElementById('pmtsk-cancel-edit').addEventListener('click', () => {
-                        document.getElementById('pmtsk-edit-task-modal').style.display = 'none';
-                    });
-                }
-
-                async function deleteTask(taskId) {
-                    const confirmation = confirm(`Are you sure you want to delete this task?`);
-                    if (!confirmation) {
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/tasks/${taskId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        const response_result = await response.json();
-
-                        if (response_result.success) {
-                            fetchTasks();
-                        } else {
-                            alert(`Failed to delete task: ${response_result.detail}`);
-                        }
-                    } catch (error) {
-                        console.error('Error deleting task:', error);
-                        alert('An error occurred while deleting the task.');
-                    }
-                }
-            </script>
-
             <div id="pmtsk-edit-task-modal" style="display: none;">
                 <p>タスク編集：</p>
                 <form id="pmtsk-edit-task-form">
@@ -1369,6 +764,9 @@
                     <label for="pmtsk-edit-status">詳細情報：</label>
                     <textarea id="pmtsk-edit-status" rows="4" ></textarea><br>
 
+                    <label for="pmtsk-edit-task-progress">進行度：</label>
+                    <input type="number" id="pmtsk-edit-task-progress" name="pmtsk-edit-task-progress" min="0" max="100" required><br>
+
                     <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
                     <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
                 </form>
@@ -1383,5 +781,7 @@
             </div>
         {% endif %}
     </div>
+
+    <script src="/static/js/home.js"></script>
 </body>
 </html>
