@@ -689,6 +689,10 @@ def order_delete_task_by_id(task_id: int):
 
 def order_update_task_by_id(task_id: int, task: TaskUpdate):
     # Check date validity
+    if task.user_names:
+        # Now it is a string like u1,u2,u3, we need to convert it to a list
+        task.user_names = list(task.user_names.split(","))
+        # print(task.user_names)
     if task.start_date and task.end_date:
         if datetime.strptime(task.start_date, "%Y-%m-%d") > datetime.strptime(task.end_date, "%Y-%m-%d"):
             return "Update failed: Start date is greater than end date!", False
@@ -702,14 +706,14 @@ def order_update_task_by_id(task_id: int, task: TaskUpdate):
             users = session.exec(select(User).where(User.name.in_(task.user_names))).all()
             if len(users) != len(task.user_names):
                 return "Update failed: Some users not found!", False
-            task.users = users
+            db_task.users = users
 
         # try:
         #     Task.model_validate(task)
         # except ValidationError as e:
         #     for error in e.errors():
         #         return "Unexpected update failed: " + error["msg"], False
-        task_data = task.model_dump(exclude_unset=True)
+        task_data = task.model_dump(exclude_unset=True, exclude={"user_names"})
         db_task.sqlmodel_update(task_data)
         session.add(db_task)
         session.commit()

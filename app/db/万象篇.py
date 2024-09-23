@@ -138,4 +138,4 @@ class TaskUpdate(SQLModel):
     end_date: str | None = None
     status: str | None = None
     progress: int | None = None
-    user_names: list[str] | None = None
+    user_names: str | None = None

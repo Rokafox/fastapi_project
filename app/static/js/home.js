@@ -135,8 +135,7 @@ try {
 }
 
 async function hrc_fetchAttendances() {
-    const userName = '{{ username }}';
-    const response = await fetch(`/attendances/${userName}`);
+    const response = await fetch(`/attendances/${current_user_name}`);
     hiruchaaru_attendances = await response.json();
     hrc_displayAttendances(hiruchaaru_attendances);
 }
@@ -488,12 +487,14 @@ async function pmv_deleteProject(projectId) {
 
 
 let pmv_attendances = [];
-            
+
 document.getElementById('pmat_show-attendances-btn').addEventListener('click', () => {
     pmv_fetchAttendances();
     document.getElementById('attendance-and-filterA').style.display = 'block';
     document.getElementById('attendance-and-filterB').style.display = 'block';
     document.getElementById('attendance-and-filterC').style.display = 'block';
+    document.getElementById('attendance-filter-date-before').style.display = 'block'; // date beforeフィルター
+    document.getElementById('attendance-filter-date-after').style.display = 'block'; // date afterフィルター
     document.getElementById('attendance-list').style.display = 'block';
     document.getElementById('calculate-btn').style.display = 'block';
     document.getElementById('pmat_show-attendances-btn').style.display = 'none';
@@ -504,6 +505,8 @@ document.getElementById('pmat_hide-attendances-btn').addEventListener('click', (
     document.getElementById('attendance-and-filterA').style.display = 'none';
     document.getElementById('attendance-and-filterB').style.display = 'none';
     document.getElementById('attendance-and-filterC').style.display = 'none';
+    document.getElementById('attendance-filter-date-before').style.display = 'none'; // date beforeフィルター
+    document.getElementById('attendance-filter-date-after').style.display = 'none'; // date afterフィルター
     document.getElementById('attendance-list').style.display = 'none';
     document.getElementById('calculate-btn').style.display = 'none';
     document.getElementById('pmat_hide-attendances-btn').style.display = 'none';
@@ -514,6 +517,8 @@ document.getElementById('pmat_hide-attendances-btn').addEventListener('click', (
 document.getElementById('attendance-and-filterA').addEventListener('input', pmv_filterAttendances);
 document.getElementById('attendance-and-filterB').addEventListener('input', pmv_filterAttendances);
 document.getElementById('attendance-and-filterC').addEventListener('input', pmv_filterAttendances);
+document.getElementById('attendance-filter-date-before').addEventListener('input', pmv_filterAttendances); // date before
+document.getElementById('attendance-filter-date-after').addEventListener('input', pmv_filterAttendances);  // date after
 
 async function pmv_fetchAttendances() {
     const response = await fetch('/attendances');
@@ -544,30 +549,48 @@ function pmv_filterAttendances() {
     const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
     const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
     const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
+    const dateBefore = new Date(document.getElementById('attendance-filter-date-before').value);
+    const dateAfter = new Date(document.getElementById('attendance-filter-date-after').value);
 
     // フィルターAを適用
-    const filteredAttendancesA = pmv_attendances.filter(attendance => 
+    let filteredAttendances = pmv_attendances.filter(attendance => 
         attendance.user_name.toLowerCase().includes(filterValueA) ||
         attendance.project_name.toLowerCase().includes(filterValueA) ||
         attendance.date.toLowerCase().includes(filterValueA)
     );
 
     // フィルターBを適用
-    const filteredAttendancesB = filteredAttendancesA.filter(attendance => 
+    filteredAttendances = filteredAttendances.filter(attendance => 
         attendance.user_name.toLowerCase().includes(filterValueB) ||
         attendance.project_name.toLowerCase().includes(filterValueB) ||
         attendance.date.toLowerCase().includes(filterValueB)
     );
 
     // フィルターCを適用
-    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
+    filteredAttendances = filteredAttendances.filter(attendance => 
         attendance.user_name.toLowerCase().includes(filterValueC) ||
         attendance.project_name.toLowerCase().includes(filterValueC) ||
         attendance.date.toLowerCase().includes(filterValueC)
     );
 
+    // date beforeフィルターを適用
+    if (!isNaN(dateBefore.getTime())) {  // 有効な日付か確認
+        filteredAttendances = filteredAttendances.filter(attendance => {
+            const attendanceDate = new Date(attendance.date);
+            return attendanceDate <= dateBefore;
+        });
+    }
+
+    // date afterフィルターを適用
+    if (!isNaN(dateAfter.getTime())) {  // 有効な日付か確認
+        filteredAttendances = filteredAttendances.filter(attendance => {
+            const attendanceDate = new Date(attendance.date);
+            return attendanceDate >= dateAfter;
+        });
+    }
+
     // 絞り込んだ結果を表示
-    pmv_displayAttendances(filteredAttendancesC);
+    pmv_displayAttendances(filteredAttendances);
 }
 
 document.getElementById('calculate-btn').addEventListener('click', () => {
@@ -708,7 +731,7 @@ async function pmv_editTask(taskId) {
 
     // We could add this back later
     // document.getElementById('pmtsk-edit-project').value = task.project_name;
-    // document.getElementById('pmtsk-edit-user').value = task.user_name;
+    document.getElementById('pmtsk-edit-user').value = task.user_names;
     document.getElementById('pmtsk-edit-startdate').value = task.start_date;
     document.getElementById('pmtsk-edit-enddate').value = task.end_date;
     // sometimes status is null so this will gives Uncaught (in promise) TypeError: Cannot set properties of null (setting 'value')
@@ -723,7 +746,7 @@ async function pmv_editTask(taskId) {
 
         const updatedTask = {
             // project_name: document.getElementById('pmtsk-edit-project').value,
-            // user_name: document.getElementById('pmtsk-edit-user').value,
+            user_names: document.getElementById('pmtsk-edit-user').value,
             start_date: document.getElementById('pmtsk-edit-startdate').value,
             end_date: document.getElementById('pmtsk-edit-enddate').value,
             status: document.getElementById('pmtsk-edit-status').value,
