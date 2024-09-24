@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "en";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Welcome, {{ username }}!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="Logout">
+            <input type="hidden" name="lang" value="en">
+        </form>
+        <nav>
+            <a href="/passwd">Change Passwd</a>
+            <a href="/useradmin">Manage Users</a>
+            <a href="/project">New Project</a>
+            <a href="/users">User Information</a>
+        </nav>
+        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Japanese</a>
+    </div>
+    <div class="container">
+        <p>New password:</p>
+        <form action="/genericuser_change_password" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="lang" value="en">
+            <p>Password must be at least 4 characters long.</p>
+            <input type="password" id="newpassword" name="newpassword" required>
+            <input type="submit" value="Change Password">
+        </form>
+        {% if genericuser_changepassword_message %}
+            <div class="message {% if genericuser_changepassword_success %}success{% else %}error{% endif %}">
+                {{ genericuser_changepassword_message }}
+            </div>
+        {% endif %}
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

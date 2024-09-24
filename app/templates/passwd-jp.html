@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>パスワード変更</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "jp";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>ようこそ, {{ username }}さん!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="ログアウト">
+            <input type="hidden" name="lang" value="jp">
+        </form>
+        <nav>
+            <a href="/passwd">パスワード変更</a>
+            <a href="/useradmin">ユーザー作成・削除</a>
+            <a href="/project">プロジェクト作成</a>
+            <a href="/users">ユーザー情報</a>
+        </nav>
+        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}&password={{ password }}">英語</a>
+    </div>
+    <div class="container">
+        {% if role == 'sysadmin' %}
+            <p>あなたはシステム管理者です。</p>
+            <p>ユーザーを作成します：</p>
+            <form action="/sysadmin_create_user" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="jp">
+                <label for="newuser_name">ユーザー名：</label>
+                <input type="text" id="newuser_name" name="newuser_name" required>
+                <label for="newuser_password">パスワード：</label>
+                <p>パスワードは4文字以上でなければなりません。</p>
+                <input type="password" id="newuser_password" name="newuser_password" required>
+                <label for="newuser_role">役割：</label>
+                <select id="newuser_role" name="newuser_role">
+                    <option value="hiruchaaru">ヒルチャール</option>
+                    <option value="projectmanager">プロジェクトマネージャー</option>
+                </select>
+                <input type="submit" value="ユーザー作成">
+            </form>
+            {% if sysadmin_createuser_message %}
+                <div class="message {% if sysadmin_createuser_success %}success{% else %}error{% endif %}">
+                    {{ sysadmin_createuser_message }}
+                </div>
+            {% endif %}
+    </body>
+</html>

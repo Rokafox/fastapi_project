@@ -11,33 +11,23 @@
 <body>
     <div class="header-container">
         <h1>ようこそ, {{ username }}さん!</h1>
-        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}&password={{ password }}">英語</a>
-    </div>
-
-    <div class="container">
-        <p>ログインに成功しました！</p>
         <form action="/logout" method="post">
             <input type="submit" value="ログアウト">
             <input type="hidden" name="lang" value="jp">
         </form>
-        <p>パスワード編集：</p>
-        <form action="/genericuser_change_password" method="post">
-            <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" name="role" value="{{ role }}">
-            <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="jp">
+        <nav>
+            <a href="/passwd">パスワード変更</a>
+            <a href="/useradmin">ユーザー作成・削除</a>
+            <a href="/project">プロジェクト作成</a>
+            <a href="/users">ユーザー情報</a>
+        </nav>
+        <a class="JPpage" href="/home?username={{ username }}&role={{ role }}&password={{ password }}">英語</a>
+    </div>
 
-            <p>パスワードは4文字以上でなければなりません。</p>
-            <input type="password" id="newpassword" name="newpassword" required>
-
-            <input type="submit" value="編集">
-        </form>
-        {% if genericuser_changepassword_message %}
-            <div class="message {% if genericuser_changepassword_success %}success{% else %}error{% endif %}">
-                {{ genericuser_changepassword_message }}
-            </div>
-        {% endif %}
-        
+    <div class="container">
+        <script>
+            alert("ログインに成功しました！")
+        </script>
         {% if role == 'sysadmin' %}
             <p>あなたはシステム管理者です。</p>
             <p>ユーザーを作成します：</p>
