@@ -23,7 +23,7 @@
     <div class="container">
         {% if role == 'sysadmin' %}
         <p>You are System administrator.</p>
-        
+        {% endif %}
         <p>Create a new project:</p>
             <form action="/sysadmin_create_project" method="post">
                 <input type="hidden" name="username" value="{{ username }}">
@@ -116,6 +116,7 @@
                     {{ sysadmin_assignprojectmanager_message }}
                 </div>
             {% endif %}
+
 
             <p>View projects:</p>
 
