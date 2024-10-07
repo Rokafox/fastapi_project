@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Passwd</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "en";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Welcome, {{ username }}!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="Logout">
+            <input type="hidden" name="lang" value="en">
+        </form>
+        <nav>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+        </nav>
+        <a class="JPpage" href="/user-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
+    </div>
+    <div class="container">
+        {% if role == 'sysadmin' %}
+        <p>You are System administrator.</p>
+        {% endif %}
+
+        <p>View users:</p>
+
+            <button id="show-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Users</button>
+            <button id="hide-users-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Users</button>
+
+            <input type="text" id="filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
+
+            <ul id="user-list" style="display: none;">
+                <!-- ユーザーリストがここに表示されます -->
+            </ul>
+
+            <script>
+                let users = [];
+
+                document.getElementById('show-users-btn').addEventListener('click', () => {
+                    fetchUsers();
+                    document.getElementById('filter-input').style.display = 'block';
+                    document.getElementById('user-list').style.display = 'block';
+                    document.getElementById('show-users-btn').style.display = 'none';
+                    document.getElementById('hide-users-btn').style.display = 'block';
+                });
+
+                document.getElementById('hide-users-btn').addEventListener('click', () => {
+                    document.getElementById('filter-input').style.display = 'none';
+                    document.getElementById('user-list').style.display = 'none';
+                    document.getElementById('hide-users-btn').style.display = 'none';
+                    document.getElementById('show-users-btn').style.display = 'block';
+                });
+
+                document.getElementById('filter-input').addEventListener('input', filterUsers);
+
+                async function fetchUsers() {
+                    const response = await fetch('/users');
+                    users = await response.json();
+                    displayUsers(users);
+                }
+
+                function displayUsers(userList) {
+                    const userListElement = document.getElementById('user-list');
+                    userListElement.innerHTML = '';
+
+                    userList.forEach(user => {
+                        const listItem = document.createElement('li');
+                        let editButtonHTML = '';
+
+                        // 現在のユーザー名と一致しない場合のみ編集ボタンを表示
+                        if (user.name !== "{{ username }}") {
+                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
+                        }
+                        // can't edit sysadmin
+                        // if (user.role !== "sysadmin") {
+                        //     editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">Edit</button>`;
+                        // }
+
+                        // We will do it backend instead.
+                        // let password = user.name === "rokafox" ? "???" : user.password;
+                        // let role = user.name === "rokafox" ? "???" : user.role;
+
+
+                        let password = user.password;
+                        let role = user.role;
+                        if (user.name === "rokafox") {
+                            editButtonHTML = '';
+                        }
+
+                        listItem.innerHTML = `
+                            <strong>Name:</strong> ${user.name} <br>
+                            <strong>Password:</strong> ${password} <br>
+                            <strong>Role:</strong> ${role} <br>
+                            ${editButtonHTML}
+                        `;
+                        userListElement.appendChild(listItem);
+                    });
+                }
+
+                function filterUsers() {
+                    const filterValue = document.getElementById('filter-input').value.toLowerCase();
+                    const filteredUsers = users.filter(user => 
+                        user.name.toLowerCase().includes(filterValue) ||
+                        user.password.toLowerCase().includes(filterValue) ||
+                        user.role.toLowerCase().includes(filterValue)
+                    );
+                    displayUsers(filteredUsers);
+                }
+
+                async function editUser(userId) {
+                    // 選択したユーザーのデータを取得
+                    const user = users.find(u => u.id === userId);
+
+                    // フォームにユーザーのデータをセット
+                    document.getElementById('edit-name').value = user.name;
+                    document.getElementById('edit-password').value = user.password;
+                    document.getElementById('edit-role').value = user.role;
+
+                    // 編集モーダルを表示
+                    document.getElementById('edit-user-modal').style.display = 'block';
+
+                    // フォームのサブミット処理
+                    document.getElementById('edit-user-form').onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        // フォームからデータを取得
+                        const updatedUser = {
+                            name: document.getElementById('edit-name').value,
+                            password: document.getElementById('edit-password').value,
+                            role: document.getElementById('edit-role').value,
+                        };
+
+                        // サーバーにPATCHリクエストを送信
+                        const response = await fetch(`/users/${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedUser),
+                        });
+
+                        const response_result = await response.json();
+                        if (response_result.success) {
+                            fetchUsers();
+                            // モーダルを非表示
+                            document.getElementById('edit-user-modal').style.display = 'none';
+                        } else {
+                            alert('Failed to update user: ' + response_result.message);  // エラーメッセージを表示
+                        }
+                    };
+
+                    // キャンセルボタンの処理
+                    document.getElementById('cancel-edit').addEventListener('click', () => {
+                        document.getElementById('edit-user-modal').style.display = 'none';
+                    });
+                }
+            </script>
+
+            <div id="edit-user-modal" style="display: none;">
+                <p>Edit user:</p>
+                <form id="edit-user-form">
+                    <label for="edit-name">Name:</label>
+                    <input type="text" id="edit-name" required><br>
+
+                    <label for="edit-password">Password:</label>
+                    <input type="text" id="edit-password" required><br>
+
+                    <label for="edit-role">Role:</label>
+                    <select id="edit-role" required>
+                        <option value="sysadmin">Sysadmin</option>
+                        <option value="projectmanager">Project Manager</option>
+                        <option value="hiruchaaru">Hiruchaaru</option>
+                    </select><br>
+
+                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
+                    <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
+
+                </form>
+            </div>
+    </div>
+</body>
+</html>

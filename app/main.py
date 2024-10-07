@@ -104,6 +104,36 @@ async def passwd_jp(request: Request, username: str, role: str, password: str):
 async def passwd_en(request: Request, username: str, role: str, password: str):
     return templates.TemplateResponse("passwd.html", {"request": request, "username": username, "role": role, "password": password})
 
+# 日本語ユーザ管理ページ
+@app.get("/useradmin-jp", response_class=HTMLResponse)
+async def useradmin_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("useradmin-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 英語ユーザー管理ページ
+@app.get("/useradmin", response_class=HTMLResponse)
+async def useradmin(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("useradmin.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 日本語プロジェクト管理ページ
+@app.get("/project-jp", response_class=HTMLResponse)
+async def project_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("project-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 英語プロジェクト管理ページ
+@app.get("/project-en", response_class=HTMLResponse)
+async def project_en(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("project-en.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 日本語ユーザ管理ページ
+@app.get("/user-jp", response_class=HTMLResponse)
+async def user_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("user-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 英語ユーザー管理ページ
+@app.get("/user", response_class=HTMLResponse)
+async def user(request: Request, username: str, role: str, password: str):
+        return templates.TemplateResponse("user.html", {"request": request, "username": username, "role": role, "password": password})
+
 @app.post("/sysadmin_create_user", response_class=HTMLResponse)
 async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
                                newuser_password: str = Form(...), newuser_role: str = Form(...),

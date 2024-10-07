@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Admin</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "en";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Welcome, {{ username }}!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="Logout">
+            <input type="hidden" name="lang" value="en">
+        </form>
+        <nav>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+        </nav>
+        <a class="JPpage" href="/useradmin-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
+    </div>
+    <div class="container">
+        {% if role == 'sysadmin' %}
+        <p>You are System administrator.</p>
+        {% endif %}
+        <p>Create a user:</p>
+            <form action="/sysadmin_create_user" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+
+                <label for="newuser_name">Username:</label>
+                <input type="text" id="newuser_name" name="newuser_name" required>
+
+                <label for="newuser_password">Password:</label>
+                <p>Password must be at least 4 characters long.</p>
+                <input type="password" id="newuser_password" name="newuser_password" required>
+
+                <label for="newuser_role">Role:</label>
+                <select id="newuser_role" name="newuser_role">
+                    <option value="hiruchaaru">Hiruchaaru</option>
+                    <option value="projectmanager">Project Manager</option>
+                </select>
+
+                <input type="submit" value="Create User">
+            </form>
+
+            {% if sysadmin_createuser_message %}
+                <div class="message {% if sysadmin_createuser_success %}success{% else %}error{% endif %}">
+                    {{ sysadmin_createuser_message }}
+                </div>
+            {% endif %}
+
+            <p>Delete a user:</p>
+            <form action="/sysadmin_delete_user" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+
+                <label for="deleteuser_name">Username:</label>
+                <input type="text" id="deleteuser_name" name="deleteuser_name" required>
+            
+                <input type="submit" value="Delete User">
+            </form>
+            
+            {% if sysadmin_deleteuser_message %}
+                <div class="message {% if sysadmin_deleteuser_success %}success{% else %}error{% endif %}">
+                    {{ sysadmin_deleteuser_message }}
+                </div>
+            {% endif %}
+    </div>
+</body>
+</html>

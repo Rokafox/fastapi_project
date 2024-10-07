@@ -16,12 +16,9 @@
             <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
-            <a href="/passwd-jp">パスワード変更</a>
-            <a href="/useradmin">ユーザー作成・削除</a>
-            <a href="/project">プロジェクト作成</a>
-            <a href="/users">ユーザー情報</a>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
         </nav>
-        <a class="JPpage" href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">英語</a>
+        <a class="JPpage" href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
     </div>
     <div class="container">
         {% if role == 'sysadmin' %}
