@@ -99,10 +99,10 @@ async def home(request: Request, username: str, role: str, password: str):
 async def passwd_jp(request: Request, username: str, role: str, password: str):
     return templates.TemplateResponse("passwd-jp.html", {"request": request, "username": username, "role": role, "password": password})
 
-# # 英語パスワード
-# @app.get("/passwd", response_class=HTMLResponse)
-# async def passwd_en(request: Request, username: str, role: str, password: str):
-#     return templates.TemplateResponse("passwd.html", {"request": request, "username": username, "role": role, "password": password})
+# 英語パスワード
+@app.get("/passwd", response_class=HTMLResponse)
+async def passwd_en(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("passwd.html", {"request": request, "username": username, "role": role, "password": password})
 
 @app.post("/sysadmin_create_user", response_class=HTMLResponse)
 async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
