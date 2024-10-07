@@ -21,10 +21,10 @@ nav{
 }
 
 nav a {
-    margin-right: 50px; 
+    margin-right: 20px; 
     text-decoration: none;
     color: #fff; 
-    font-size: 1.2rem;
+    font-size :1.2rem;
 }
   .header-container form {
     display: flex;

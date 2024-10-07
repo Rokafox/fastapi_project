@@ -1,54 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    <title>Change Passwd</title>
     <link rel="stylesheet" type="text/css" href="/static/css/home.css">
     <script>
         const current_user_name = "{{ username }}";
-        const page_language = "en";
+        const page_language = "jp";
     </script>
 </head>
 <body>
     <div class="header-container">
         <h1>Welcome, {{ username }}!</h1>
         <form action="/logout" method="post">
-            <input type="submit" value="Logout">
-            <input type="hidden" name="lang" value="en">
+            <input type="submit" value="ログアウト">
+            <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
+            <a href="/home">Home</a>
             <a href="/passwd">Change Passwd</a>
-            <a href="/useradmin">Manage Users</a>
-            <a href="/project">New Project</a>
-            <a href="/users">User Information</a>
+            <a href="/useradmin">Create and delete users</a>
+            <a href="/project">Create projects</a>
+            <a href="/users">Users Information</a>
         </nav>
-        <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Japanese</a>
+        <a class="JPpage" href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">英語</a>
     </div>
     <div class="container">
-        <p>New password:</p>
-        <form action="/genericuser_change_password" method="post">
-            <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" name="role" value="{{ role }}">
-            <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="en">
-            <p>Password must be at least 4 characters long.</p>
-            <input type="password" id="newpassword" name="newpassword" required>
-            <input type="submit" value="Change Password">
-        </form>
-        {% if genericuser_changepassword_message %}
-            <div class="message {% if genericuser_changepassword_success %}success{% else %}error{% endif %}">
-                {{ genericuser_changepassword_message }}
-            </div>
+        {% if role == 'sysadmin' %}
+        <p>You are System administrator.</p>
         {% endif %}
-    </body>
+
+        {% if role == 'hiruchaaru' %}
+        <p>You are Hiruchaaru.</p>
+        {% endif %}
+
+        {% if role == 'projectmanager'%}
+        <p>You are Project manager.</p>
+        {% endif %}
+        <p>Newpassword:</p>
+            <form action="/genericuser_change_password" method="post">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="lang" value="en">
+                <p>Password must be at least 4 characters long.</p>
+                <input type="password" id="newpassword" name="newpassword" required>
+                <input type="submit" value="Change Password">
+            </form>
+            {% if genericuser_changepassword_message %}
+                <div class="message {% if genericuser_changepassword_success %}success{% else %}error{% endif %}">
+                {{ genericuser_changepassword_message }}
+                </div>
+            {% endif %}
+    </div>
+</body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

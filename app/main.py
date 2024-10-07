@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 import os
 import shutil
 import time
+from fastapi import Query
 from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
@@ -93,6 +94,16 @@ async def home(request: Request, username: str, role: str, password: str):
 async def home(request: Request, username: str, role: str, password: str):
     return templates.TemplateResponse("home-jp.html", {"request": request, "username": username, "role": role, "password": password})
 
+# 日本語パスワード変更ページ
+@app.get("/passwd-jp", response_class=HTMLResponse)
+async def passwd_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("passwd-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# # 英語パスワード
+# @app.get("/passwd", response_class=HTMLResponse)
+# async def passwd_en(request: Request, username: str, role: str, password: str):
+#     return templates.TemplateResponse("passwd.html", {"request": request, "username": username, "role": role, "password": password})
+
 @app.post("/sysadmin_create_user", response_class=HTMLResponse)
 async def sysadmin_create_user(request: Request, newuser_name: str = Form(...), 
                                newuser_password: str = Form(...), newuser_role: str = Form(...),
@@ -134,7 +145,7 @@ async def genericuser_change_password(request: Request, newpassword: str = Form(
     msg, successcheck = order_change_password_given_name(username, newpassword)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "passwd.html" if lang == "en" else "passwd-jp.html"
     if not successcheck:
         newpassword = password
     return templates.TemplateResponse(template_name, {"request": request, "genericuser_changepassword_message": msg,
