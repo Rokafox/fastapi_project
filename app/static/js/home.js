@@ -24,11 +24,18 @@ document.addEventListener("DOMContentLoaded", function() {
             option.textContent = user.name;
             option.dataset.password = user.password;
             option.dataset.role = user.role;
-            document.getElementById('pmasu_the_user_name').appendChild(option);
-            //pmuasu_the_user_name
-            document.getElementById('pmuasu_the_user_name').appendChild(option.cloneNode(true));
-        });
 
+            // 各要素が存在するか確認してから追加
+            const pmasuUserElement = document.getElementById('pmasu_the_user_name');
+            if (pmasuUserElement) {
+                pmasuUserElement.appendChild(option.cloneNode(true));
+            }
+
+            const pmuasuUserElement = document.getElementById('pmuasu_the_user_name');
+            if (pmuasuUserElement) {
+                pmuasuUserElement.appendChild(option.cloneNode(true));
+            }
+        });
     })
     .catch(error => console.error('Error fetching users:', error));
 
@@ -40,11 +47,22 @@ document.addEventListener("DOMContentLoaded", function() {
             const option = document.createElement('option');
             option.value = project.name;
             option.textContent = project.name;
-            document.getElementById('pmasu_the_project_name').appendChild(option);
-            //pmuasu_the_project_name
-            document.getElementById('pmuasu_the_project_name').appendChild(option.cloneNode(true));
-            //pmcreatetask_the_project_name
-            document.getElementById('pmcreatetask_the_project_name').appendChild(option.cloneNode(true));
+
+            // 各要素が存在するか確認してから追加
+            const pmasuElement = document.getElementById('pmasu_the_project_name');
+            if (pmasuElement) {
+                pmasuElement.appendChild(option.cloneNode(true));
+            }
+
+            const pmuasuElement = document.getElementById('pmuasu_the_project_name');
+            if (pmuasuElement) {
+                pmuasuElement.appendChild(option.cloneNode(true));
+            }
+
+            const pmcreatetaskElement = document.getElementById('pmcreatetask_the_project_name');
+            if (pmcreatetaskElement) {
+                pmcreatetaskElement.appendChild(option.cloneNode(true));
+            }
         });
     })
     .catch(error => console.error('Error fetching projects:', error));
