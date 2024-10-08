@@ -339,22 +339,34 @@ async function hrc_editTask(taskId) {
 
 let pmv_projects = [];
             
-document.getElementById('show-projects-btn').addEventListener('click', () => {
-    pmv_fetchProjects();
-    document.getElementById('filter-input').style.display = 'block';
-    document.getElementById('project-list').style.display = 'block';
-    document.getElementById('show-projects-btn').style.display = 'none';
-    document.getElementById('hide-projects-btn').style.display = 'block';
-});
+try {
+    document.getElementById('show-projects-btn').addEventListener('click', () => {
+        pmv_fetchProjects();
+        document.getElementById('filter-input').style.display = 'block';
+        document.getElementById('project-list').style.display = 'block';
+        document.getElementById('show-projects-btn').style.display = 'none';
+        document.getElementById('hide-projects-btn').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('hide-projects-btn').addEventListener('click', () => {
-    document.getElementById('filter-input').style.display = 'none';
-    document.getElementById('project-list').style.display = 'none';
-    document.getElementById('hide-projects-btn').style.display = 'none';
-    document.getElementById('show-projects-btn').style.display = 'block';
-});
+try {
+    document.getElementById('hide-projects-btn').addEventListener('click', () => {
+        document.getElementById('filter-input').style.display = 'none';
+        document.getElementById('project-list').style.display = 'none';
+        document.getElementById('hide-projects-btn').style.display = 'none';
+        document.getElementById('show-projects-btn').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('filter-input').addEventListener('input', pmv_filterProjects);
+try {
+    document.getElementById('filter-input').addEventListener('input', pmv_filterProjects);
+} catch (error) {
+    console.log(error);
+}
 
 async function pmv_fetchProjects() {
     const response = await fetch(`/projects_pm/${current_user_name}`);
@@ -488,37 +500,69 @@ async function pmv_deleteProject(projectId) {
 
 let pmv_attendances = [];
 
-document.getElementById('pmat_show-attendances-btn').addEventListener('click', () => {
-    pmv_fetchAttendances();
-    document.getElementById('attendance-and-filterA').style.display = 'block';
-    document.getElementById('attendance-and-filterB').style.display = 'block';
-    document.getElementById('attendance-and-filterC').style.display = 'block';
-    document.getElementById('attendance-filter-date-before').style.display = 'block'; // date beforeフィルター
-    document.getElementById('attendance-filter-date-after').style.display = 'block'; // date afterフィルター
-    document.getElementById('attendance-list').style.display = 'block';
-    document.getElementById('calculate-btn').style.display = 'block';
-    document.getElementById('pmat_show-attendances-btn').style.display = 'none';
-    document.getElementById('pmat_hide-attendances-btn').style.display = 'block';
-});
+try {
+    document.getElementById('pmat_show-attendances-btn').addEventListener('click', () => {
+        pmv_fetchAttendances();
+        document.getElementById('attendance-and-filterA').style.display = 'block';
+        document.getElementById('attendance-and-filterB').style.display = 'block';
+        document.getElementById('attendance-and-filterC').style.display = 'block';
+        document.getElementById('attendance-filter-date-before').style.display = 'block'; // date beforeフィルター
+        document.getElementById('attendance-filter-date-after').style.display = 'block'; // date afterフィルター
+        document.getElementById('attendance-list').style.display = 'block';
+        document.getElementById('calculate-btn').style.display = 'block';
+        document.getElementById('pmat_show-attendances-btn').style.display = 'none';
+        document.getElementById('pmat_hide-attendances-btn').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('pmat_hide-attendances-btn').addEventListener('click', () => {
-    document.getElementById('attendance-and-filterA').style.display = 'none';
-    document.getElementById('attendance-and-filterB').style.display = 'none';
-    document.getElementById('attendance-and-filterC').style.display = 'none';
-    document.getElementById('attendance-filter-date-before').style.display = 'none'; // date beforeフィルター
-    document.getElementById('attendance-filter-date-after').style.display = 'none'; // date afterフィルター
-    document.getElementById('attendance-list').style.display = 'none';
-    document.getElementById('calculate-btn').style.display = 'none';
-    document.getElementById('pmat_hide-attendances-btn').style.display = 'none';
-    document.getElementById('pmat_show-attendances-btn').style.display = 'block';
-    document.getElementById('calculate-output').style.display = 'none';
-});
+try {
+    document.getElementById('pmat_hide-attendances-btn').addEventListener('click', () => {
+        document.getElementById('attendance-and-filterA').style.display = 'none';
+        document.getElementById('attendance-and-filterB').style.display = 'none';
+        document.getElementById('attendance-and-filterC').style.display = 'none';
+        document.getElementById('attendance-filter-date-before').style.display = 'none'; // date beforeフィルター
+        document.getElementById('attendance-filter-date-after').style.display = 'none'; // date afterフィルター
+        document.getElementById('attendance-list').style.display = 'none';
+        document.getElementById('calculate-btn').style.display = 'none';
+        document.getElementById('pmat_hide-attendances-btn').style.display = 'none';
+        document.getElementById('pmat_show-attendances-btn').style.display = 'block';
+        document.getElementById('calculate-output').style.display = 'none';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('attendance-and-filterA').addEventListener('input', pmv_filterAttendances);
-document.getElementById('attendance-and-filterB').addEventListener('input', pmv_filterAttendances);
-document.getElementById('attendance-and-filterC').addEventListener('input', pmv_filterAttendances);
-document.getElementById('attendance-filter-date-before').addEventListener('input', pmv_filterAttendances); // date before
-document.getElementById('attendance-filter-date-after').addEventListener('input', pmv_filterAttendances);  // date after
+try {
+    document.getElementById('attendance-and-filterA').addEventListener('input', pmv_filterAttendances);
+} catch (error) {
+    console.log(error);
+}
+
+try {
+    document.getElementById('attendance-and-filterB').addEventListener('input', pmv_filterAttendances);
+} catch (error) {
+    console.log(error);
+}
+
+try {
+    document.getElementById('attendance-and-filterC').addEventListener('input', pmv_filterAttendances);
+} catch (error) {
+    console.log(error);
+}
+
+try {
+    document.getElementById('attendance-filter-date-before').addEventListener('input', pmv_filterAttendances); // date before
+} catch (error) {
+    console.log(error);
+}
+
+try {
+    document.getElementById('attendance-filter-date-after').addEventListener('input', pmv_filterAttendances);  // date after
+} catch (error) {
+    console.log(error);
+}
 
 async function pmv_fetchAttendances() {
     const response = await fetch('/attendances');
@@ -593,10 +637,14 @@ function pmv_filterAttendances() {
     pmv_displayAttendances(filteredAttendances);
 }
 
-document.getElementById('calculate-btn').addEventListener('click', () => {
-    pmv_calculateAttendanceRate();
-    document.getElementById('calculate-output').style.display = 'block';
-});
+try {
+    document.getElementById('calculate-btn').addEventListener('click', () => {
+        pmv_calculateAttendanceRate();
+        document.getElementById('calculate-output').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
 function pmv_calculateAttendanceRate() {
     const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
