@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>出勤一覧</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "jp";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Welcome, {{ username }}!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="Logout">
+            <input type="hidden" name="lang" value="jp">
+        </form>
+        <nav>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+        </nav>
+        <a class="JPpage" href="/attendance-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
+    </div>
+
+    <div class="container">
+        {% if role == 'projectmanager' %}
+        <p>You are Project Manager.</p>
+        {% endif %}
+
+        <p>View attendances:</p>
+
+        <button id="pmat_show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">
+            Show Attendances
+        </button>
+
+        <button id="pmat_hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">
+            Hide Attendances
+        </button>
+
+        <input type="text" id="attendance-and-filterA" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+        <input type="text" id="attendance-and-filterB" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+        <input type="text" id="attendance-and-filterC" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+
+        <input type="text" id="attendance-filter-date-before" placeholder="Date Before" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+        <input type="text" id="attendance-filter-date-after" placeholder="Date After" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+
+        <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">
+            Calculate Attendance Rate
+        </button>
+
+        <p id="calculate-output" style="display: none;">
+            This feature is not implemented yet.
+        </p>
+
+        <ul id="attendance-list" style="display: none;">
+            <!-- 出席リストがここに表示されます -->
+        </ul>
+
+        {% if error %}
+        <div class="message error">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

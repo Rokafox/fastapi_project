@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>プロジェクト編集</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "jp";
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>ようこそ, {{ username }}さん!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="ログアウト">
+            <input type="hidden" name="lang" value="jp">
+        </form>
+        <nav>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+        </nav>
+        <a class="JPpage" href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
+    </div>
+
+    <div class="container">
+        {% if role == 'projectmanager' %}
+        <p>あなたはプロジェクトマネージャーです。</p>
+        {% endif %}
+
+        <p>プロジェクトをユーザーに割り当てます：</p>
+        <p>本日以前の出席記録は追加されません。</p>
+        <p>編集によってプロジェクトの日付が変更された場合、出席記録もそれに応じて更新されます。</p>
+
+        <!-- 今日より前の出勤記録は登録できないぞ！ -->
+        <form action="/pm_create_attendance" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="lang" value="jp">
+
+            <label for="pmasu_the_project_name">プロジェクト名：</label>
+            <select id="pmasu_the_project_name" name="pmasu_the_project_name" required>
+                <option value="">プロジェクトを選択してください</option>
+            </select>
+
+            <label for="pmasu_the_user_name">ユーザー名：</label>
+            <select id="pmasu_the_user_name" name="pmasu_the_user_name" required>
+                <option value="">ユーザーを選択してください</option>
+            </select>
+
+            <input type="submit" value="割り当て">
+        </form>
+
+        {% if pm_createattendance_message %}
+        <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
+            {{ pm_createattendance_message }}
+        </div>
+        {% endif %}
+
+        <p>ユーザーへのプロジェクトの割り当てを解除します：</p>
+        <form action="/pm_delete_attendance" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="lang" value="jp">
+
+            <label for="pmuasu_the_project_name">プロジェクト名：</label>
+            <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
+                <option value="">プロジェクトを選択してください</option>
+            </select>
+
+            <label for="pmuasu_the_user_name">ユーザー名：</label>
+            <select id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
+                <option value="">ユーザーを選択してください</option>
+            </select>
+
+            <input type="submit" value="割り当て解除">
+        </form>
+
+        {% if pm_deleteattendance_message %}
+        <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
+            {{ pm_deleteattendance_message }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="message error">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

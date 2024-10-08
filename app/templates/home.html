@@ -16,12 +16,21 @@
             <input type="submit" value="Logout">
             <input type="hidden" name="lang" value="en">
         </form>
+        {% if role == 'sysadmin' %}
         <nav>
             <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
             <a href="/useradmin?username={{ username }}&role={{ role }}&password={{ password }}">Manage Users</a>
             <a href="/project-en?username={{ username }}&role={{ role }}&password={{ password }}">New Project</a>
             <a href="/user?username={{ username }}&role={{ role }}&password={{ password }}">User Information</a>
         </nav>
+        {% endif %}
+        {% if role == 'projectmanager'%}
+        <nav>
+            <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}">task</a>
+            <a href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}">Project sub</a>
+            <a href="/attendance?username={{ username }}&role={{ role }}&password={{ password }}">Attendance</a>
+        </nav>
+        {% endif %}
         <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Japanese</a>
     </div>
 
@@ -128,168 +137,7 @@
 
                 </form>
             </div>
-
-            <p>Assign project to user:</p>
-            <p>Attendance records before today will not be added.</p>
-            <p>If project date is changed by edit, the attendance record will be updated accordingly.</p>
-            <form action="/pm_create_attendance" method="post">
-                <input type="hidden" name="username" value="{{ username }}">
-                <input type="hidden" name="role" value="{{ role }}">
-                <input type="hidden" name="password" value="{{ password }}">
-                <input type="hidden" name="lang" value="en">
-            
-                <label for="pmasu_the_project_name">Project Name:</label>
-                <select id="pmasu_the_project_name" name="pmasu_the_project_name" required>
-                    <option value="">Select Project</option>
-                </select>
-            
-                <label for="pmasu_the_user_name">User Name:</label>
-                <select id="pmasu_the_user_name" name="pmasu_the_user_name" required>
-                    <option value="">Select User</option>
-                </select>
-            
-                <input type="submit" value="Submit or Update">
-            </form>
-            
-            {% if pm_createattendance_message %}
-                <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">
-                    {{ pm_createattendance_message }}
-                </div>
             {% endif %}
-            
-
-            <p>Unassign project to user:</p>
-            <form action="/pm_delete_attendance" method="post">
-                <input type="hidden" name="username" value="{{ username }}">
-                <input type="hidden" name="role" value="{{ role }}">
-                <input type="hidden" name="password" value="{{ password }}">
-                <input type="hidden" name="lang" value="en">
-
-                <label for="pmuasu_the_project_name">Project Name:</label>
-                <!-- <input type="text" id="pmuasu_the_project_name" name="pmuasu_the_project_name" required> -->
-                <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
-                    <option value="">Select Project</option>
-                </select>
-
-                <label for="pmuasu_the_user_name">User Name:</label>
-                <!-- <input type="text" id="pmuasu_the_user_name" name="pmuasu_the_user_name" required> -->
-                <select id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
-                    <option value="">Select User</option>
-                </select>
-
-                <input type="submit" value="Delete">
-            </form>
-            {% if pm_deleteattendance_message %}
-                <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
-                    {{ pm_deleteattendance_message }}
-                </div>
-            {% endif %}
-
-
-            <p>View attendances:</p>
-
-            <button id="pmat_show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Attendances</button>
-            <button id="pmat_hide-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Attendances</button>
-            
-            <input type="text" id="attendance-and-filterA" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            <input type="text" id="attendance-and-filterB" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            <input type="text" id="attendance-and-filterC" placeholder="And Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-
-            <input type="text" id="attendance-filter-date-before" placeholder="Date Before" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            <input type="text" id="attendance-filter-date-after" placeholder="Date After" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            
-            <button id="calculate-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Calculate Attendance Rate</button>
-            
-            <p id="calculate-output" style="display: none;">This feature is not implemented yet.</p>
-
-            <ul id="attendance-list" style="display: none;">
-                <!-- 出席リストがここに表示されます -->
-            </ul>
-
-            <p>Create a new task:</p>
-            <form id="pmcreateTaskForm" action="/pm_create_task" method="post">
-                <input type="hidden" name="username" value="{{ username }}">
-                <input type="hidden" name="role" value="{{ role }}">
-                <input type="hidden" name="password" value="{{ password }}">
-                <input type="hidden" name="lang" value="en">
-
-                <label for="pmcreatetask_the_project_name">Project Name:</label>
-                <!-- <input type="text" id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required> -->
-                <select id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
-                    <option value="">Select Project</option>
-                </select>
-
-                <!-- <label for="pmcreatetask_the_user_names">Username (separate multiple entries with commas):</label>
-                <input type="text" id="pmcreatetask_the_user_names" name="pmcreatetask_the_user_names" required> -->
-
-                <label for="pmcreatetask_the_user_names">Select Users:</label>
-                <div id="pmcreatetask_the_user_names">
-                    <!-- ユーザーのチェックボックスがここに挿入されます -->
-                </div>
-                
-                <input type="hidden" id="pmcreatetask_user_list" name="pmcreatetask_the_user_names" value="">
-
-                <label for="the_task_startdate">Task Start Date:</label>
-                <input type="date" id="the_task_startdate" name="the_task_startdate" required>
-
-                <label for="the_task_enddate">Task End Date:</label>
-                <input type="date" id="the_task_enddate" name="the_task_enddate" required>
-
-                <label for="the_task_status">Task Description (optional):</label>
-                <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" 
-                    placeholder="Make 7 pieces of sugar: 40% complete&#10;Hilichurl A: 3 pieces complete&#10;Hilichurl B: 1 piece complete, 2 pieces lost&#10;Hilichurl C: Met a hero on the roadside, death confirmation ongoing"></textarea>            
-
-                <input type="submit" value="Submit">
-            </form>
-            {% if pm_createtask_message %}
-                <div class="message {% if pm_createtask_success %}success{% else %}error{% endif %}">
-                    {{ pm_createtask_message }}
-                </div>
-            {% endif %}
-
-            <p>Task alerts:</p>
-
-            <p>View tasks:</p>
-
-            <button id="pmtsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Tasks</button>
-            <button id="pmtsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">Hide Tasks</button>
-            
-            <input type="text" id="pmtsk-filter-input" placeholder="Smart Filter" style="margin-top: 10px; padding: 8px; width: 200px; display: none;"/>
-            
-            <ul id="pmtsk-task-list" style="display: none;">
-                <!-- タスクリストがここに表示されます -->
-            </ul>
-            
-            <div id="pmtsk-edit-task-modal" style="display: none;">
-                <p>Edit task:</p>
-                <form id="pmtsk-edit-task-form">
-                    <!-- <label for="pmtsk-edit-project">Project Name:</label>
-                    <input type="text" id="pmtsk-edit-project" required><br> -->
-            
-                    <label for="pmtsk-edit-user">User Name:</label>
-                    <input type="text" id="pmtsk-edit-user" required><br>
-            
-                    <label for="pmtsk-edit-startdate">Start Date:</label>
-                    <input type="date" id="pmtsk-edit-startdate" required><br>
-            
-                    <label for="pmtsk-edit-enddate">End Date:</label>
-                    <input type="date" id="pmtsk-edit-enddate" required><br>
-            
-                    <label for="pmtsk-edit-status">Description:</label>
-                    <textarea id="pmtsk-edit-status" rows="4" ></textarea><br>
-            
-                    <label for="pmtsk-edit-task-progress">Progress:</label>
-                    <input type="number" id="pmtsk-edit-task-progress" name="pmtsk-edit-task-progress" min="0" max="100" required><br>
-
-
-                    <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Save</button>
-                    <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
-                </form>
-            </div>
-
-
-        {% endif %}
-
         {% if error %}
             <div class="message error">
                 {{ error }}

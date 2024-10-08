@@ -129,6 +129,38 @@ async def project_en(request: Request, username: str, role: str, password: str):
 async def user_jp(request: Request, username: str, role: str, password: str):
     return templates.TemplateResponse("user-jp.html", {"request": request, "username": username, "role": role, "password": password})
 
+
+
+# 英語task
+@app.get("/task", response_class=HTMLResponse)
+async def task(request: Request, username: str, role: str, password: str):
+        return templates.TemplateResponse("task.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 日本語task
+@app.get("/task-jp", response_class=HTMLResponse)
+async def task_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("task-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 英語プロジェクト割り当て
+@app.get("/project-sub", response_class=HTMLResponse)
+async def project_sub(request: Request, username: str, role: str, password: str):
+        return templates.TemplateResponse("project-sub.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 日本語プロジェクト割り当て
+@app.get("/project-sub-jp", response_class=HTMLResponse)
+async def project_sub_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("project-sub-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 英語出退
+@app.get("/attendance", response_class=HTMLResponse)
+async def attendance(request: Request, username: str, role: str, password: str):
+        return templates.TemplateResponse("attendance.html", {"request": request, "username": username, "role": role, "password": password})
+
+# 日本語出退
+@app.get("/attendance-jp", response_class=HTMLResponse)
+async def attendance_jp(request: Request, username: str, role: str, password: str):
+    return templates.TemplateResponse("attendance-jp.html", {"request": request, "username": username, "role": role, "password": password})
+
 # 英語ユーザー管理ページ
 @app.get("/user", response_class=HTMLResponse)
 async def user(request: Request, username: str, role: str, password: str):

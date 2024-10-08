@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>タスク一覧</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
+    <script>
+        const current_user_name = "{{ username }}";
+        const page_language = "jp";
+    </script>
+</head>
+
+<body>
+    <div class="header-container">
+        <h1>ようこそ, {{ username }}さん!</h1>
+        <form action="/logout" method="post">
+            <input type="submit" value="ログアウト">
+            <input type="hidden" name="lang" value="jp">
+        </form>
+        <nav>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+        </nav>
+        <a class="JPpage" href="/task?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
+    </div>
+
+    <div class="container">
+        {% if role == 'projectmanager' %}
+        <p>あなたはプロジェクトマネージャーです。</p>
+        {% endif %}
+
+        <p>⚠️タスクに関する警告：</p>
+
+        <p>タスクを表示:</p>
+
+        <button id="pmtsk-show-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">タスク表示</button>
+        <button id="pmtsk-hide-tasks-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; display: none;">タスク隠す</button>
+
+        <input type="text" id="pmtsk-filter-input" placeholder="高性能フェルータ" style="margin-top: 10px; padding: 8px; width: 200px; display: none;" />
+
+        <ul id="pmtsk-task-list" style="display: none;">
+            <!-- タスクリストがここに表示されます -->
+        </ul>
+
+        <div id="pmtsk-edit-task-modal" style="display: none;">
+            <p>タスク編集：</p>
+            <form id="pmtsk-edit-task-form">
+                <label for="pmtsk-edit-user">ユーザー名：</label>
+                <input type="text" id="pmtsk-edit-user" required><br>
+
+                <label for="pmtsk-edit-startdate">開始日：</label>
+                <input type="date" id="pmtsk-edit-startdate" required><br>
+
+                <label for="pmtsk-edit-enddate">終了日：</label>
+                <input type="date" id="pmtsk-edit-enddate" required><br>
+
+                <label for="pmtsk-edit-status">詳細情報：</label>
+                <textarea id="pmtsk-edit-status" rows="4"></textarea><br>
+
+                <label for="pmtsk-edit-task-progress">進行度：</label>
+                <input type="number" id="pmtsk-edit-task-progress" name="pmtsk-edit-task-progress" min="0" max="100" required><br>
+
+                <button type="submit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">保存</button>
+                <button type="button" id="pmtsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
+            </form>
+        </div>
+
+        <p>新しいタスクを作成する:</p>
+        <form id="pmcreateTaskForm" action="/pm_create_task" method="post">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="lang" value="jp">
+
+            <label for="pmcreatetask_the_project_name">プロジェクト名:</label>
+            <select id="pmcreatetask_the_project_name" name="pmcreatetask_the_project_name" required>
+                <option value="">プロジェクトを選択してください</option>
+            </select>
+
+            <label for="pmcreatetask_the_user_names">ユーザー選択：</label>
+            <div id="pmcreatetask_the_user_names">
+                <!-- ユーザーのチェックボックスがここに挿入されます -->
+            </div>
+
+            <input type="hidden" id="pmcreatetask_user_list" name="pmcreatetask_the_user_names" value="">
+
+            <label for="the_task_startdate">タスク開始日:</label>
+            <input type="date" id="the_task_startdate" name="the_task_startdate" required>
+
+            <label for="the_task_enddate">タスク終了日:</label>
+            <input type="date" id="the_task_enddate" name="the_task_enddate" required>
+
+            <label for="the_task_status">タスクの説明 (任意):</label>
+            <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" placeholder="砂糖を7個作る：40%完成&#10;ヒルチャールA：3個完成&#10;ヒルチャールB：1個完成、2個紛失&#10;ヒルチャールC：道端で勇者と出会い、死亡確認中"></textarea>
+
+            <input type="submit" value="送信">
+        </form>
+
+        {% if pm_createtask_message %}
+        <div class="message {% if pm_createtask_success %}success{% else %}error{% endif %}">
+            {{ pm_createtask_message }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="message error">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
