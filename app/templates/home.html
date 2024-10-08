@@ -35,11 +35,9 @@
     </div>
 
     <div class="container">
-        <script>
-            alert("You have successfully logged in.")
-        </script>
         {% if role == 'sysadmin' %}
             <p>You are system administrator.</p>
+            <p>You have successfully logged in.</p>
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
@@ -47,6 +45,7 @@
             ヒルチャールのお姉さんが看病して♪
             ヒルチャールのお兄さんが薬を飲んでも治らない♪-->
             <p>You are Hiruchaaru.</p>
+            <p>You have successfully logged in.</p>
             <p>View your registered projects today:</p>
 
             <button id="hrc_show-attendances-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Projects</button>
@@ -91,6 +90,7 @@
 
         {% if role == 'projectmanager' %}
             <p>You are Project Manager.</p>
+            <p>You have successfully logged in.</p>
             <p>View projects:</p>
 
             <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Show Projects</button>

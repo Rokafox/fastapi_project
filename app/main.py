@@ -171,7 +171,7 @@ async def sysadmin_create_user(request: Request, newuser_name: str = Form(...),
                                newuser_password: str = Form(...), newuser_role: str = Form(...),
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
                                password: str = Form(...)):
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "useradmin.html" if lang == "en" else "useradmin-jp.html"
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
     msg, successcheck = create_user(newuser_name, newuser_password, newuser_role)
@@ -194,7 +194,7 @@ async def sysadmin_delete_user(request: Request, deleteuser_name: str = Form(...
         msg, successcheck = order_delete_user_given_name(deleteuser_name)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "useradmin.html" if lang == "en" else "useradmin-jp.html"
     return templates.TemplateResponse(template_name, {"request": request, "sysadmin_deleteuser_message": msg,
                                                       "sysadmin_deleteuser_success": successcheck,
                                                       "username" : username, "role": role, "password": password})
@@ -236,7 +236,7 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
                                        newproject_endtime, newproject_status, project_manager_name_list)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "project.html" if lang == "en" else "project-jp.html"
     return templates.TemplateResponse(template_name, {
         "request": request, 
         "sysadmin_createproject_message": msg,
@@ -255,7 +255,7 @@ async def sysadmin_retire_project_manager(request: Request, retireproject_name: 
         msg, successcheck = order_retire_project_manager(retireprojectmanager_name, retireproject_name)
         if lang == "jp":
             msg = 日本語になーれ(msg)
-        template_name = "home.html" if lang == "en" else "home-jp.html"
+        template_name = "project.html" if lang == "en" else "project-jp.html"
         return templates.TemplateResponse(template_name, {
             "request": request, 
             "sysadmin_retireprojectmanager_message": msg,
@@ -274,7 +274,7 @@ async def sysadmin_assign_project_manager(request: Request, assignproject_name: 
         msg, successcheck = order_assign_project_manager(assignprojectmanager_name, assignproject_name)
         if lang == "jp":
             msg = 日本語になーれ(msg)
-        template_name = "home.html" if lang == "en" else "home-jp.html"
+        template_name = "project.html" if lang == "en" else "project-jp.html"
         return templates.TemplateResponse(template_name, {
             "request": request, 
             "sysadmin_assignprojectmanager_message": msg,
@@ -293,7 +293,7 @@ async def pm_create_attendance(request: Request, pmasu_the_user_name: str = Form
     msg, successcheck = create_attendance(pmasu_the_user_name, pmasu_the_project_name)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "project-sub.html" if lang == "en" else "project-sub-jp.html"
     return templates.TemplateResponse(template_name, {"request": request, "pm_createattendance_message": msg,
                                                     "pm_createattendance_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
@@ -308,7 +308,7 @@ async def pm_delete_attendance(request: Request, pmuasu_the_user_name: str = For
     msg, successcheck = order_delete_attendanc_given_name(pmuasu_the_user_name, pmuasu_the_project_name)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "home.html" if lang == "en" else "home-jp.html"
+    template_name = "project-sub.html" if lang == "en" else "project-sub-jp.html"
     return templates.TemplateResponse(template_name, {"request": request, "pm_deleteattendance_message": msg,
                                                     "pm_deleteattendance_success": successcheck,
                                                     "username" : username, "role": role, "password": password})
@@ -328,7 +328,7 @@ async def pm_create_task(request: Request, pmcreatetask_the_user_names: str = Fo
         if lang == "jp":
             msg = 日本語になーれ(msg)
     
-        template_name = "home.html" if lang == "en" else "home-jp.html"
+        template_name = "task.html" if lang == "en" else "task-jp.html"
         return templates.TemplateResponse(template_name, {"request": request, "pm_createtask_message": msg,
                                                         "pm_createtask_success": successcheck,
                                                         "username" : username, "role": role, "password": password})

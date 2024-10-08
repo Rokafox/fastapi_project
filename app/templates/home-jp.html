@@ -39,16 +39,16 @@
     </div>
 
     <div class="container">
-        <script>
-            alert("ログインに成功しました！")
-        </script>
 
         {% if role == 'sysadmin' %}
         <p>あなたはシステム管理者です。</p>
+
+        <p>ログインに成功しました。</p>
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
         <p>貴方はヒルチャールです。</p>
+        <p>ログインに成功しました。</p>
         <h2>ヒルチャールのお兄さんが病気になった♪</h2>
         <h2>ヒルチャールのお姉さんが看病して♪</h2>
         <h2>ヒルチャールのお兄さんが薬を飲んでも治らない♪</h2>
@@ -89,6 +89,7 @@
 
         {% if role == 'projectmanager' %}
         <p>貴方はプロジェクトマネージャーです</p>
+        <p>ログインに成功しました。</p>
         <p>プロジェクト閲覧：</p>
 
         <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
