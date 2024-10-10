@@ -1,3 +1,6 @@
+# 2024-10-10 紐付けデータがある場合は削除させない。問題あっても仙狐ろかの責任ではありません
+
+
 from sqlmodel import Relationship, SQLModel, Field
 
 
@@ -20,7 +23,8 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    attendances: list["Attendance"] = Relationship(back_populates="user", cascade_delete=True)
+    # attendances: list["Attendance"] = Relationship(back_populates="user", cascade_delete=True)
+    attendances: list["Attendance"] = Relationship(back_populates="user", cascade_delete=False)
     managed_projects: list["Project"] = Relationship(
         back_populates="project_managers", link_model=ProjectManagerAssign
     )
@@ -53,11 +57,13 @@ class ProjectBase(SQLModel):
 
 class Project(ProjectBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    attendances: list["Attendance"] = Relationship(back_populates="project", cascade_delete=True)
+    # attendances: list["Attendance"] = Relationship(back_populates="project", cascade_delete=True)
+    attendances: list["Attendance"] = Relationship(back_populates="project", cascade_delete=False)
     project_managers: list["User"] = Relationship(
         back_populates="managed_projects", link_model=ProjectManagerAssign
     )
-    tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=True)
+    # tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=True)
+    tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=False)
 
 class ProjectCreate(ProjectBase):
     pass
