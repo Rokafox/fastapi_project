@@ -691,6 +691,8 @@ function pmv_calculateAttendanceRate() {
     const filterValueA = document.getElementById('attendance-and-filterA').value.toLowerCase();
     const filterValueB = document.getElementById('attendance-and-filterB').value.toLowerCase();
     const filterValueC = document.getElementById('attendance-and-filterC').value.toLowerCase();
+    const dateBefore = new Date(document.getElementById('attendance-filter-date-before').value);
+    const dateAfter = new Date(document.getElementById('attendance-filter-date-after').value);
 
     const filteredAttendancesA = pmv_attendances.filter(attendance => 
         attendance.user_name.toLowerCase().includes(filterValueA) ||
@@ -704,11 +706,27 @@ function pmv_calculateAttendanceRate() {
         attendance.date.toLowerCase().includes(filterValueB)
     );
 
-    const filteredAttendancesC = filteredAttendancesB.filter(attendance => 
+    let filteredAttendancesC = filteredAttendancesB.filter(attendance => 
         attendance.user_name.toLowerCase().includes(filterValueC) ||
         attendance.project_name.toLowerCase().includes(filterValueC) ||
         attendance.date.toLowerCase().includes(filterValueC)
     );
+
+    // date beforeフィルターを適用
+    if (!isNaN(dateBefore.getTime())) {  // 有効な日付か確認
+        filteredAttendancesC = filteredAttendancesC.filter(attendance => {
+            const attendanceDate = new Date(attendance.date);
+            return attendanceDate <= dateBefore;
+        });
+    }
+
+    // date afterフィルターを適用
+    if (!isNaN(dateAfter.getTime())) {  // 有効な日付か確認
+        filteredAttendancesC = filteredAttendancesC.filter(attendance => {
+            const attendanceDate = new Date(attendance.date);
+            return attendanceDate >= dateAfter;
+        });
+    }
 
     let outputText = "";
     let totalRate = 0;

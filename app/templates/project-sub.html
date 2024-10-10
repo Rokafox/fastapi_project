@@ -27,8 +27,6 @@
         {% endif %}
 
         <p>Assign project to user:</p>
-        <p>Attendance records before today will not be added.</p>
-        <p>If project date is changed by edit, the attendance record will be updated accordingly.</p>
 
         <form action="/pm_create_attendance" method="post" onsubmit="packageDates()">
             <input type="hidden" name="username" value="{{ username }}">
