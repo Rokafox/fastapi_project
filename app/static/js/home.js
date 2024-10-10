@@ -332,7 +332,7 @@ function hrc_filterTasks() {
 async function hrc_editTask(taskId) {
     const task = hrctasks.find(t => t.id === taskId);
 
-    document.getElementById('hrctsk-edit-status').value = task.status || '';
+    // document.getElementById('hrctsk-edit-status').value = task.status || '';
     document.getElementById('hrctsk-edit-task-progress').value = task.progress;
 
     document.getElementById('hrctsk-edit-task-modal').style.display = 'block';
@@ -341,7 +341,7 @@ async function hrc_editTask(taskId) {
         e.preventDefault();
 
         const updatedTask = {
-            status: document.getElementById('hrctsk-edit-status').value,
+            // status: document.getElementById('hrctsk-edit-status').value,
             progress: document.getElementById('hrctsk-edit-task-progress').value,
         };
 
