@@ -26,9 +26,15 @@
         {% endif %}
         {% if role == 'projectmanager'%}
         <nav>
+            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
             <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}">task</a>
             <a href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}">Project Assignment</a>
             <a href="/attendance?username={{ username }}&role={{ role }}&password={{ password }}">Attendance</a>
+        </nav>
+        {% endif %}
+        {% if role == 'hiruchaaru'%}
+        <nav>
+            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
         </nav>
         {% endif %}
         <a class="JPpage" href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Japanese</a>
