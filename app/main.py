@@ -304,10 +304,11 @@ async def pm_create_attendance(request: Request, pmasu_the_user_name: str = Form
 @app.post("/pm_delete_attendance", response_class=HTMLResponse)
 async def pm_delete_attendance(request: Request, pmuasu_the_user_name: str = Form(...), pmuasu_the_project_name: str = Form(...),
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
-                               password: str = Form(...)):
+                               password: str = Form(...), pm_remove_selected_dates: list[str] = Form(...)):
+    # print(pm_remove_selected_dates)
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
-    msg, successcheck = order_delete_attendanc_given_name(pmuasu_the_user_name, pmuasu_the_project_name)
+    msg, successcheck = order_delete_attendanc_given_name(pmuasu_the_user_name, pmuasu_the_project_name, date_list=pm_remove_selected_dates)
     if lang == "jp":
         msg = 日本語になーれ(msg)
     template_name = "project-sub.html" if lang == "en" else "project-sub-jp.html"
@@ -383,6 +384,10 @@ async def read_attendances():
 @app.get("/attendances/{user_name}")
 async def read_attendances_by_user_name(user_name: str):
     return order_hiruchaaru_get_assigned_projects(user_name=user_name)
+
+@app.get("/attendances_get_dates/{user_name}/{project_name}")
+async def read_attendances_by_user_name_and_project_name(user_name: str, project_name: str):
+    return order_hiruchaaru_get_assigned_dates(user_name=user_name, project_name=project_name)
 
 @app.post("/attendances/{attendance_id}/checkin")
 async def checkin(attendance_id: int):

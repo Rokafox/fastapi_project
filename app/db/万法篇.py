@@ -302,8 +302,11 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
             return "Creation failed, validation error: " + error["msg"], False
         
 
-def order_delete_attendanc_given_name(user_name: str, project_name: str):
+def order_delete_attendanc_given_name(user_name: str, project_name: str, date_list: list[str]):
     # Could have many entries for the same user and project
+    date_list = date_list[0].replace("[", "").replace("]", "").replace('"', "").split(",")
+    # print(date_list)
+    # ['2024-10-09', '2024-10-10', '2024-10-11', '2024-10-14', '2024-10-15']
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).all()
@@ -317,12 +320,14 @@ def order_delete_attendanc_given_name(user_name: str, project_name: str):
         
         for u in user:
             for p in project:
-                statement = select(Attendance).where(Attendance.user_id == u.id).where(Attendance.project_id == p.id)
-                attendance = session.exec(statement).all()
-                if not attendance:
-                    return "Deletion failed: Attendance not found!", False
-                for a in attendance:
-                    session.delete(a)
+                for date in date_list:
+                    statement = select(Attendance).where(Attendance.user_id == u.id).where(Attendance.project_id == p.id).where(Attendance.date == date)
+                    attendance = session.exec(statement).all()
+                    if not attendance:
+                        return "Deletion failed: Attendance not found!", False
+                    for a in attendance:
+                        session.delete(a)
+
         try:
             session.commit()
         except Exception as e:
@@ -425,6 +430,28 @@ def order_hiruchaaru_get_assigned_projects(user_name: str):
                 "check_out": attendance.check_out,
             })
         return assigned_projects
+
+
+
+def order_hiruchaaru_get_assigned_dates(user_name: str, project_name: str):
+    with Session(engine) as session:
+        statement = select(User).where(User.name == user_name)
+        user = session.exec(statement).one_or_none()
+        if user is None:
+            return "User not found!", False
+        
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Project not found!", False
+        
+        statement = select(Attendance).where(Attendance.user_id == user.id).where(Attendance.project_id == project.id)
+        attendances = session.exec(statement).all()
+        
+        assigned_dates = []
+        for attendance in attendances:
+            assigned_dates.append(attendance.date)
+        return assigned_dates
 
 
 

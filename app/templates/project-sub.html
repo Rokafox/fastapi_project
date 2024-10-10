@@ -111,24 +111,81 @@
         {% endif %}
 
         <p>Unassign project to user:</p>
-        <form action="/pm_delete_attendance" method="post">
+        <form action="/pm_delete_attendance" method="post" onsubmit="packageSelectedDates()">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
             <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="en">
-
+            <input type="hidden" name="lang" value="jp">
+        
             <label for="pmuasu_the_project_name">Project Name:</label>
-            <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required>
-                <option value="">Select Project</option>
+            <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required onchange="fetchAttendanceDates()">
+                <option value="">Select a project:</option>
             </select>
-
-            <label for="pmuasu_the_user_name">User Name:</label>
-            <select id="pmuasu_the_user_name" name="pmuasu_the_user_name" required>
-                <option value="">Select User</option>
+        
+            <label for="pmuasu_the_user_name">Username:</label>
+            <select id="pmuasu_the_user_name" name="pmuasu_the_user_name" required onchange="fetchAttendanceDates()">
+                <option value="">Select a user:</option>
             </select>
-
-            <input type="submit" value="Delete">
+        
+            <label for="pm_remove_attendance_dates">Remove all records from the following date:</label>
+            <div id="pm_remove_date_options">
+                <!-- ここに日付のチェックボックスが生成されます -->
+            </div>
+        
+            <!-- 選択された日付を送信するための隠しフィールド -->
+            <input type="hidden" id="pm_remove_selected_dates" name="pm_remove_selected_dates">
+        
+            <input type="submit" value="Remove">
         </form>
+        
+        <script>
+            async function fetchAttendanceDates() {
+                const projectName = document.getElementById("pmuasu_the_project_name").value;
+                const userName = document.getElementById("pmuasu_the_user_name").value;
+        
+                if (!projectName || !userName) {
+                    document.getElementById("pm_remove_date_options").innerHTML = "";
+                    return;
+                }
+        
+                try {
+                    // エンドポイントから日付リストを取得
+                    const response = await fetch(`/attendances_get_dates/${encodeURIComponent(userName)}/${encodeURIComponent(projectName)}`);
+                    const dates = await response.json();
+        
+                    // 日付を基にチェックボックスを生成
+                    const dateOptionsContainer = document.getElementById("pm_remove_date_options");
+                    dateOptionsContainer.innerHTML = "";
+                    dates.forEach(dateStr => {
+                        const date = new Date(dateStr);
+                        const isWeekend = (date.getDay() === 0 || date.getDay() === 6); // 週末判定
+        
+                        const label = document.createElement("label");
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.name = "pm_remove_attendance_dates[]";
+                        checkbox.value = dateStr;
+                        checkbox.checked = true
+        
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(dateStr + (isWeekend ? " (週末)" : "")));
+                        dateOptionsContainer.appendChild(label);
+                        // dateOptionsContainer.appendChild(document.createElement("br"));
+                    });
+                } catch (error) {
+                    console.error("日付のフェッチエラー:", error);
+                }
+            }
+        
+            function packageSelectedDates() {
+                // 選択された日付をリストとして取得
+                const selectedDates = Array.from(document.querySelectorAll('input[name="pm_remove_attendance_dates[]"]:checked'))
+                                           .map(checkbox => checkbox.value);
+        
+                // 隠しフィールドにリストを JSON 形式で格納
+                document.getElementById("pm_remove_selected_dates").value = JSON.stringify(selectedDates);
+            }
+        </script>
 
         {% if pm_deleteattendance_message %}
         <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
