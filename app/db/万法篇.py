@@ -222,6 +222,12 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
                 pass
 
             while current_date <= project_end_date:
+
+                # 土曜日や日曜日であればスキップ
+                if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
+                    current_date += timedelta(days=1)
+                    continue
+
                 # 既存の出席情報を確認
                 existing_attendance = session.exec(
                     select(Attendance)
