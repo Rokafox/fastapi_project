@@ -95,24 +95,30 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 
     // フォーム送信前にチェックボックスの選択状態を処理
-    document.getElementById('pmcreateTaskForm').addEventListener('submit', function(event) {
-        const selectedUsers = [];
-        const checkboxes = userSelectionDiv.querySelectorAll('input[type="checkbox"]:checked');
-        checkboxes.forEach(checkbox => {
-            selectedUsers.push(checkbox.value);
-        });
+    pmcreatetaskFormElement = document.getElementById('pmcreateTaskForm');
+    if (pmcreatetaskFormElement) {
+        pmcreatetaskFormElement.addEventListener('submit', function(event) {
+            const selectedUsers = [];
+            const checkboxes = userSelectionDiv.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                selectedUsers.push(checkbox.value);
+            });
 
-        // 選択されたユーザー名をカンマ区切りで入力値に設定
-        userListInput.value = selectedUsers.join(',');
-        // We are not allowed to send null, so we send an empty string instead
-        if (userListInput.value === '') {
-            userListInput.value = '';
-        }
-    });
+            // 選択されたユーザー名をカンマ区切りで入力値に設定
+            userListInput.value = selectedUsers.join(',');
+            // We are not allowed to send null, so we send an empty string instead
+            if (userListInput.value === '') {
+                userListInput.value = '';
+            }
+        });
+    }
 
     // ユーザーリストを取得し、チェックボックスを生成
-    const users = await fetchUsers();
-    createCheckboxes(users);
+    // if userSelectionDiv and userListInput exist
+    if (userSelectionDiv && userListInput) {
+        const users = await fetchUsers();
+        createCheckboxes(users);
+    }
 });
 
 
@@ -160,7 +166,7 @@ async function hrc_fetchAttendances() {
 
 function hrc_displayAttendances(attendanceList) {
     const attendanceListElement = document.getElementById('attendance-list');
-    attendanceListElement.innerHTML = ''; // リストをクリア
+    attendanceListElement.innerHTML = '';
 
     attendanceList.forEach(attendance => {
         const listItem = document.createElement('li');
@@ -171,9 +177,26 @@ function hrc_displayAttendances(attendanceList) {
             <strong>Date:</strong> ${attendance.date} <br>
             <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : 'Not checked in yet'} <br>
             <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : 'Not checked out yet'} <br>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_checkIn('${attendance.id}')">Check In</button>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_checkOut('${attendance.id}')">Check Out</button>
         `;
+
+        // Check In ボタン（check_in が存在しない場合のみ表示）
+        if (!attendance.check_in) {
+            const checkInButton = document.createElement('button');
+            checkInButton.textContent = 'Check In';
+            checkInButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
+            checkInButton.onclick = () => hrc_checkIn(attendance.id);
+            listItem.appendChild(checkInButton);
+        }
+
+        // Check Out ボタン（check_in が存在し、かつ check_out が存在しない場合のみ表示）
+        if (attendance.check_in && !attendance.check_out) {
+            const checkOutButton = document.createElement('button');
+            checkOutButton.textContent = 'Check Out';
+            checkOutButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
+            checkOutButton.onclick = () => hrc_checkOut(attendance.id);
+            listItem.appendChild(checkOutButton);
+        }
+
         attendanceListElement.appendChild(listItem);
     });
 }
@@ -737,22 +760,34 @@ function pmv_calculateAttendanceRate() {
 
 let pmvtasks = [];
             
-document.getElementById('pmtsk-show-tasks-btn').addEventListener('click', () => {
-    pmv_fetchTasks();
-    document.getElementById('pmtsk-filter-input').style.display = 'block';
-    document.getElementById('pmtsk-task-list').style.display = 'block';
-    document.getElementById('pmtsk-show-tasks-btn').style.display = 'none';
-    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'block';
-});
+try {
+    document.getElementById('pmtsk-show-tasks-btn').addEventListener('click', () => {
+        pmv_fetchTasks();
+        document.getElementById('pmtsk-filter-input').style.display = 'block';
+        document.getElementById('pmtsk-task-list').style.display = 'block';
+        document.getElementById('pmtsk-show-tasks-btn').style.display = 'none';
+        document.getElementById('pmtsk-hide-tasks-btn').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('pmtsk-hide-tasks-btn').addEventListener('click', () => {
-    document.getElementById('pmtsk-filter-input').style.display = 'none';
-    document.getElementById('pmtsk-task-list').style.display = 'none';
-    document.getElementById('pmtsk-hide-tasks-btn').style.display = 'none';
-    document.getElementById('pmtsk-show-tasks-btn').style.display = 'block';
-});
+try {
+    document.getElementById('pmtsk-hide-tasks-btn').addEventListener('click', () => {
+        document.getElementById('pmtsk-filter-input').style.display = 'none';
+        document.getElementById('pmtsk-task-list').style.display = 'none';
+        document.getElementById('pmtsk-hide-tasks-btn').style.display = 'none';
+        document.getElementById('pmtsk-show-tasks-btn').style.display = 'block';
+    });
+} catch (error) {
+    console.log(error);
+}
 
-document.getElementById('pmtsk-filter-input').addEventListener('input', pmv_filterTasks);
+try {
+    document.getElementById('pmtsk-filter-input').addEventListener('input', pmv_filterTasks);
+} catch (error) {
+    console.log(error);
+}
 
 async function pmv_fetchTasks() {
     const response = await fetch(`/tasks`);
@@ -866,3 +901,6 @@ async function pmv_deleteTask(taskId) {
         alert('An error occurred while deleting the task.');
     }
 }
+
+
+

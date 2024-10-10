@@ -30,24 +30,79 @@
         <p>Attendance records before today will not be added.</p>
         <p>If project date is changed by edit, the attendance record will be updated accordingly.</p>
 
-        <form action="/pm_create_attendance" method="post">
+        <form action="/pm_create_attendance" method="post" onsubmit="packageDates()">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
             <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="en">
-
+            <input type="hidden" name="lang" value="jp">
+        
             <label for="pmasu_the_project_name">Project Name:</label>
-            <select id="pmasu_the_project_name" name="pmasu_the_project_name" required>
-                <option value="">Select Project</option>
+            <select id="pmasu_the_project_name" name="pmasu_the_project_name" required onchange="fetchDates()">
+                <option value="">Select a project:</option>
             </select>
-
+        
             <label for="pmasu_the_user_name">User Name:</label>
             <select id="pmasu_the_user_name" name="pmasu_the_user_name" required>
-                <option value="">Select User</option>
+                <option value="">Select a user:</option>
             </select>
-
-            <input type="submit" value="Submit or Update">
+        
+            <label for="attendance_dates">Date:</label>
+            <div id="date-options">
+                <!-- ここに日付のチェックボックスが生成されます -->
+            </div>
+        
+            <!-- 選択された日付を送信するための隠しフィールド -->
+            <input type="hidden" id="selected_dates" name="selected_dates">
+        
+            <input type="submit" value="Submit">
         </form>
+        
+        <script>
+            async function fetchDates() {
+                const projectName = document.getElementById("pmasu_the_project_name").value;
+                if (!projectName) {
+                    document.getElementById("date-options").innerHTML = "";
+                    return;
+                }
+        
+                try {
+                    // エンドポイントから日付リストを取得
+                    const response = await fetch(`/get_dates_from_project_name/${encodeURIComponent(projectName)}`);
+                    const dates = await response.json();
+        
+                    // 日付を基にチェックボックスを生成
+                    const dateOptionsContainer = document.getElementById("date-options");
+                    dateOptionsContainer.innerHTML = "";
+                    dates.forEach(dateStr => {
+                        const date = new Date(dateStr);
+                        const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+        
+                        const label = document.createElement("label");
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.name = "attendance_dates[]";
+                        checkbox.value = dateStr;
+                        checkbox.checked = !isWeekend;  // 週末の場合のみチェック
+        
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(dateStr + (isWeekend ? " (Weekdays)" : "")));
+                        dateOptionsContainer.appendChild(label);
+                        // dateOptionsContainer.appendChild(document.createElement("br"));
+                    });
+                } catch (error) {
+                    console.error("日付のフェッチエラー:", error);
+                }
+            }
+        
+            function packageDates() {
+                // 選択された日付をリストとして取得
+                const selectedDates = Array.from(document.querySelectorAll('input[name="attendance_dates[]"]:checked'))
+                                           .map(checkbox => checkbox.value);
+        
+                // 隠しフィールドにリストを JSON 形式で格納
+                document.getElementById("selected_dates").value = JSON.stringify(selectedDates);
+            }
+        </script>
 
         {% if pm_createattendance_message %}
         <div class="message {% if pm_createattendance_success %}success{% else %}error{% endif %}">

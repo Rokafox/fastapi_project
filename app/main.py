@@ -287,10 +287,12 @@ async def sysadmin_assign_project_manager(request: Request, assignproject_name: 
 @app.post("/pm_create_attendance", response_class=HTMLResponse)
 async def pm_create_attendance(request: Request, pmasu_the_user_name: str = Form(...), pmasu_the_project_name: str = Form(...),
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
-                               password: str = Form(...)):
+                               password: str = Form(...), selected_dates: list[str] = Form(...)):
+    # print(selected_dates)
+    # ['["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]']
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
-    msg, successcheck = create_attendance(pmasu_the_user_name, pmasu_the_project_name)
+    msg, successcheck = create_attendance(pmasu_the_user_name, pmasu_the_project_name, date_list=selected_dates)
     if lang == "jp":
         msg = 日本語になーれ(msg)
     template_name = "project-sub.html" if lang == "en" else "project-sub-jp.html"
@@ -352,6 +354,12 @@ async def update_user(user_name: str, user: UserUpdate):
 @app.get("/projects")
 async def read_projects():
     return order_get_all_projects()
+
+@app.get('/get_dates_from_project_name/{project_name}')
+async def get_dates_from_project_name(project_name: str):
+    something = order_get_dates_from_project_name(project_name)
+    # print(something)
+    return something
 
 # project manager will only see the projects that they are managing
 @app.get("/projects_pm/{project_manager_name}")

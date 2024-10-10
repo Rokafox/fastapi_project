@@ -176,8 +176,11 @@ def order_assign_project_manager(user_name: str, project_name: str):
             return "Assignment failed, unhandled error: " + str(e), False
         return "Project manager assigned successfully!", True
 
-def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None):
+def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None, date_list: list[str]=None):
     # Get user and project
+    # date_list looks like this: ['["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]']
+    # target: ["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]
+    date_list = date_list[0].replace("[", "").replace("]", "").replace('"', "").split(",")
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
@@ -221,38 +224,71 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
             else:
                 pass
 
-            while current_date <= project_end_date:
+            # if date_list is not provided:
+            if date_list is None:
+                while current_date <= project_end_date:
 
-                # 土曜日や日曜日であればスキップ
-                if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
+                    # 土曜日や日曜日であればスキップ
+                    # if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
+                    #     current_date += timedelta(days=1)
+                    #     continue
+
+                    # 既存の出席情報を確認
+                    existing_attendance = session.exec(
+                        select(Attendance)
+                        .where(Attendance.user_id == user_id)
+                        .where(Attendance.project_id == project_id)
+                        .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
+                    ).one_or_none()
+
+                    if existing_attendance:
+                        # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+                        # instead of returning, we can just skip this date
+                        current_date += timedelta(days=1)
+                        continue
+
+                    # 新しい出席情報を作成
+                    new_attendance = Attendance(
+                        user_id=user_id,
+                        project_id=project_id,
+                        date=current_date.strftime("%Y-%m-%d"),
+                        check_in=check_in,
+                        check_out=check_out
+                    )
+                    Attendance.model_validate(new_attendance)
+                    session.add(new_attendance)
                     current_date += timedelta(days=1)
-                    continue
+            else:
+                for date in date_list:
+                    # print(date)
+                    current_date = datetime.strptime(date, "%Y-%m-%d")
+                    # 土曜日や日曜日であればスキップ
+                    # if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
+                    #     continue
 
-                # 既存の出席情報を確認
-                existing_attendance = session.exec(
-                    select(Attendance)
-                    .where(Attendance.user_id == user_id)
-                    .where(Attendance.project_id == project_id)
-                    .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
-                ).one_or_none()
+                    # 既存の出席情報を確認
+                    existing_attendance = session.exec(
+                        select(Attendance)
+                        .where(Attendance.user_id == user_id)
+                        .where(Attendance.project_id == project_id)
+                        .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
+                    ).one_or_none()
 
-                if existing_attendance:
-                    # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
-                    # instead of returning, we can just skip this date
-                    current_date += timedelta(days=1)
-                    continue
+                    if existing_attendance:
+                        # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+                        # instead of returning, we can just skip this date
+                        continue
 
-                # 新しい出席情報を作成
-                new_attendance = Attendance(
-                    user_id=user_id,
-                    project_id=project_id,
-                    date=current_date.strftime("%Y-%m-%d"),
-                    check_in=check_in,
-                    check_out=check_out
-                )
-                Attendance.model_validate(new_attendance)
-                session.add(new_attendance)
-                current_date += timedelta(days=1)
+                    # 新しい出席情報を作成
+                    new_attendance = Attendance(
+                        user_id=user_id,
+                        project_id=project_id,
+                        date=current_date.strftime("%Y-%m-%d"),
+                        check_in=check_in,
+                        check_out=check_out
+                    )
+                    Attendance.model_validate(new_attendance)
+                    session.add(new_attendance)
             
             try:
                 session.commit()
@@ -337,6 +373,26 @@ def order_get_projects_by_project_manager(pm_name: str):
                 "status": project.status
             })
         return project_list
+
+
+def order_get_dates_from_project_name(project_name: str):
+    with Session(engine) as session:
+        statement = select(Project).where(Project.name == project_name)
+        project = session.exec(statement).one_or_none()
+        if project is None:
+            return "Project not found!", False
+        
+        start_date = datetime.strptime(project.starttime.split()[0], "%Y-%m-%d")
+        end_date = datetime.strptime(project.endtime.split()[0], "%Y-%m-%d")
+        
+        date_list = []
+        current_date = start_date
+        while current_date <= end_date:
+            date_list.append(current_date.strftime("%Y-%m-%d"))
+            current_date += timedelta(days=1)
+        
+        return date_list
+
 
 
 
