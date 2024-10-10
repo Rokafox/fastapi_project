@@ -20,10 +20,10 @@
 
         {% if role == 'sysadmin' %}
         <nav>
-            <a href="/passwd-jp?username={{ username }}&role={{ role }}&password={{ password }}">パスワード変更</a>
-            <a href="/useradmin-jp?username={{ username }}&role={{ role }}&password={{ password }}">ユーザー作成・削除</a>
             <a href="/project-jp?username={{ username }}&role={{ role }}&password={{ password }}">プロジェクト作成</a>
             <a href="/user-jp?username={{ username }}&role={{ role }}&password={{ password }}">ユーザー情報</a>
+            <a href="/useradmin-jp?username={{ username }}&role={{ role }}&password={{ password }}">ユーザー作成・削除</a>
+            <a href="/passwd-jp?username={{ username }}&role={{ role }}&password={{ password }}">パスワード変更</a>
         </nav>
         {% endif %}
 

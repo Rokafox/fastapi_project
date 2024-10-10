@@ -18,18 +18,18 @@
         </form>
         {% if role == 'sysadmin' %}
         <nav>
-            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
-            <a href="/useradmin?username={{ username }}&role={{ role }}&password={{ password }}">Manage Users</a>
             <a href="/project-en?username={{ username }}&role={{ role }}&password={{ password }}">New Project</a>
             <a href="/user?username={{ username }}&role={{ role }}&password={{ password }}">User Information</a>
+            <a href="/useradmin?username={{ username }}&role={{ role }}&password={{ password }}">Manage Users</a>
+            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
         </nav>
         {% endif %}
         {% if role == 'projectmanager'%}
         <nav>
-            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
-            <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}">task</a>
             <a href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}">Project Assignment</a>
+            <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}">Task</a>
             <a href="/attendance?username={{ username }}&role={{ role }}&password={{ password }}">Attendance</a>
+            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
         </nav>
         {% endif %}
         {% if role == 'hiruchaaru'%}
