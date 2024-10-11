@@ -30,7 +30,7 @@
             <p>On the project page, you can create a new project and assign a project manager.</p>
         </div>
 
-        <div id="userDescription" class="description02">
+        <div id="userDescription" class="description03">
             <p>On the user information page, you can view and change the username, password, and role.</p>
         </div>
 
@@ -44,11 +44,30 @@
         {% endif %}
         {% if role == 'projectmanager'%}
         <nav>
-            <a href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}">Project Assignment</a>
-            <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}">Task</a>
-            <a href="/attendance?username={{ username }}&role={{ role }}&password={{ password }}">Attendance</a>
-            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}">Change Passwd</a>
+            <button id="popupButton">FAQ</button>
+            <a href="/project-sub?username={{ username }}&role={{ role }}&password={{ password }}"id ="projectsubLink">Project Assignment</a>
+            <a href="/task?username={{ username }}&role={{ role }}&password={{ password }}" id="taskLink">Task</a>
+            <a href="/attendance?username={{ username }}&role={{ role }}&password={{ password }}" id="attendanceLink">Attendance</a>
+            <a href="/passwd?username={{ username }}&role={{ role }}&password={{ password }}" id ="passwdLink">Change Passwd</a>
         </nav>
+
+        <!-- 吹き出しの追加 -->
+        <div id="projectsubDiscription" class="description01">
+            <p>You can assign and unassign projects to users.</p>
+        </div>
+
+        <div id="taskDescription" class="description04">
+            <p>You can view the task list and create tasks.</p>
+        </div>
+
+        <div id="attendanceDescription" class="description03">
+            <p>You can view attendance information and check the attendance rate of specific individuals, as well as confirm check-in and check-out times.</p>
+        </div>
+
+        <div id="passwdDescription" class="description02">
+            <p>On the password change page, you can change your current password.</p>
+        </div>
+
         {% endif %}
         {% if role == 'hiruchaaru'%}
         <nav>

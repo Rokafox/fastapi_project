@@ -920,7 +920,7 @@ async function pmv_deleteTask(taskId) {
     }
 }
 
-// 指南書ボタン
+// 指南書　システム管理者
 document.addEventListener('DOMContentLoaded', function() {
     const popupButton = document.getElementById('popupButton');
     const projectLink = document.getElementById('projectLink');
@@ -978,6 +978,65 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordDescription.style.display = 'block';
 
             isPopupVisible = true;  // フラグを更新
+        }
+    });
+});
+
+//指南書　プロジェクトマネージャー
+document.addEventListener('DOMContentLoaded', function() {
+    const popupButton = document.getElementById('popupButton');
+    const projectsubLink = document.getElementById("projectsubLink");
+    const taskLink = document.getElementById('taskLink');
+    const attendanceLink = document.getElementById('attendanceLink');
+    const passwdLink = document.getElementById('passwdLink');
+
+    const projectsubDescription = document.getElementById('projectsubDiscription'); // 修正済み
+    const taskDescription = document.getElementById('taskDescription');
+    const attendanceDescription = document.getElementById('attendanceDescription');
+    const passwdDescription = document.getElementById('passwdDescription');
+
+    const descriptions = [projectsubDescription, taskDescription, attendanceDescription, passwdDescription];
+    let isPopupVisible = false; // ポップアップの表示フラグ
+
+    // 初期状態で全ての説明を非表示にする
+    descriptions.forEach(description01 => description01.style.display = 'none');
+
+    popupButton.addEventListener('click', function() {
+        if (isPopupVisible) {
+            descriptions.forEach(description01 => description01.style.display = 'none');
+            isPopupVisible = false; // フラグを更新
+        } else {
+            descriptions.forEach(description01 => description01.style.display = 'none');
+
+            const projectsubRect = projectsubLink.getBoundingClientRect();
+            const taskRect = taskLink.getBoundingClientRect();
+            const attendanceRect = attendanceLink.getBoundingClientRect();
+            const passwdRect = passwdLink.getBoundingClientRect();
+
+            // 各吹き出しの位置を設定
+            projectsubDescription.style.position = 'absolute';
+            projectsubDescription.style.left = projectsubRect.left + 'px';
+            projectsubDescription.style.top = projectsubRect.bottom + 'px';
+
+            taskDescription.style.position = 'absolute';
+            taskDescription.style.left = taskRect.left + 'px';
+            taskDescription.style.top = taskRect.bottom + 'px';
+
+            attendanceDescription.style.position = 'absolute';
+            attendanceDescription.style.left = attendanceRect.left + 'px';
+            attendanceDescription.style.top = attendanceRect.bottom + 'px';
+
+            passwdDescription.style.position = 'absolute';
+            passwdDescription.style.left = passwdRect.left + 'px';
+            passwdDescription.style.top = passwdRect.bottom + 'px';
+
+            // 各吹き出しを表示
+            projectsubDescription.style.display = 'block';
+            taskDescription.style.display = 'block';
+            attendanceDescription.style.display = 'block';
+            passwdDescription.style.display = 'block';
+
+            isPopupVisible = true; // フラグを更新
         }
     });
 });
