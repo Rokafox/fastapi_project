@@ -141,7 +141,10 @@ def order_retire_project_manager(user_name: str, project_name: str):
             return "Retirement failed: Project not found!", False
         
         # Remove the project manager from the project
-        project.project_managers.remove(user)
+        try:
+            project.project_managers.remove(user)
+        except ValueError:
+            return "Retirement failed: User is not a project manager for this project!", False
         session.add(project)
         try:
             session.commit()
