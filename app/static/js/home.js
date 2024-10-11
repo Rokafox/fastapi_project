@@ -920,5 +920,64 @@ async function pmv_deleteTask(taskId) {
     }
 }
 
+// 指南書ボタン
+document.addEventListener('DOMContentLoaded', function() {
+    const popupButton = document.getElementById('popupButton');
+    const projectLink = document.getElementById('projectLink');
+    const userLink = document.getElementById('userLink');
+    const userCreateLink = document.getElementById('userCreateLink');
+    const passwordLink = document.getElementById('passwordLink');
 
+    const projectDescription = document.getElementById('projectDescription');
+    const userDescription = document.getElementById('userDescription');
+    const userCreateDescription = document.getElementById('userCreateDescription');
+    const passwordDescription = document.getElementById('passwordDescription');
 
+    const descriptions = [projectDescription, userDescription, userCreateDescription, passwordDescription];
+    let isPopupVisible = false;  // 吹き出しが表示されているかどうかのフラグ
+
+    // 初期状態で吹き出しを全て非表示に設定
+    descriptions.forEach(description => description.style.display = 'none');
+
+    popupButton.addEventListener('click', function() {
+        if (isPopupVisible) {
+            // 吹き出しが表示されている場合、全て非表示にする
+            descriptions.forEach(description => description.style.display = 'none');
+            isPopupVisible = false;  // フラグを更新
+        } else {
+            // まず全ての吹き出しを非表示にする
+            descriptions.forEach(description => description.style.display = 'none');
+
+            // 各リンクの位置を取得し、対応する吹き出しを表示する
+            const projectRect = projectLink.getBoundingClientRect();
+            const userRect = userLink.getBoundingClientRect();
+            const userCreateRect = userCreateLink.getBoundingClientRect();
+            const passwordRect = passwordLink.getBoundingClientRect();
+
+            // 吹き出しの位置を設定して表示する
+            projectDescription.style.position = 'absolute';
+            projectDescription.style.left = projectRect.left + 'px';
+            projectDescription.style.top = projectRect.bottom + 'px';
+
+            userDescription.style.position = 'absolute';
+            userDescription.style.left = userRect.left + 'px';
+            userDescription.style.top = userRect.bottom + 'px';
+
+            userCreateDescription.style.position = 'absolute';
+            userCreateDescription.style.left = userCreateRect.left + 'px';
+            userCreateDescription.style.top = userCreateRect.bottom + 'px';
+
+            passwordDescription.style.position = 'absolute';
+            passwordDescription.style.left = passwordRect.left + 'px';
+            passwordDescription.style.top = passwordRect.bottom + 'px';
+
+            // 各リンクの下にそれぞれの吹き出しを表示
+            projectDescription.style.display = 'block';
+            userDescription.style.display = 'block';
+            userCreateDescription.style.display = 'block';
+            passwordDescription.style.display = 'block';
+
+            isPopupVisible = true;  // フラグを更新
+        }
+    });
+});

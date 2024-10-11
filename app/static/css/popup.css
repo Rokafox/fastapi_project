@@ -1,0 +1,105 @@
+.description {
+    display: none; /* 初期状態で非表示 */
+    position: relative;
+    margin-top: 10px;
+    padding: 5px; /* パディングを小さく */
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 120px; /* 幅を小さく */
+    margin-right: 20px;
+    font-size: 10px; /* フォントサイズも少し小さく */
+    color : black ;
+}
+
+.description01 {
+    display: none; /* 初期状態で非表示 */
+    position: relative;
+    margin-top: 10px;
+    padding: 5px; /* パディングを小さく */
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 170px; /* 幅を小さく */
+    margin-right: 20px;
+    font-size: 10px; /* フォントサイズも少し小さく */
+    color : black ;
+}
+
+.description02 {
+    display: none; /* 初期状態で非表示 */
+    position: relative;
+    margin-top: 10px;
+    padding: 5px; /* パディングを小さく */
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 120px; /* 幅を小さく */
+    margin-right: 20px;
+    font-size: 10px; /* フォントサイズも少し小さく */
+    color : black ;
+}
+
+.description03 {
+    display: none; /* 初期状態で非表示 */
+    position: relative;
+    margin-top: 10px;
+    padding: 5px; /* パディングを小さく */
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 90px; /* 幅を小さく */
+    margin-right: 20px;
+    font-size: 10px; /* フォントサイズも少し小さく */
+    color : black ;
+}
+
+/* 吹き出しの三角形部分 */
+.description::before {
+    content: "";
+    position: absolute;
+    top: -10px; /* 吹き出しがボタンの下に表示される */
+    left: 20px;
+    border-width: 0 8px 8px 8px; /* 三角形のサイズを小さく */
+    border-style: solid;
+    border-color: transparent transparent #f0f0f0 transparent;
+}
+
+/* 吹き出しの三角形部分 */
+.description01::before {
+    content: "";
+    position: absolute;
+    top: -10px; /* 吹き出しがボタンの下に表示される */
+    left: 20px;
+    border-width: 0 8px 8px 8px; /* 三角形のサイズを小さく */
+    border-style: solid;
+    border-color: transparent transparent #f0f0f0 transparent;
+}
+
+/* 吹き出しの三角形部分 */
+.description02::before {
+    content: "";
+    position: absolute;
+    top: -10px; /* 吹き出しがボタンの下に表示される */
+    left: 20px;
+    border-width: 0 8px 8px 8px; /* 三角形のサイズを小さく */
+    border-style: solid;
+    border-color: transparent transparent #f0f0f0 transparent;
+}
+
+/* 吹き出しの三角形部分 */
+.description03::before {
+    content: "";
+    position: absolute;
+    top: -10px; /* 吹き出しがボタンの下に表示される */
+    left: 20px;
+    border-width: 0 8px 8px 8px; /* 三角形のサイズを小さく */
+    border-style: solid;
+    border-color: transparent transparent #f0f0f0 transparent;
+}
+
+/* 吹き出しの説明が表示されるリンクのスタイル */
+#popupButton {
+    margin-left: 10px;
+    margin-right: 20px;
+}
