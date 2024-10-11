@@ -78,6 +78,8 @@ def 日本語になーれ(inputstring : str) -> str:
             return "退職失敗： ユーザーが見つかりません"
         case "Retirement failed: Project not found!":
             return "退職失敗： プロジェクトが見つかりません"
+        case "Retirement failed: User is not a project manager for this project!":
+            return "退職失敗： 当ユーザーがこのプロジェクトのプロジェクトマネージャーではありません"
         case "Project manager retired successfully!":
             return "プロジェクトマネージャーが正常に退職しました"
         case "Assignment failed: User not found!":

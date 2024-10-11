@@ -141,7 +141,10 @@ def order_retire_project_manager(user_name: str, project_name: str):
             return "Retirement failed: Project not found!", False
         
         # Remove the project manager from the project
-        project.project_managers.remove(user)
+        try:
+            project.project_managers.remove(user)
+        except ValueError:
+            return "Retirement failed: User is not a project manager for this project!", False
         session.add(project)
         try:
             session.commit()
@@ -462,13 +465,14 @@ def order_delete_user_given_name(user_name: str):
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
+        if user is None:
+            return "Deletion failed: User not found!", False
         if user.name == "rokafox":
             return "Deletion failed: Cannot delete the divine fox!", False
         # if user is sysadmin, return error
         if user.role == "sysadmin":
             return "Deletion failed: Cannot delete sysadmin!", False
-        if user is None:
-            return "Deletion failed: User not found!", False
+
         session.delete(user)
         try:
             session.commit()
