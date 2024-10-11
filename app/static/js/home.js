@@ -106,6 +106,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             // 選択されたユーザー名をカンマ区切りで入力値に設定
             userListInput.value = selectedUsers.join(',');
+            // ユーザーが選択されていない場合、アラートを表示して送信を中止
+            if (selectedUsers.length === 0) {
+                alert("Please choose at least one user.");
+                event.preventDefault();
+                return;
+            }
             // We are not allowed to send null, so we send an empty string instead
             if (userListInput.value === '') {
                 userListInput.value = '';
