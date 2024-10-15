@@ -359,6 +359,71 @@
 
                 </form>
             </div>
+
+            <p>⚠️Task Alert:</p>
+            <p>Not Completed:</p>
+            <div id="tasksalert-container"></div>
+    
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                // Fetch data from the endpoint
+                fetch('/tasks_need_attention')
+                    .then(response => response.json())
+                    .then(tasks => {
+                    // Get the container where tasks will be displayed
+                    const tasksContainer = document.getElementById('tasksalert-container');
+    
+                    // Check if the container exists
+                    if (!tasksContainer) {
+                        console.error('No element with id "tasksalert-container" found in HTML.');
+                        return;
+                    }
+    
+                    // If there are no tasks needing attention
+                    if (tasks.length === 0) {
+                        tasksContainer.textContent = 'No need for special attention.';
+                        return;
+                    }
+    
+                    // Iterate over each task and create HTML elements to display them
+                    tasks.forEach(task => {
+                        // Create a div to hold the task information
+                        const taskElement = document.createElement('div');
+                        taskElement.classList.add('task');
+    
+                        // Create an h3 element for the task title
+                        const taskTitle = document.createElement('h3');
+                        taskTitle.textContent = `Project: ${task.project_name || 'No Project'}`;
+    
+                        // Create a paragraph for the task details
+                        const taskDetails = document.createElement('p');
+                        taskDetails.innerHTML = `
+                        <strong>Assigned to:</strong> ${task.user_names.join(', ')}<br>
+                        <strong>Start Date:</strong> ${task.start_date}<br>
+                        <strong>End Date:</strong> ${task.end_date}<br>
+                        <strong>Details:</strong> ${task.status}<br>
+                        <strong>Progress:</strong> ${task.progress}%
+                        `;
+    
+                        // Append the title and details to the task element
+                        taskElement.appendChild(taskTitle);
+                        taskElement.appendChild(taskDetails);
+    
+                        // Append the task element to the container
+                        tasksContainer.appendChild(taskElement);
+                    });
+                    })
+                    .catch(error => {
+                    console.error('Error fetching tasks:', error);
+                    });
+                });
+            </script>
+
+
+
+
+
+
             {% endif %}
         {% if error %}
             <div class="message error">

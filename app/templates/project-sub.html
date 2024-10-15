@@ -13,7 +13,7 @@
         <h1>Welcome, {{ username }}!</h1>
         <form action="/logout" method="post">
             <input type="submit" value="Logout">
-            <input type="hidden" name="lang" value="jp">
+            <input type="hidden" name="lang" value="en">
         </form>
         <nav>
             <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
@@ -32,7 +32,7 @@
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
             <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="jp">
+            <input type="hidden" name="lang" value="en">
         
             <label for="pmasu_the_project_name">Project Name:</label>
             <select id="pmasu_the_project_name" name="pmasu_the_project_name" required onchange="fetchDates()">
@@ -46,10 +46,10 @@
         
             <label for="attendance_dates">Date:</label>
             <div id="date-options">
-                <!-- ここに日付のチェックボックスが生成されます -->
+                <!-- Date checkboxes and time pickers will be generated here -->
             </div>
         
-            <!-- 選択された日付を送信するための隠しフィールド -->
+            <!-- Hidden field to send selected dates and times -->
             <input type="hidden" id="selected_dates" name="selected_dates">
         
             <input type="submit" value="Submit">
@@ -64,41 +64,91 @@
                 }
         
                 try {
-                    // エンドポイントから日付リストを取得
+                    // Fetch date_list and time_list from the endpoint
                     const response = await fetch(`/get_dates_from_project_name/${encodeURIComponent(projectName)}`);
-                    const dates = await response.json();
+                    const data = await response.json();
+                    const date_list = data.date_list;
+                    const time_list = data.time_list;
+                    // console.log(date_list); // undefined
+                    // console.log(time_list); // undefined
         
-                    // 日付を基にチェックボックスを生成
+                    // Generate date options with time pickers
                     const dateOptionsContainer = document.getElementById("date-options");
                     dateOptionsContainer.innerHTML = "";
-                    dates.forEach(dateStr => {
+        
+                    for (let i = 0; i < date_list.length; i++) {
+                        const dateStr = date_list[i];
+                        const times = time_list[i]; // ['09:00', '16:00']
                         const date = new Date(dateStr);
                         const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+        
+                        const dateDiv = document.createElement("div");
+                        dateDiv.className = "date-option";
         
                         const label = document.createElement("label");
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.name = "attendance_dates[]";
                         checkbox.value = dateStr;
-                        checkbox.checked = !isWeekend;  // 週末の場合のみチェック
+                        checkbox.checked = !isWeekend;  // Check weekdays by default
         
                         label.appendChild(checkbox);
-                        label.appendChild(document.createTextNode(dateStr + (isWeekend ? " (Weekdays)" : "")));
-                        dateOptionsContainer.appendChild(label);
-                        // dateOptionsContainer.appendChild(document.createElement("br"));
-                    });
+                        label.appendChild(document.createTextNode(dateStr + (isWeekend ? " (Weekend)" : "")));
+        
+                        dateDiv.appendChild(label);
+        
+                        // Create start time picker
+                        const startTimeLabel = document.createElement("label");
+                        startTimeLabel.innerHTML = " Start Time: ";
+                        const startTimeInput = document.createElement("input");
+                        startTimeInput.type = "time";
+                        startTimeInput.name = `start_time_${dateStr}`;
+                        startTimeInput.value = times[0]; // Default start time
+        
+                        // Create end time picker
+                        const endTimeLabel = document.createElement("label");
+                        endTimeLabel.innerHTML = " End Time: ";
+                        const endTimeInput = document.createElement("input");
+                        endTimeInput.type = "time";
+                        endTimeInput.name = `end_time_${dateStr}`;
+                        endTimeInput.value = times[1]; // Default end time
+        
+                        dateDiv.appendChild(startTimeLabel);
+                        dateDiv.appendChild(startTimeInput);
+                        dateDiv.appendChild(endTimeLabel);
+                        dateDiv.appendChild(endTimeInput);
+        
+                        dateOptionsContainer.appendChild(dateDiv);
+                    }
                 } catch (error) {
-                    console.error("日付のフェッチエラー:", error);
+                    console.error("Error fetching dates:", error);
                 }
             }
         
             function packageDates() {
-                // 選択された日付をリストとして取得
-                const selectedDates = Array.from(document.querySelectorAll('input[name="attendance_dates[]"]:checked'))
-                                           .map(checkbox => checkbox.value);
+                // Collect selected dates and times
+                const dateOptions = document.querySelectorAll('input[name="attendance_dates[]"]');
+                const selectedData = [];
         
-                // 隠しフィールドにリストを JSON 形式で格納
-                document.getElementById("selected_dates").value = JSON.stringify(selectedDates);
+                dateOptions.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const dateStr = checkbox.value;
+                        const startTimeInput = document.querySelector(`input[name="start_time_${dateStr}"]`);
+                        const endTimeInput = document.querySelector(`input[name="end_time_${dateStr}"]`);
+        
+                        const startTime = startTimeInput.value;
+                        const endTime = endTimeInput.value;
+        
+                        selectedData.push({
+                            date: dateStr,
+                            start_time: startTime,
+                            end_time: endTime
+                        });
+                    }
+                });
+        
+                // Store the data as JSON in the hidden field
+                document.getElementById("selected_dates").value = JSON.stringify(selectedData);
             }
         </script>
 
@@ -113,7 +163,7 @@
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
             <input type="hidden" name="password" value="{{ password }}">
-            <input type="hidden" name="lang" value="jp">
+            <input type="hidden" name="lang" value="en">
         
             <label for="pmuasu_the_project_name">Project Name:</label>
             <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required onchange="fetchAttendanceDates()">
@@ -148,30 +198,35 @@
         
                 try {
                     // エンドポイントから日付リストを取得
-                    const response = await fetch(`/attendances_get_dates/${encodeURIComponent(userName)}/${encodeURIComponent(projectName)}`);
-                    const dates = await response.json();
-        
-                    // 日付を基にチェックボックスを生成
+                    const response = await fetch(`/attendances/${encodeURIComponent(userName)}/${encodeURIComponent(projectName)}`);
+                    const attendances = await response.json();
+
                     const dateOptionsContainer = document.getElementById("pm_remove_date_options");
                     dateOptionsContainer.innerHTML = "";
-                    dates.forEach(dateStr => {
+
+                    attendances.forEach(attendance => {
+                        const dateStr = attendance.date;
+                        const startTime = attendance.start_time;
+                        const endTime = attendance.end_time;
                         const date = new Date(dateStr);
                         const isWeekend = (date.getDay() === 0 || date.getDay() === 6); // 週末判定
-        
+
                         const label = document.createElement("label");
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.name = "pm_remove_attendance_dates[]";
                         checkbox.value = dateStr;
-                        checkbox.checked = true
-        
+                        checkbox.checked = true;
+
+                        // ラベルテキストを作成（日付、開始時間、終了時間、週末かどうか）
+                        const labelText = `${dateStr} (${startTime} - ${endTime})` + (isWeekend ? " (Weekdays)" : "");
+                        
                         label.appendChild(checkbox);
-                        label.appendChild(document.createTextNode(dateStr + (isWeekend ? " (週末)" : "")));
+                        label.appendChild(document.createTextNode(labelText));
                         dateOptionsContainer.appendChild(label);
-                        // dateOptionsContainer.appendChild(document.createElement("br"));
                     });
                 } catch (error) {
-                    console.error("日付のフェッチエラー:", error);
+                    console.error("Error fetching date:", error);
                 }
             }
         

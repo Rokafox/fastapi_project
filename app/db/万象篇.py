@@ -86,6 +86,8 @@ class AttendanceBase(SQLModel):
     user_id: int = Field(foreign_key="user.id")
     project_id: int = Field(foreign_key="project.id")
     date: str | None = Field(default=None)
+    start_time: str | None = Field(default=None)
+    end_time: str | None = Field(default=None)
     check_in: str | None = Field(default=None)
     check_out: str | None = Field(default=None)
 
@@ -105,8 +107,8 @@ class AttendancePublic(AttendanceBase):
     # test
     user_name: str
     project_name: str
-    project_starttime: str
-    project_endtime: str
+    start_time: str
+    end_time: str
 
 
 class TaskBase(SQLModel):

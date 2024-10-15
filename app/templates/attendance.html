@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/home.css">
     <script>
         const current_user_name = "{{ username }}";
-        const page_language = "jp";
+        const page_language = "en";
     </script>
 </head>
 <body>
@@ -13,10 +13,10 @@
         <h1>Welcome, {{ username }}!</h1>
         <form action="/logout" method="post">
             <input type="submit" value="Logout">
-            <input type="hidden" name="lang" value="jp">
+            <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
         </nav>
         <a class="JPpage" href="/attendance-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>

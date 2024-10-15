@@ -89,8 +89,7 @@
 
         {% if role == 'sysadmin' %}
         <p>あなたはシステム管理者です。</p>
-
-        <p>ログインに成功しました。</p>
+        <!-- <p>ログインに成功しました。</p> -->
 
         <p>プロジェクト一覧：</p>
 
@@ -208,7 +207,7 @@
                 }
             
                 async function sysadminDeleteProject(projectId) {
-                    const confirmation = confirm(`Are you sure you want to delete this project?`);
+                    const confirmation = confirm(`本当にこのプロジェクトを削除しますか？`);
                     if (!confirmation) {
                         return;
                     }
@@ -272,7 +271,7 @@
 
         {% if role == 'hiruchaaru' %}
         <p>貴方はヒルチャールです。</p>
-        <p>ログインに成功しました。</p>
+        <!-- <p>ログインに成功しました。</p> -->
         <h2>ヒルチャールのお兄さんが病気になった♪</h2>
         <h2>ヒルチャールのお姉さんが看病して♪</h2>
         <h2>ヒルチャールのお兄さんが薬を飲んでも治らない♪</h2>
@@ -312,8 +311,8 @@
         {% endif %}
 
         {% if role == 'projectmanager' %}
-        <p>貴方はプロジェクトマネージャーです</p>
-        <p>ログインに成功しました。</p>
+        <p>貴方はプロジェクトマネージャーです。</p>
+        <!-- <p>ログインに成功しました。</p> -->
         <p>プロジェクト閲覧：</p>
 
         <button id="show-projects-btn" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">プロジェクト表示</button>
@@ -356,6 +355,69 @@
                 <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">取り消す</button>
             </form>
         </div>
+
+        <p>⚠️タスクに関する警告：</p>
+        <p>未完成：</p>
+        <div id="tasksalert-container"></div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            // Fetch data from the endpoint
+            fetch('/tasks_need_attention')
+                .then(response => response.json())
+                .then(tasks => {
+                // Get the container where tasks will be displayed
+                const tasksContainer = document.getElementById('tasksalert-container');
+
+                // Check if the container exists
+                if (!tasksContainer) {
+                    console.error('No element with id "tasksalert-container" found in HTML.');
+                    return;
+                }
+
+                // If there are no tasks needing attention
+                if (tasks.length === 0) {
+                    tasksContainer.textContent = '特別な注意は必要ありません。';
+                    return;
+                }
+
+                // Iterate over each task and create HTML elements to display them
+                tasks.forEach(task => {
+                    // Create a div to hold the task information
+                    const taskElement = document.createElement('div');
+                    taskElement.classList.add('task');
+
+                    // Create an h3 element for the task title
+                    const taskTitle = document.createElement('h3');
+                    taskTitle.textContent = `プロジェクト： ${task.project_name || 'プロジェクト不明'}`;
+
+                    // Create a paragraph for the task details
+                    const taskDetails = document.createElement('p');
+                    taskDetails.innerHTML = `
+                    <strong>インポスター：</strong> ${task.user_names.join(', ')}<br>
+                    <strong>開始日：</strong> ${task.start_date}<br>
+                    <strong>終了日：</strong> ${task.end_date}<br>
+                    <strong>説明：</strong> ${task.status}<br>
+                    <strong>進行度：</strong> ${task.progress}%
+                    `;
+
+                    // Append the title and details to the task element
+                    taskElement.appendChild(taskTitle);
+                    taskElement.appendChild(taskDetails);
+
+                    // Append the task element to the container
+                    tasksContainer.appendChild(taskElement);
+                });
+                })
+                .catch(error => {
+                console.error('Error fetching tasks:', error);
+                });
+            });
+        </script>
+
+
+
+
         {% endif %}
 
         {% if error %}

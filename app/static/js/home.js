@@ -64,6 +64,34 @@ document.addEventListener("DOMContentLoaded", function() {
                 pmcreatetaskElement.appendChild(option.cloneNode(true));
             }
         });
+
+        // プロジェクト選択時に開始日と終了日を設定
+        const pmcreatetaskElement = document.getElementById('pmcreatetask_the_project_name');
+        if (pmcreatetaskElement) {
+            pmcreatetaskElement.addEventListener('change', function() {
+                const selectedProjectName = pmcreatetaskElement.value;
+                if (selectedProjectName) {
+                    fetch(`/projects_given_name/${encodeURIComponent(selectedProjectName)}`)
+                    .then(response => response.json())
+                    .then(projectData => {
+                        if (projectData && projectData.length > 0) {
+                            const project = projectData[0];
+                            const starttime = project.starttime.split(' ')[0];
+                            const endtime = project.endtime.split(' ')[0];
+                            const startdateInput = document.getElementById('the_task_startdate');
+                            const enddateInput = document.getElementById('the_task_enddate');
+                            if (startdateInput) {
+                                startdateInput.value = starttime;
+                            }
+                            if (enddateInput) {
+                                enddateInput.value = endtime;
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error fetching project data:', error));
+                }
+            });
+        }
     })
     .catch(error => console.error('Error fetching projects:', error));
 });
@@ -108,7 +136,12 @@ document.addEventListener("DOMContentLoaded", async function() {
             userListInput.value = selectedUsers.join(',');
             // ユーザーが選択されていない場合、アラートを表示して送信を中止
             if (selectedUsers.length === 0) {
-                alert("Please choose at least one user.");
+                if (page_language == 'ja' || page_language == 'jp') {
+                    alert("ユーザーを少なくとも1匹を選択してください。");
+                }
+                else {
+                    alert("Please choose at least one user.");
+                }
                 event.preventDefault();
                 return;
             }
@@ -165,9 +198,15 @@ try {
 }
 
 async function hrc_fetchAttendances() {
-    const response = await fetch(`/attendances/${current_user_name}`);
-    hiruchaaru_attendances = await response.json();
-    hrc_displayAttendances(hiruchaaru_attendances);
+    try {
+        const response = await fetch(`/attendances_hrcheckin/${current_user_name}`);
+        if (!response.ok) throw new Error('Failed to fetch attendances');
+        hiruchaaru_attendances = await response.json();
+        hrc_displayAttendances(hiruchaaru_attendances);
+    } catch (error) {
+        console.error("Error fetching attendances:", error);
+        alert('Error fetching attendances');
+    }
 }
 
 function hrc_displayAttendances(attendanceList) {
@@ -176,28 +215,39 @@ function hrc_displayAttendances(attendanceList) {
 
     attendanceList.forEach(attendance => {
         const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <strong>Project:</strong> ${attendance.project_name} <br>
-            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
-            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
-            <strong>Date:</strong> ${attendance.date} <br>
-            <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : 'Not checked in yet'} <br>
-            <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : 'Not checked out yet'} <br>
-        `;
+        const currentTime = new Date().toISOString();
 
-        // Check In ボタン（check_in が存在しない場合のみ表示）
-        if (!attendance.check_in) {
+        if (page_language == 'ja' || page_language == 'jp') {
+            listItem.innerHTML = `
+                <strong>プロジェクト:</strong> ${attendance.project_name} <br>
+                <strong>予定開始時間:</strong> ${attendance.start_time} <br>
+                <strong>予定終了時間:</strong> ${attendance.end_time} <br>
+                <strong>日付:</strong> ${attendance.date} <br>
+                <strong>チェックイン:</strong> ${attendance.check_in ? attendance.check_in : (currentTime > attendance.end_time ? '機会を逃しました' : 'まだチェックインしていません')} <br>
+                <strong>チェックアウト:</strong> ${attendance.check_out ? attendance.check_out : 'まだチェックアウトしていません'} <br>
+            `;
+        } else {
+            listItem.innerHTML = `
+                <strong>Project:</strong> ${attendance.project_name} <br>
+                <strong>Scheduled Starttime:</strong> ${attendance.start_time} <br>
+                <strong>Scheduled Endtime:</strong> ${attendance.end_time} <br>
+                <strong>Date:</strong> ${attendance.date} <br>
+                <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : (currentTime > attendance.end_time ? 'Opportunity Missed' : 'Not checked in yet')} <br>
+                <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : 'Not checked out yet'} <br>
+            `;
+        }
+
+        if (!attendance.check_in && currentTime <= attendance.end_time) {
             const checkInButton = document.createElement('button');
-            checkInButton.textContent = 'Check In';
+            checkInButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックイン' : 'Check In';
             checkInButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
             checkInButton.onclick = () => hrc_checkIn(attendance.id);
             listItem.appendChild(checkInButton);
         }
 
-        // Check Out ボタン（check_in が存在し、かつ check_out が存在しない場合のみ表示）
         if (attendance.check_in && !attendance.check_out) {
             const checkOutButton = document.createElement('button');
-            checkOutButton.textContent = 'Check Out';
+            checkOutButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックアウト' : 'Check Out';
             checkOutButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
             checkOutButton.onclick = () => hrc_checkOut(attendance.id);
             listItem.appendChild(checkOutButton);
@@ -247,8 +297,8 @@ function hrc_filterAttendances() {
     const filterValue = document.getElementById('filter-input').value.toLowerCase();
     const filteredAttendances = hiruchaaru_attendances.filter(attendance => 
         attendance.project_name.toLowerCase().includes(filterValue) ||
-        attendance.project_starttime.toLowerCase().includes(filterValue) ||
-        attendance.project_endtime.toLowerCase().includes(filterValue) ||
+        attendance.start_time.toLowerCase().includes(filterValue) ||
+        attendance.end_time.toLowerCase().includes(filterValue) ||
         attendance.date.toLowerCase().includes(filterValue)
     );
     hrc_displayAttendances(filteredAttendances);
@@ -307,18 +357,35 @@ function hrc_displayTasks(taskList) {
 
     taskList.forEach(task => {
         const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <strong>Project:</strong> ${task.project_name} <br>
-            <strong>Start Date:</strong> ${task.start_date} <br>
-            <strong>End Date:</strong> ${task.end_date} <br>
-            <strong>Description:</strong> ${task.status} <br>
-            <strong>Progress:</strong> ${task.progress}% <br>
-        `;
-        // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
-        if (task.task_assigned_for_this_user) {
-            listItem.innerHTML += `
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_editTask(${task.id})">Edit</button>
+        if (page_language == 'ja' || page_language == 'jp') {
+            listItem.innerHTML = `
+                <strong>プロジェクト:</strong> ${task.project_name} <br>
+                <strong>開始日:</strong> ${task.start_date} <br>
+                <strong>終了日:</strong> ${task.end_date} <br>
+                <strong>説明:</strong> ${task.status} <br>
+                <strong>進捗:</strong> ${task.progress}% <br>
             `;
+            // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
+            if (task.task_assigned_for_this_user) {
+                listItem.innerHTML += `
+                    <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_editTask(${task.id})">編集</button>
+                `;
+            }
+        }
+        else {
+            listItem.innerHTML = `
+                <strong>Project:</strong> ${task.project_name} <br>
+                <strong>Start Date:</strong> ${task.start_date} <br>
+                <strong>End Date:</strong> ${task.end_date} <br>
+                <strong>Description:</strong> ${task.status} <br>
+                <strong>Progress:</strong> ${task.progress}% <br>
+            `;
+            // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
+            if (task.task_assigned_for_this_user) {
+                listItem.innerHTML += `
+                    <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_editTask(${task.id})">Edit</button>
+                `;
+            }
         }
         taskListElement.appendChild(listItem);
     });
@@ -427,15 +494,28 @@ function pmv_displayProjects(projectList) {
 
     projectList.forEach(project => {
         const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <strong>Name:</strong> ${project.name} <br>
-            <strong>Description:</strong> ${project.description} <br>
-            <strong>Start Time:</strong> ${project.starttime} <br>
-            <strong>End Time:</strong> ${project.endtime} <br>
-            <strong>Status:</strong> ${project.status} <br>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editProject(${project.id})">Edit</button>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteProject(${project.id})">Delete</button>
-        `;
+        if (page_language == 'ja' || page_language == 'jp') {
+            listItem.innerHTML = `
+                <strong>プロジェクト名:</strong> ${project.name} <br>
+                <strong>説明:</strong> ${project.description} <br>
+                <strong>開始時間:</strong> ${project.starttime} <br>
+                <strong>終了時間:</strong> ${project.endtime} <br>
+                <strong>ステータス:</strong> ${project.status} <br>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editProject(${project.id})">編集</button>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteProject(${project.id})">削除</button>
+            `;
+        }
+        else {
+            listItem.innerHTML = `
+                <strong>Name:</strong> ${project.name} <br>
+                <strong>Description:</strong> ${project.description} <br>
+                <strong>Start Time:</strong> ${project.starttime} <br>
+                <strong>End Time:</strong> ${project.endtime} <br>
+                <strong>Status:</strong> ${project.status} <br>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editProject(${project.id})">Edit</button>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteProject(${project.id})">Delete</button>
+            `;
+        }
         projectListElement.appendChild(listItem);
     });
 }
@@ -619,20 +699,35 @@ async function pmv_fetchAttendances() {
 
 function pmv_displayAttendances(attendanceList) {
     const attendanceListElement = document.getElementById('attendance-list');
-    attendanceListElement.innerHTML = ''; // リストをクリア
+    attendanceListElement.innerHTML = '';
 
     attendanceList.forEach(attendance => {
         const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <strong>User Name:</strong> ${attendance.user_name} <br>
-            <strong>Project Name:</strong> ${attendance.project_name} <br>
-            <strong>Scheduled Date:</strong> ${attendance.date} <br>
-            <strong>Scheduled Starttime:</strong> ${attendance.project_starttime} <br>
-            <strong>Scheduled Endtime:</strong> ${attendance.project_endtime} <br>
-            <strong>Check In:</strong> ${attendance.check_in} <br>
-            <strong>Check Out:</strong> ${attendance.check_out} <br>
-        `;
-        attendanceListElement.appendChild(listItem);
+        // if page_language == 'ja' or 'jp'
+        if (page_language == 'ja' || page_language == 'jp') {
+            listItem.innerHTML = `
+                <strong>ユーザー名:</strong> ${attendance.user_name} <br>
+                <strong>プロジェクト名:</strong> ${attendance.project_name} <br>
+                <strong>予定日:</strong> ${attendance.date} <br>
+                <strong>予定開始時間:</strong> ${attendance.start_time} <br>
+                <strong>予定終了時間:</strong> ${attendance.end_time} <br>
+                <strong>チェックイン:</strong> ${attendance.check_in} <br>
+                <strong>チェックアウト:</strong> ${attendance.check_out} <br>
+            `;
+            attendanceListElement.appendChild(listItem);
+        }
+        else {
+            listItem.innerHTML = `
+                <strong>User Name:</strong> ${attendance.user_name} <br>
+                <strong>Project Name:</strong> ${attendance.project_name} <br>
+                <strong>Scheduled Date:</strong> ${attendance.date} <br>
+                <strong>Scheduled Starttime:</strong> ${attendance.start_time} <br>
+                <strong>Scheduled Endtime:</strong> ${attendance.end_time} <br>
+                <strong>Check In:</strong> ${attendance.check_in} <br>
+                <strong>Check Out:</strong> ${attendance.check_out} <br>
+            `;
+            attendanceListElement.appendChild(listItem);
+        }
     });
 }
 
@@ -718,16 +813,16 @@ function pmv_calculateAttendanceRate() {
         attendance.date.toLowerCase().includes(filterValueC)
     );
 
-    // date beforeフィルターを適用
-    if (!isNaN(dateBefore.getTime())) {  // 有効な日付か確認
+    // Apply date before filter
+    if (!isNaN(dateBefore.getTime())) {
         filteredAttendancesC = filteredAttendancesC.filter(attendance => {
             const attendanceDate = new Date(attendance.date);
             return attendanceDate <= dateBefore;
         });
     }
 
-    // date afterフィルターを適用
-    if (!isNaN(dateAfter.getTime())) {  // 有効な日付か確認
+    // Apply date after filter
+    if (!isNaN(dateAfter.getTime())) {
         filteredAttendancesC = filteredAttendancesC.filter(attendance => {
             const attendanceDate = new Date(attendance.date);
             return attendanceDate >= dateAfter;
@@ -736,36 +831,90 @@ function pmv_calculateAttendanceRate() {
 
     let outputText = "";
     let totalRate = 0;
-    let validCount = 0; // 有効な出席レートの数
+    let validCount = 0;
 
     filteredAttendancesC.forEach(attendance => {
-        const scheduledStart = new Date(`1970-01-01T${attendance.project_starttime}:00`);
-        const scheduledEnd = new Date(`1970-01-01T${attendance.project_endtime}:00`);
-        const checkIn = new Date(`1970-01-01T${attendance.check_in}:00`);
-        const checkOut = new Date(`1970-01-01T${attendance.check_out}:00`);
+        // Parse scheduled times
+        const scheduledStart = new Date(`1970-01-01T${attendance.start_time}:00`);
+        const scheduledEnd = new Date(`1970-01-01T${attendance.end_time}:00`);
+        const scheduledTime = (scheduledEnd - scheduledStart) / (1000 * 60); // Scheduled time in minutes
 
-        const scheduledTime = (scheduledEnd - scheduledStart) / (1000 * 60); // スケジュールされた時間 (分)
-        const actualTime = (checkOut - checkIn) / (1000 * 60); // 実際の働いた時間 (分)
-
+        // Initialize attendance rate
         let attendanceRate = 0;
+
+        // Get today's date at midnight
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Parse attendance date
+        const attendanceDate = new Date(attendance.date);
+        attendanceDate.setHours(0, 0, 0, 0);
+
+        // Check if check_in and check_out are present
+        const hasCheckIn = attendance.check_in && attendance.check_in !== "";
+        const hasCheckOut = attendance.check_out && attendance.check_out !== "";
+
         if (scheduledTime > 0) {
-            attendanceRate = (actualTime / scheduledTime) * 100; // 出席率 (パーセンテージ)
+            if (hasCheckIn && hasCheckOut) {
+                // Calculate actual time worked
+                const checkIn = new Date(`1970-01-01T${attendance.check_in}:00`);
+                const checkOut = new Date(`1970-01-01T${attendance.check_out}:00`);
+                const actualTime = (checkOut - checkIn) / (1000 * 60); // Actual time in minutes
+
+                // Calculate attendance rate
+                attendanceRate = (actualTime / scheduledTime) * 100;
+            } else {
+                // Handle missing check_in based on date conditions
+                if (attendanceDate < today && !hasCheckIn) {
+                    // Date is before today and check_in is missing
+                    attendanceRate = 0;
+                } else if (attendanceDate.getTime() === today.getTime() && !hasCheckIn) {
+                    // Date is today
+                    const now = new Date();
+
+                    // Combine today's date with scheduled end time
+                    const scheduledEndToday = new Date();
+                    scheduledEndToday.setHours(scheduledEnd.getHours(), scheduledEnd.getMinutes(), 0, 0);
+
+                    if (now > scheduledEndToday) {
+                        // Current time is after scheduled end time and check_in is missing
+                        attendanceRate = 0;
+                    } else {
+                        // Attendance rate cannot be determined yet
+                        attendanceRate = 0;
+                    }
+                } else {
+                    // Future dates or other conditions
+                    attendanceRate = 0;
+                }
+            }
+
+            // Accumulate total rate and count
+            totalRate += attendanceRate;
+            validCount++;
         }
 
-        totalRate += attendanceRate;
-        validCount++; // 有効な出席の数を増加
-
-        outputText += `<strong>${attendance.user_name} - ${attendance.project_name} - ${attendance.date}:</strong> Attendance Rate: ${attendanceRate.toFixed(2)}%<br>`;
+        // Generate output text
+        if (page_language == 'ja' || page_language == 'jp') {
+            outputText += `<strong>${attendance.user_name} - ${attendance.project_name} - ${attendance.date}:</strong> 出勤率: ${attendanceRate.toFixed(2)}%<br>`;
+        } else {
+            outputText += `<strong>${attendance.user_name} - ${attendance.project_name} - ${attendance.date}:</strong> Attendance Rate: ${attendanceRate.toFixed(2)}%<br>`;
+        }
     });
 
-    // 出席率の平均を計算
+    // Calculate average attendance rate
     let averageRate = validCount > 0 ? (totalRate / validCount).toFixed(2) : 0;
 
-    // 平均出席率を追加
-    outputText += `<br><strong>Average Attendance Rate:</strong> ${averageRate}%`;
+    // Append average attendance rate to output
+    if (page_language == 'ja' || page_language == 'jp') {
+        outputText += `<br><strong>平均出勤率:</strong> ${averageRate}%`;
+    } else {
+        outputText += `<br><strong>Average Attendance Rate:</strong> ${averageRate}%`;
+    }
 
     document.getElementById('calculate-output').innerHTML = outputText;
 }
+
 
 
 
@@ -821,20 +970,34 @@ async function pmv_fetchTasks() {
 
 function pmv_displayTasks(taskList) {
     const taskListElement = document.getElementById('pmtsk-task-list');
-    taskListElement.innerHTML = ''; // リストをクリア
+    taskListElement.innerHTML = '';
 
     taskList.forEach(task => {
         const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <strong>Project:</strong> ${task.project_name} <br>
-            <strong>User:</strong> ${task.user_names} <br>
-            <strong>Start Date:</strong> ${task.start_date} <br>
-            <strong>End Date:</strong> ${task.end_date} <br>
-            <strong>Description:</strong> ${task.status} <br>
-            <strong>Progress:</strong> ${task.progress}% <br>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editTask(${task.id})">Edit</button>
-            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteTask(${task.id})">Delete</button>
-        `;
+        if (page_language == 'ja' || page_language == 'jp') {
+            listItem.innerHTML = `
+                <strong>プロジェクト:</strong> ${task.project_name} <br>
+                <strong>ユーザー:</strong> ${task.user_names} <br>
+                <strong>開始日:</strong> ${task.start_date} <br>
+                <strong>終了日:</strong> ${task.end_date} <br>
+                <strong>説明:</strong> ${task.status} <br>
+                <strong>進捗:</strong> ${task.progress}% <br>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editTask(${task.id})">編集</button>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteTask(${task.id})">削除</button>
+            `;
+        }
+        else {
+            listItem.innerHTML = `
+                <strong>Project:</strong> ${task.project_name} <br>
+                <strong>User:</strong> ${task.user_names} <br>
+                <strong>Start Date:</strong> ${task.start_date} <br>
+                <strong>End Date:</strong> ${task.end_date} <br>
+                <strong>Description:</strong> ${task.status} <br>
+                <strong>Progress:</strong> ${task.progress}% <br>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editTask(${task.id})">Edit</button>
+                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteTask(${task.id})">Delete</button>
+            `;
+        }
         taskListElement.appendChild(listItem);
     });
 }
@@ -925,6 +1088,15 @@ async function pmv_deleteTask(taskId) {
         alert('An error occurred while deleting the task.');
     }
 }
+
+
+
+
+
+
+
+
+
 
 // 指南書　システム管理者
 document.addEventListener('DOMContentLoaded', function() {

@@ -179,11 +179,10 @@ def order_assign_project_manager(user_name: str, project_name: str):
             return "Assignment failed, unhandled error: " + str(e), False
         return "Project manager assigned successfully!", True
 
-def create_attendance(user_name: str, project_name: str, check_in: str=None, check_out: str=None, date_list: list[str]=None):
+def create_attendance(user_name: str, project_name: str, date_list: list[dict[str, str, str]], check_in: str=None, check_out: str=None):
     # Get user and project
-    # date_list looks like this: ['["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]']
-    # target: ["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]
-    date_list = date_list[0].replace("[", "").replace("]", "").replace('"', "").split(",")
+    # date_list looks like this:
+    # [{'date': '2024-10-09', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-10', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-11', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-14', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-15', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-16', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-17', 'start_time': '09:00', 'end_time': '16:00'}]
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
@@ -227,71 +226,36 @@ def create_attendance(user_name: str, project_name: str, check_in: str=None, che
             else:
                 pass
 
-            # if date_list is not provided:
-            if date_list is None:
-                while current_date <= project_end_date:
 
-                    # 土曜日や日曜日であればスキップ
-                    # if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
-                    #     current_date += timedelta(days=1)
-                    #     continue
+            for data in date_list:
+                # print(date)
+                current_date = datetime.strptime(data['date'], "%Y-%m-%d")
 
-                    # 既存の出席情報を確認
-                    existing_attendance = session.exec(
-                        select(Attendance)
-                        .where(Attendance.user_id == user_id)
-                        .where(Attendance.project_id == project_id)
-                        .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
-                    ).one_or_none()
+                # 既存の出席情報を確認
+                existing_attendance = session.exec(
+                    select(Attendance)
+                    .where(Attendance.user_id == user_id)
+                    .where(Attendance.project_id == project_id)
+                    .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
+                ).one_or_none()
 
-                    if existing_attendance:
-                        # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
-                        # instead of returning, we can just skip this date
-                        current_date += timedelta(days=1)
-                        continue
+                if existing_attendance:
+                    # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
+                    # instead of returning, we can just skip this date
+                    continue
 
-                    # 新しい出席情報を作成
-                    new_attendance = Attendance(
-                        user_id=user_id,
-                        project_id=project_id,
-                        date=current_date.strftime("%Y-%m-%d"),
-                        check_in=check_in,
-                        check_out=check_out
-                    )
-                    Attendance.model_validate(new_attendance)
-                    session.add(new_attendance)
-                    current_date += timedelta(days=1)
-            else:
-                for date in date_list:
-                    # print(date)
-                    current_date = datetime.strptime(date, "%Y-%m-%d")
-                    # 土曜日や日曜日であればスキップ
-                    # if current_date.weekday() in [5, 6]:  # 5 = 土曜日, 6 = 日曜日
-                    #     continue
-
-                    # 既存の出席情報を確認
-                    existing_attendance = session.exec(
-                        select(Attendance)
-                        .where(Attendance.user_id == user_id)
-                        .where(Attendance.project_id == project_id)
-                        .where(Attendance.date == current_date.strftime("%Y-%m-%d"))
-                    ).one_or_none()
-
-                    if existing_attendance:
-                        # return f"Creation failed: Same attendance already exists for {current_date.strftime('%Y-%m-%d')}", False
-                        # instead of returning, we can just skip this date
-                        continue
-
-                    # 新しい出席情報を作成
-                    new_attendance = Attendance(
-                        user_id=user_id,
-                        project_id=project_id,
-                        date=current_date.strftime("%Y-%m-%d"),
-                        check_in=check_in,
-                        check_out=check_out
-                    )
-                    Attendance.model_validate(new_attendance)
-                    session.add(new_attendance)
+                # 新しい出席情報を作成
+                new_attendance = Attendance(
+                    user_id=user_id,
+                    project_id=project_id,
+                    date=current_date.strftime("%Y-%m-%d"),
+                    start_time=data['start_time'],
+                    end_time=data['end_time'],
+                    check_in=check_in,
+                    check_out=check_out
+                )
+                Attendance.model_validate(new_attendance)
+                session.add(new_attendance)
             
             try:
                 session.commit()
@@ -340,9 +304,12 @@ def order_delete_attendanc_given_name(user_name: str, project_name: str, date_li
 
 
 
-def order_get_all_projects():
+def order_get_all_projects(given_project_name: str = None):
     with Session(engine) as session:
-        statement = select(Project)
+        if given_project_name:
+            statement = select(Project).where(Project.name == given_project_name)
+        else:
+            statement = select(Project)
         projects = session.exec(statement).all()
         project_list = []
         for project in projects:
@@ -392,14 +359,18 @@ def order_get_dates_from_project_name(project_name: str):
         
         start_date = datetime.strptime(project.starttime.split()[0], "%Y-%m-%d")
         end_date = datetime.strptime(project.endtime.split()[0], "%Y-%m-%d")
-        
+        start_time = project.starttime.split()[-1]
+        end_time = project.endtime.split()[-1]
+
         date_list = []
+        time_list: list[tuple[str, str]] = [] # [(start_time, end_time), ...]
         current_date = start_date
         while current_date <= end_date:
             date_list.append(current_date.strftime("%Y-%m-%d"))
+            time_list.append((start_time, end_time))
             current_date += timedelta(days=1)
         
-        return date_list
+        return date_list, time_list
 
 
 
@@ -426,37 +397,13 @@ def order_hiruchaaru_get_assigned_projects(user_name: str):
                 "id": attendance.id,
                 "project_id": attendance.project_id,
                 "project_name": attendance.project.name,
-                "project_starttime": attendance.project.starttime.split(" ")[-1],
-                "project_endtime": attendance.project.endtime.split(" ")[-1],
+                "start_time": attendance.start_time,
+                "end_time": attendance.end_time,
                 "date": attendance.date,
                 "check_in": attendance.check_in,
                 "check_out": attendance.check_out,
             })
         return assigned_projects
-
-
-
-def order_hiruchaaru_get_assigned_dates(user_name: str, project_name: str):
-    with Session(engine) as session:
-        statement = select(User).where(User.name == user_name)
-        user = session.exec(statement).one_or_none()
-        if user is None:
-            return "User not found!", False
-        
-        statement = select(Project).where(Project.name == project_name)
-        project = session.exec(statement).one_or_none()
-        if project is None:
-            return "Project not found!", False
-        
-        statement = select(Attendance).where(Attendance.user_id == user.id).where(Attendance.project_id == project.id)
-        attendances = session.exec(statement).all()
-        
-        assigned_dates = []
-        for attendance in attendances:
-            assigned_dates.append(attendance.date)
-        return assigned_dates
-
-
 
 
 def order_delete_user_given_name(user_name: str):
@@ -577,10 +524,17 @@ def order_update_user_by_id(user_id: int, user: UserUpdate):
         return "User updated successfully!", True
 
 
-def order_get_all_attendances():
+def order_get_all_attendances(given_project_name: str = None, given_user_name: str = None):
     with Session(engine) as session:
-        # Attendanceと関連するUser、Projectを取得する
+        # Base statement to select Attendance with related User and Project
         statement = select(Attendance, User.name, Project.name).join(Attendance.user).join(Attendance.project)
+        
+        # Add conditions if parameters are provided
+        if given_project_name:
+            statement = statement.where(Project.name == given_project_name)
+        if given_user_name:
+            statement = statement.where(User.name == given_user_name)
+        
         results = session.exec(statement).all()
         
         attendances_with_details = []
@@ -591,8 +545,8 @@ def order_get_all_attendances():
                 "user_name": user_name,
                 "project_id": attendance.project_id,
                 "project_name": project_name,
-                "project_starttime": attendance.project.starttime.split(" ")[-1],
-                "project_endtime": attendance.project.endtime.split(" ")[-1],
+                "start_time": attendance.start_time,
+                "end_time": attendance.end_time,
                 "date": attendance.date,
                 "check_in": attendance.check_in,
                 "check_out": attendance.check_out,
@@ -620,17 +574,37 @@ def order_hiruchaaru_checkout(attendance_id: int):
         session.commit()
         return "Check-out successful!", True
     
-    
-def order_get_all_tasks():
+def automatic_check_out():
+    # find all attendances where date is today and is checked in.
+    # all checked out time, including None, will be updated to attendance's end_time
     with Session(engine) as session:
-        tasks = session.exec(
-            select(Task)
-            .options(
-                selectinload(Task.users),
-                selectinload(Task.project)
-            )
-            .order_by(Task.start_date)  # Optional: Order tasks by start date
-        ).all()
+        today = datetime.now().strftime("%Y-%m-%d")
+        statement = select(Attendance).where(Attendance.date == today).where(Attendance.check_in != None)
+        # statement = select(Attendance).where(Attendance.date == today) # for testing
+        attendances = session.exec(statement).all()
+        for attendance in attendances:
+            # if check_out is later than end_time, update it to end_time
+            # print(attendance.check_out)
+            # print(attendance.check_out >= attendance.end_time)
+            if attendance.check_out is None or attendance.check_out >= attendance.end_time:
+                attendance.check_out = attendance.end_time
+            session.add(attendance)
+        session.commit()
+        if not attendances:
+            return "Automatic check-out failed: No checked-in attendances found!", False
+        return "Automatic check-out successful!", True
+    
+def order_get_all_tasks(get_tasks_need_attention: bool = False):
+    with Session(engine) as session:
+        query = select(Task).options(
+            selectinload(Task.users),
+            selectinload(Task.project)
+        ).order_by(Task.start_date)  # Optional: Order tasks by start date
+
+        if get_tasks_need_attention:
+            query = query.where(Task.progress < 100, Task.end_date <= datetime.now().strftime("%Y-%m-%d"))
+
+        tasks = session.exec(query).all()
         task_list = []
         for task in tasks:
             user_ids = [user.id for user in task.users]

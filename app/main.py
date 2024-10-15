@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
 import os
 import shutil
 import time
@@ -11,6 +12,14 @@ from .虚数篇 import *
 from .指鹿篇 import 日本語になーれ
 from .db.創造篇 import create_db_and_tables, create_sysadmin
 from .db.万法篇 import *
+
+
+def database_job():
+    print(f"Executing daily commands: {datetime.now()}")
+    try:
+        automatic_check_out()
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 @asynccontextmanager
@@ -37,6 +46,14 @@ async def lifespan(app: FastAPI):
     # check if the database actually exists
     if not os.path.exists("./app/db/database.db"):
         print("WARNING: DATABASE NOT FOUND DURING STARTUP, APP WILL NOT FUNCTION!")
+
+    scheduler = BackgroundScheduler()
+    # 毎日23:00にdatabase_jobを実行
+    scheduler.add_job(database_job, 'cron', hour=23, minute=0)
+    scheduler.start()
+    a, b = automatic_check_out()
+    print(a)
+
     yield
     # move the database from ./app/db/database.db to ./unrelated_files/old_db_{current_time}.db
     try:
@@ -45,6 +62,7 @@ async def lifespan(app: FastAPI):
     except FileNotFoundError:
         print("WARNING: DATABASE NOT FOUND DURING SHUTDOWN, NOT EXPECTED!")
         pass
+    scheduler.shutdown()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -236,7 +254,7 @@ async def sysadmin_create_project(request: Request, newproject_name: str = Form(
                                        newproject_endtime, newproject_status, project_manager_name_list)
     if lang == "jp":
         msg = 日本語になーれ(msg)
-    template_name = "project.html" if lang == "en" else "project-jp.html"
+    template_name = "project-en.html" if lang == "en" else "project-jp.html"
     return templates.TemplateResponse(template_name, {
         "request": request, 
         "sysadmin_createproject_message": msg,
@@ -255,7 +273,7 @@ async def sysadmin_retire_project_manager(request: Request, retireproject_name: 
         msg, successcheck = order_retire_project_manager(retireprojectmanager_name, retireproject_name)
         if lang == "jp":
             msg = 日本語になーれ(msg)
-        template_name = "project.html" if lang == "en" else "project-jp.html"
+        template_name = "project-en.html" if lang == "en" else "project-jp.html"
         return templates.TemplateResponse(template_name, {
             "request": request, 
             "sysadmin_retireprojectmanager_message": msg,
@@ -274,7 +292,7 @@ async def sysadmin_assign_project_manager(request: Request, assignproject_name: 
         msg, successcheck = order_assign_project_manager(assignprojectmanager_name, assignproject_name)
         if lang == "jp":
             msg = 日本語になーれ(msg)
-        template_name = "project.html" if lang == "en" else "project-jp.html"
+        template_name = "project-en.html" if lang == "en" else "project-jp.html"
         return templates.TemplateResponse(template_name, {
             "request": request, 
             "sysadmin_assignprojectmanager_message": msg,
@@ -289,7 +307,16 @@ async def pm_create_attendance(request: Request, pmasu_the_user_name: str = Form
                                username: str = Form(...), role: str = Form(...), lang: str = Form("en"),
                                password: str = Form(...), selected_dates: list[str] = Form(...)):
     # print(selected_dates)
-    # ['["2024-10-09","2024-10-10","2024-10-11","2024-10-14","2024-10-15","2024-10-16","2024-10-17"]']
+    """
+    example:
+    ['[{"date":"2024-10-09","start_time":"10:01","end_time":"16:00"},{"date":"2024-10-10","start_time":"00:03","end_time":"16:00"},{"date":"2024-10-11","start_time":"09:00","end_time":"16:00"},{"date":"2024-10-14","start_time":"09:00","end_time":"16:00"},{"date":"2024-10-15","start_time":"09:00","end_time":"16:00"},{"date":"2024-10-16","start_time":"09:00","end_time":"16:00"},{"date":"2024-10-17","start_time":"09:00","end_time":"16:00"}]']
+    """
+    selected_dates = eval(selected_dates[0])
+    # print(selected_dates)
+    """
+    example:
+    [{'date': '2024-10-09', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-10', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-11', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-14', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-15', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-16', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-17', 'start_time': '09:00', 'end_time': '16:00'}]
+    """
     if not validate_user_when_login(username, password):
         return templates.TemplateResponse("login.html", {"request": request})
     msg, successcheck = create_attendance(pmasu_the_user_name, pmasu_the_project_name, date_list=selected_dates)
@@ -358,14 +385,19 @@ async def read_projects():
 
 @app.get('/get_dates_from_project_name/{project_name}')
 async def get_dates_from_project_name(project_name: str):
-    something = order_get_dates_from_project_name(project_name)
-    # print(something)
-    return something
+    date_list, time_list = order_get_dates_from_project_name(project_name)
+    # date_list = ['2024-09-10', '2024-09-11', '2024-09-12']
+    # time_list = [('09:00','16:00'), ('09:00','16:00'), ('09:00','16:00')]
+    return {"date_list": date_list, "time_list": time_list}
 
 # project manager will only see the projects that they are managing
 @app.get("/projects_pm/{project_manager_name}")
 async def read_projects_by_project_manager(project_manager_name: str):
     return order_get_projects_by_project_manager(project_manager_name)
+
+@app.get("/projects_given_name/{project_name}")
+async def read_projects_by_project_name(project_name: str):
+    return order_get_all_projects(project_name)
 
 @app.delete("/projects/{project_id}")
 async def delete_project(project_id: int):
@@ -381,13 +413,13 @@ async def update_project(project_id: int, project: ProjectUpdate):
 async def read_attendances():
     return order_get_all_attendances()
 
-@app.get("/attendances/{user_name}")
+@app.get("/attendances_hrcheckin/{user_name}")
 async def read_attendances_by_user_name(user_name: str):
     return order_hiruchaaru_get_assigned_projects(user_name=user_name)
 
-@app.get("/attendances_get_dates/{user_name}/{project_name}")
+@app.get("/attendances/{user_name}/{project_name}")
 async def read_attendances_by_user_name_and_project_name(user_name: str, project_name: str):
-    return order_hiruchaaru_get_assigned_dates(user_name=user_name, project_name=project_name)
+    return order_get_all_attendances(given_user_name=user_name, given_project_name=project_name)
 
 @app.post("/attendances/{attendance_id}/checkin")
 async def checkin(attendance_id: int):
@@ -402,6 +434,10 @@ async def checkout(attendance_id: int):
 @app.get("/tasks", response_model=list[TaskPublic])
 async def read_tasks():
     return order_get_all_tasks()
+
+@app.get("/tasks_need_attention", response_model=list[TaskPublic])
+async def read_tasks():
+    return order_get_all_tasks(get_tasks_need_attention=True)
 
 @app.get("/tasks_for_specific_hiruchaaru/{hiruchaaru_name}")
 async def read_tasks_for_specific_hiruchaaru(hiruchaaru_name: str):
