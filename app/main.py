@@ -373,6 +373,9 @@ async def read_users():
 async def read_users_hiruchaaru():
     return order_get_all_hiruchaaru()
 
+@app.get("/users_hiruchaaru_and_managers")
+async def read_users_hiruchaaru_and_managers():
+    return order_get_all_hiruchaaru_and_managers()
 
 @app.patch("/users/{user_name}")
 async def update_user(user_name: str, user: UserUpdate):
@@ -421,6 +424,10 @@ async def read_attendances_by_user_name(user_name: str):
 async def read_attendances_by_user_name_and_project_name(user_name: str, project_name: str):
     return order_get_all_attendances(given_user_name=user_name, given_project_name=project_name)
 
+@app.get("/attendances_given_projectname/{project_name}")
+async def read_attendances_by_project_name(project_name: str):
+    return order_get_all_attendances(given_project_name=project_name)
+
 @app.post("/attendances/{attendance_id}/checkin")
 async def checkin(attendance_id: int):
     msg, successcheck = order_hiruchaaru_checkin(attendance_id)
@@ -438,6 +445,10 @@ async def read_tasks():
 @app.get("/tasks_need_attention", response_model=list[TaskPublic])
 async def read_tasks():
     return order_get_all_tasks(get_tasks_need_attention=True)
+
+@app.get("/tasks_need_attention_out_of_project_time", response_model=list[TaskPublic])
+async def read_tasks():
+    return order_get_all_tasks(get_tasks_out_of_project_time=True)
 
 @app.get("/tasks_for_specific_hiruchaaru/{hiruchaaru_name}")
 async def read_tasks_for_specific_hiruchaaru(hiruchaaru_name: str):

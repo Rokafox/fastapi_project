@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from pydantic import ValidationError
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
@@ -34,6 +35,20 @@ def order_get_all_users():
 def order_get_all_hiruchaaru():
     with Session(engine) as session:
         statement = select(User).where(User.role == "hiruchaaru")
+        users = session.exec(statement).all()
+        user_list = []
+        for user in users:
+            user_list.append({
+                "id": user.id,
+                "name": user.name,
+                "password": user.password,
+                "role": user.role
+            })
+        return user_list
+
+def order_get_all_hiruchaaru_and_managers():
+    with Session(engine) as session:
+        statement = select(User).where(or_(User.role == "hiruchaaru", User.role == "projectmanager"))
         users = session.exec(statement).all()
         user_list = []
         for user in users:
@@ -183,6 +198,10 @@ def create_attendance(user_name: str, project_name: str, date_list: list[dict[st
     # Get user and project
     # date_list looks like this:
     # [{'date': '2024-10-09', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-10', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-11', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-14', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-15', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-16', 'start_time': '09:00', 'end_time': '16:00'}, {'date': '2024-10-17', 'start_time': '09:00', 'end_time': '16:00'}]
+    # check date_list for any invalid time, start_time should always be less than end_time
+    for data in date_list:
+        if datetime.strptime(data['start_time'], "%H:%M") > datetime.strptime(data['end_time'], "%H:%M"):
+            return "Creation Failed: Start time is greater than end time!", False
     with Session(engine) as session:
         statement = select(User).where(User.name == user_name)
         user = session.exec(statement).one_or_none()
@@ -190,8 +209,8 @@ def create_attendance(user_name: str, project_name: str, date_list: list[dict[st
             return "Creation failed: User not found!", False
         
         # Only hiruchaaru can work, so check if the user is hiruchaaru
-        if user.role != "hiruchaaru":
-            return "Creation failed: User is not hiruchaaru!", False
+        # if user.role != "hiruchaaru":
+        #     return "Creation failed: User is not hiruchaaru!", False
         
         statement = select(Project).where(Project.name == project_name)
         project = session.exec(statement).one_or_none()
@@ -594,7 +613,7 @@ def automatic_check_out():
             return "Automatic check-out failed: No checked-in attendances found!", False
         return "Automatic check-out successful!", True
     
-def order_get_all_tasks(get_tasks_need_attention: bool = False):
+def order_get_all_tasks(get_tasks_need_attention: bool = False, get_tasks_out_of_project_time: bool = False):
     with Session(engine) as session:
         query = select(Task).options(
             selectinload(Task.users),
@@ -603,6 +622,14 @@ def order_get_all_tasks(get_tasks_need_attention: bool = False):
 
         if get_tasks_need_attention:
             query = query.where(Task.progress < 100, Task.end_date <= datetime.now().strftime("%Y-%m-%d"))
+
+        if get_tasks_out_of_project_time:
+            query = query.join(Task.project).where(
+                or_(
+                    Task.start_date < func.substr(Project.starttime, 1, 10),
+                    Task.end_date > func.substr(Project.endtime, 1, 10)
+                )
+            )
 
         tasks = session.exec(query).all()
         task_list = []
@@ -709,8 +736,8 @@ def order_create_task(user_names: list[str], project_name: str, start_date: str,
             user = session.exec(statement).one_or_none()
             if user is None:
                 return f"Creation failed: User '{user_name}' not found!", False
-            if user.role != "hiruchaaru":
-                return f"Creation failed: User '{user_name}' is not a hiruchaaru!", False
+            # if user.role != "hiruchaaru":
+            #     return f"Creation failed: User '{user_name}' is not a hiruchaaru!", False
             users.append(user)
 
         # Ensure at least one user is provided
