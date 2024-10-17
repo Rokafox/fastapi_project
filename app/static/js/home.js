@@ -15,7 +15,7 @@ window.addEventListener("load", function() {
 
 // ユーザー名とプロジェクト名のドロップダウンを作成
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('/users_hiruchaaru')
+    fetch('/users_hiruchaaru_and_managers')
     .then(response => response.json())
     .then(users => {
         users.forEach(user => {
@@ -31,10 +31,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 pmasuUserElement.appendChild(option.cloneNode(true));
             }
 
-            const pmuasuUserElement = document.getElementById('pmuasu_the_user_name');
-            if (pmuasuUserElement) {
-                pmuasuUserElement.appendChild(option.cloneNode(true));
-            }
         });
     })
     .catch(error => console.error('Error fetching users:', error));
@@ -104,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // ユーザーリストを取得する関数
     async function fetchUsers() {
-        const response = await fetch('/users_hiruchaaru');
+        const response = await fetch('/users_hiruchaaru_and_managers');
         const users = await response.json();
         return users;
     }

@@ -166,7 +166,7 @@
             <input type="hidden" name="lang" value="en">
         
             <label for="pmuasu_the_project_name">Project Name:</label>
-            <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required onchange="fetchAttendanceDates()">
+            <select id="pmuasu_the_project_name" name="pmuasu_the_project_name" required onchange="fetchUsersByProject()">
                 <option value="">Select a project:</option>
             </select>
         
@@ -187,6 +187,45 @@
         </form>
         
         <script>
+            async function fetchUsersByProject() {
+                const projectName = document.getElementById("pmuasu_the_project_name").value;
+        
+                if (!projectName) {
+                    document.getElementById("pmuasu_the_user_name").innerHTML = "<option value=''>Select a user:</option>";
+                    return;
+                }
+        
+                try {
+                    // エンドポイントからプロジェクトに関連するユーザーを取得
+                    const response = await fetch(`/attendances_given_projectname/${encodeURIComponent(projectName)}`);
+                    const attendances = await response.json();
+        
+                    // ユニークなユーザー名のセットを作成
+                    const userNamesSet = new Set();
+                    attendances.forEach(attendance => {
+                        if (attendance.user_name) {
+                            userNamesSet.add(attendance.user_name);
+                        }
+                    });
+        
+                    // ユーザーのドロップダウンを更新
+                    const userSelect = document.getElementById("pmuasu_the_user_name");
+                    userSelect.innerHTML = "<option value=''>Select a user:</option>";
+                    userNamesSet.forEach(userName => {
+                        const option = document.createElement("option");
+                        option.value = userName;
+                        option.textContent = userName;
+                        userSelect.appendChild(option);
+                    });
+        
+                    // 日付のチェックボックスをクリア
+                    document.getElementById("pm_remove_date_options").innerHTML = "";
+        
+                } catch (error) {
+                    console.error("ユーザーのフェッチエラー:", error);
+                }
+            }
+        
             async function fetchAttendanceDates() {
                 const projectName = document.getElementById("pmuasu_the_project_name").value;
                 const userName = document.getElementById("pmuasu_the_user_name").value;
@@ -200,33 +239,33 @@
                     // エンドポイントから日付リストを取得
                     const response = await fetch(`/attendances/${encodeURIComponent(userName)}/${encodeURIComponent(projectName)}`);
                     const attendances = await response.json();
-
+        
                     const dateOptionsContainer = document.getElementById("pm_remove_date_options");
                     dateOptionsContainer.innerHTML = "";
-
+        
                     attendances.forEach(attendance => {
                         const dateStr = attendance.date;
                         const startTime = attendance.start_time;
                         const endTime = attendance.end_time;
                         const date = new Date(dateStr);
                         const isWeekend = (date.getDay() === 0 || date.getDay() === 6); // 週末判定
-
+        
                         const label = document.createElement("label");
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.name = "pm_remove_attendance_dates[]";
                         checkbox.value = dateStr;
                         checkbox.checked = true;
-
+        
                         // ラベルテキストを作成（日付、開始時間、終了時間、週末かどうか）
-                        const labelText = `${dateStr} (${startTime} - ${endTime})` + (isWeekend ? " (Weekdays)" : "");
+                        const labelText = `${dateStr} (${startTime} - ${endTime})` + (isWeekend ? " (週末)" : "");
                         
                         label.appendChild(checkbox);
                         label.appendChild(document.createTextNode(labelText));
                         dateOptionsContainer.appendChild(label);
                     });
                 } catch (error) {
-                    console.error("Error fetching date:", error);
+                    console.error("日付のフェッチエラー:", error);
                 }
             }
         
@@ -239,6 +278,7 @@
                 document.getElementById("pm_remove_selected_dates").value = JSON.stringify(selectedDates);
             }
         </script>
+
 
         {% if pm_deleteattendance_message %}
         <div class="message {% if pm_deleteattendance_success %}success{% else %}error{% endif %}">
