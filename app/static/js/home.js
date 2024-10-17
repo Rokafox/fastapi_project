@@ -211,7 +211,18 @@ function hrc_displayAttendances(attendanceList) {
 
     attendanceList.forEach(attendance => {
         const listItem = document.createElement('li');
-        const currentTime = new Date().toISOString();
+
+        // 現在時刻をAsia/Tokyoのタイムゾーンで取得
+        const currentTime = new Date();
+        const tokyoOffset = 9 * 60 * 60 * 1000; // 9時間のオフセット（ミリ秒）
+        const tokyoTime = new Date(currentTime.getTime() + tokyoOffset);
+        const currentTokyoTime = tokyoTime.toISOString().slice(0, 19).replace('T', ' ');
+        
+        // attendanceの終了時間をフルタイムスタンプに変換
+        const endDateTimeString = `${attendance.date} ${attendance.end_time}`;
+        const endDateTime = new Date(`${endDateTimeString}:00+09:00`); // タイムゾーン指定でTokyo時間に変換
+        console.log('Current Tokyo Time:', currentTokyoTime); // 例: 2024-10-17 13:29:09
+        console.log('Attendance End DateTime:', endDateTime.toISOString()); // 例: 2024-10-17T07:00:00.000Z
 
         if (page_language == 'ja' || page_language == 'jp') {
             listItem.innerHTML = `
@@ -219,7 +230,7 @@ function hrc_displayAttendances(attendanceList) {
                 <strong>予定開始時間:</strong> ${attendance.start_time} <br>
                 <strong>予定終了時間:</strong> ${attendance.end_time} <br>
                 <strong>日付:</strong> ${attendance.date} <br>
-                <strong>チェックイン:</strong> ${attendance.check_in ? attendance.check_in : (currentTime > attendance.end_time ? '機会を逃しました' : 'まだチェックインしていません')} <br>
+                <strong>チェックイン:</strong> ${attendance.check_in ? attendance.check_in : (currentTokyoTime > endDateTime.toISOString() ? '機会を逃しました' : 'まだチェックインしていません')} <br>
                 <strong>チェックアウト:</strong> ${attendance.check_out ? attendance.check_out : 'まだチェックアウトしていません'} <br>
             `;
         } else {
@@ -228,12 +239,12 @@ function hrc_displayAttendances(attendanceList) {
                 <strong>Scheduled Starttime:</strong> ${attendance.start_time} <br>
                 <strong>Scheduled Endtime:</strong> ${attendance.end_time} <br>
                 <strong>Date:</strong> ${attendance.date} <br>
-                <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : (currentTime > attendance.end_time ? 'Opportunity Missed' : 'Not checked in yet')} <br>
+                <strong>Check In:</strong> ${attendance.check_in ? attendance.check_in : (currentTokyoTime > endDateTime.toISOString() ? 'Opportunity Missed' : 'Not checked in yet')} <br>
                 <strong>Check Out:</strong> ${attendance.check_out ? attendance.check_out : 'Not checked out yet'} <br>
             `;
         }
 
-        if (!attendance.check_in && currentTime <= attendance.end_time) {
+        if (!attendance.check_in && !(currentTokyoTime > endDateTime.toISOString())) {
             const checkInButton = document.createElement('button');
             checkInButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックイン' : 'Check In';
             checkInButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
