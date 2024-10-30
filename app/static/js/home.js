@@ -489,7 +489,7 @@ let pmv_projects = [];
 try {
     document.getElementById('show-projects-btn').addEventListener('click', () => {
         pmv_fetchProjects();
-        document.getElementById('filter-input').style.display = 'block';
+        document.getElementById('pm-filter-input').style.display = 'block';
         document.getElementById('project-list').style.display = 'block';
         document.getElementById('show-projects-btn').style.display = 'none';
         document.getElementById('hide-projects-btn').style.display = 'block';
@@ -500,7 +500,7 @@ try {
 
 try {
     document.getElementById('hide-projects-btn').addEventListener('click', () => {
-        document.getElementById('filter-input').style.display = 'none';
+        document.getElementById('pm-filter-input').style.display = 'none';
         document.getElementById('project-list').style.display = 'none';
         document.getElementById('hide-projects-btn').style.display = 'none';
         document.getElementById('show-projects-btn').style.display = 'block';
@@ -510,7 +510,7 @@ try {
 }
 
 try {
-    document.getElementById('filter-input').addEventListener('input', pmv_filterProjects);
+    document.getElementById('pm-filter-input').addEventListener('input', pmv_filterProjects);
 } catch (error) {
     console.log(error);
 }
@@ -554,7 +554,7 @@ function pmv_displayProjects(projectList) {
 }
 
 function pmv_filterProjects() {
-    const filterValue = document.getElementById('filter-input').value.toLowerCase();
+    const filterValue = document.getElementById('pm-filter-input').value.toLowerCase();
     const filteredProjects = pmv_projects.filter(project => 
         project.name.toLowerCase().includes(filterValue) ||
         project.description.toLowerCase().includes(filterValue) ||
