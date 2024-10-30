@@ -254,4 +254,29 @@ a#pwL:hover{
     opacity: 0.8;
    }
 
+   #hrctsk-cancel-edit:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   .custom-button {
+    background-color: #333; 
+    border: none; 
+    color: white; 
+    padding: 9px 30px; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    font-size: 16px; 
+    margin: 4px 2px; 
+    cursor: pointer; 
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+.custom-button:hover {
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8 !important;
+}
+
+
    

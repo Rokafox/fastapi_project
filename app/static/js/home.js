@@ -244,29 +244,6 @@ function hrc_displayAttendances(attendanceList) {
             `;
         }
 
-// 共通のCSSクラスを作成
-const style = document.createElement('style');
-style.innerHTML = `
-    .custom-button {
-        background-color: #333; 
-        border: none; 
-        color: white; 
-        padding: 9px 30px; 
-        text-align: center; 
-        text-decoration: none; 
-        display: inline-block; 
-        font-size: 16px; 
-        margin: 4px 2px; 
-        cursor: pointer; 
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-    .custom-button:hover {
-        background-color: rgb(125, 206, 246) !important;
-        opacity: 0.8 !important;
-    }
-`;
-document.head.appendChild(style);
 
 // チェックインボタンを作成
 const checkInButton = document.createElement('button');
@@ -390,6 +367,7 @@ function hrc_displayTasks(taskList) {
 
     taskList.forEach(task => {
         const listItem = document.createElement('li');
+
         if (page_language == 'ja' || page_language == 'jp') {
             listItem.innerHTML = `
                 <strong>プロジェクト:</strong> ${task.project_name} <br>
@@ -398,14 +376,13 @@ function hrc_displayTasks(taskList) {
                 <strong>説明:</strong> ${task.status} <br>
                 <strong>進捗:</strong> ${task.progress}% <br>
             `;
-            // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
             if (task.task_assigned_for_this_user) {
+                
                 listItem.innerHTML += `
-                    <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_editTask(${task.id})">編集</button>
+                    <button class="custom-button" onclick="hrc_editTask(${task.id})">編集</button>
                 `;
             }
-        }
-        else {
+        } else {
             listItem.innerHTML = `
                 <strong>Project:</strong> ${task.project_name} <br>
                 <strong>Start Date:</strong> ${task.start_date} <br>
@@ -413,16 +390,16 @@ function hrc_displayTasks(taskList) {
                 <strong>Description:</strong> ${task.status} <br>
                 <strong>Progress:</strong> ${task.progress}% <br>
             `;
-            // task_assigned_for_this_user が True の場合のみ「Edit」ボタンを表示
             if (task.task_assigned_for_this_user) {
                 listItem.innerHTML += `
-                    <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="hrc_editTask(${task.id})">Edit</button>
+                    <button class="custom-button" onclick="hrc_editTask(${task.id})">Edit</button>
                 `;
             }
         }
         taskListElement.appendChild(listItem);
     });
 }
+
 
 function hrc_filterTasks() {
     const filterValue = document.getElementById('hrctsk-filter-input').value.toLowerCase();
@@ -527,6 +504,7 @@ function pmv_displayProjects(projectList) {
 
     projectList.forEach(project => {
         const listItem = document.createElement('li');
+
         if (page_language == 'ja' || page_language == 'jp') {
             listItem.innerHTML = `
                 <strong>プロジェクト名:</strong> ${project.name} <br>
@@ -534,24 +512,24 @@ function pmv_displayProjects(projectList) {
                 <strong>開始時間:</strong> ${project.starttime} <br>
                 <strong>終了時間:</strong> ${project.endtime} <br>
                 <strong>ステータス:</strong> ${project.status} <br>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editProject(${project.id})">編集</button>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteProject(${project.id})">削除</button>
+                <button class="custom-button" onclick="pmv_editProject(${project.id})">編集</button>
+                <button class="custom-button" onclick="pmv_deleteProject(${project.id})">削除</button>
             `;
-        }
-        else {
+        } else {
             listItem.innerHTML = `
                 <strong>Name:</strong> ${project.name} <br>
                 <strong>Description:</strong> ${project.description} <br>
                 <strong>Start Time:</strong> ${project.starttime} <br>
                 <strong>End Time:</strong> ${project.endtime} <br>
                 <strong>Status:</strong> ${project.status} <br>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editProject(${project.id})">Edit</button>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteProject(${project.id})">Delete</button>
+                <button class="custom-button" onclick="pmv_editProject(${project.id})">Edit</button>
+                <button class="custom-button" onclick="pmv_deleteProject(${project.id})">Delete</button>
             `;
         }
         projectListElement.appendChild(listItem);
     });
 }
+
 
 function pmv_filterProjects() {
     const filterValue = document.getElementById('pm-filter-input').value.toLowerCase();
@@ -1007,6 +985,7 @@ function pmv_displayTasks(taskList) {
 
     taskList.forEach(task => {
         const listItem = document.createElement('li');
+
         if (page_language == 'ja' || page_language == 'jp') {
             listItem.innerHTML = `
                 <strong>プロジェクト:</strong> ${task.project_name} <br>
@@ -1015,11 +994,10 @@ function pmv_displayTasks(taskList) {
                 <strong>終了日:</strong> ${task.end_date} <br>
                 <strong>説明:</strong> ${task.status} <br>
                 <strong>進捗:</strong> ${task.progress}% <br>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editTask(${task.id})">編集</button>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteTask(${task.id})">削除</button>
+                <button class="custom-button" onclick="pmv_editTask(${task.id})">編集</button>
+                <button class="custom-button" onclick="pmv_deleteTask(${task.id})">削除</button>
             `;
-        }
-        else {
+        } else {
             listItem.innerHTML = `
                 <strong>Project:</strong> ${task.project_name} <br>
                 <strong>User:</strong> ${task.user_names} <br>
@@ -1027,13 +1005,14 @@ function pmv_displayTasks(taskList) {
                 <strong>End Date:</strong> ${task.end_date} <br>
                 <strong>Description:</strong> ${task.status} <br>
                 <strong>Progress:</strong> ${task.progress}% <br>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_editTask(${task.id})">Edit</button>
-                <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="pmv_deleteTask(${task.id})">Delete</button>
+                <button class="custom-button" onclick="pmv_editTask(${task.id})">Edit</button>
+                <button class="custom-button" onclick="pmv_deleteTask(${task.id})">Delete</button>
             `;
         }
         taskListElement.appendChild(listItem);
     });
 }
+
 
 function pmv_filterTasks() {
     const filterValue = document.getElementById('pmtsk-filter-input').value.toLowerCase();
