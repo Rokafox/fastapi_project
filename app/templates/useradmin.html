@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">Home</a>
         </nav>
         <a class="JPpage" href="/useradmin-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>
@@ -44,7 +44,7 @@
                     <option value="projectmanager">Project Manager</option>
                 </select>
 
-                <input type="submit" value="Create User">
+                <input type="submit" value="Create User" id="btn-id">
             </form>
 
             {% if sysadmin_createuser_message %}
@@ -63,7 +63,7 @@
                 <label for="deleteuser_name">Username:</label>
                 <input type="text" id="deleteuser_name" name="deleteuser_name" required>
             
-                <input type="submit" value="Delete User">
+                <input type="submit" value="Delete User" id="btn-id">
             </form>
             
             {% if sysadmin_deleteuser_message %}

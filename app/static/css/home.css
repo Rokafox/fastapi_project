@@ -113,3 +113,145 @@ form input[type="submit"]:hover {
     background-color: #fff3cd;
     color: #856404;
 }
+
+a#projectLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#userLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#userCreateLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#passwordLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#homeLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#projectsubLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#taskLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#attendanceLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#passwdLink:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+a#pwL:hover{
+    color: #006affd8 !important;
+	font-size: 20px !important;
+	font-weight: bold !important;
+}
+
+#sysadmin-show-projects-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+#sysadmin-hide-projects-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #btn-id:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #show-users-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hide-users-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hrc_show-attendances-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hrc_hide-attendances-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hrctsk-show-tasks-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hrctsk-hide-tasks-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #show-projects-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #hide-projects-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #pmtsk-show-tasks-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #pmtsk-hide-tasks-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #pmat_show-attendances-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #pmat_hide-attendances-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   #calculate-btn:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+   

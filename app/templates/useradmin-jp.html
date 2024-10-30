@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
-            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">ホーム</a>
         </nav>
         <a class="JPpage" href="/useradmin?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
     </div>
@@ -44,7 +44,7 @@
                     <option value="projectmanager">プロジェクトマネージャー</option>
                 </select>
 
-                <input type="submit" value="ユーザー作成">
+                <input type="submit" value="ユーザー作成" id="btn-id">
             </form>
 
             {% if sysadmin_createuser_message %}
@@ -63,7 +63,7 @@
                 <label for="deleteuser_name">ユーザー名：</label>
                 <input type="text" id="deleteuser_name" name="deleteuser_name" required>
             
-                <input type="submit" value="ユーザー削除">
+                <input type="submit" value="ユーザー削除" id="btn-id">
             </form>
             
             {% if sysadmin_deleteuser_message %}

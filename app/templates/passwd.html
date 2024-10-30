@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">Home</a>
         </nav>
         <a class="JPpage" href="/passwd-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>
@@ -40,7 +40,7 @@
                 <input type="hidden" name="lang" value="en">
                 <p>Password must be at least 4 characters long.</p>
                 <input type="password" id="newpassword" name="newpassword" required>
-                <input type="submit" value="Change Password">
+                <input type="submit" value="Change Password" id="btn-id">
             </form>
             {% if genericuser_changepassword_message %}
                 <div class="message {% if genericuser_changepassword_success %}success{% else %}error{% endif %}">

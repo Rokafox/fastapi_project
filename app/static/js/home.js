@@ -244,21 +244,47 @@ function hrc_displayAttendances(attendanceList) {
             `;
         }
 
-        if (!attendance.check_in && !(currentTokyoTime > endDateTime.toISOString())) {
-            const checkInButton = document.createElement('button');
-            checkInButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックイン' : 'Check In';
-            checkInButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
-            checkInButton.onclick = () => hrc_checkIn(attendance.id);
-            listItem.appendChild(checkInButton);
-        }
+// 共通のCSSクラスを作成
+const style = document.createElement('style');
+style.innerHTML = `
+    .custom-button {
+        background-color: #333; 
+        border: none; 
+        color: white; 
+        padding: 9px 30px; 
+        text-align: center; 
+        text-decoration: none; 
+        display: inline-block; 
+        font-size: 16px; 
+        margin: 4px 2px; 
+        cursor: pointer; 
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .custom-button:hover {
+        background-color: rgb(125, 206, 246) !important;
+        opacity: 0.8 !important;
+    }
+`;
+document.head.appendChild(style);
 
-        if (attendance.check_in && !attendance.check_out) {
-            const checkOutButton = document.createElement('button');
-            checkOutButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックアウト' : 'Check Out';
-            checkOutButton.style = "background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;";
-            checkOutButton.onclick = () => hrc_checkOut(attendance.id);
-            listItem.appendChild(checkOutButton);
-        }
+// チェックインボタンを作成
+const checkInButton = document.createElement('button');
+checkInButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックイン' : 'Check In';
+checkInButton.className = 'custom-button';
+checkInButton.onclick = () => hrc_checkIn(attendance.id);
+listItem.appendChild(checkInButton);
+
+// チェックアウトボタンを作成
+if (attendance.check_in && !attendance.check_out) {
+    const checkOutButton = document.createElement('button');
+    checkOutButton.textContent = page_language == 'ja' || page_language == 'jp' ? 'チェックアウト' : 'Check Out';
+    checkOutButton.className = 'custom-button';
+    checkOutButton.onclick = () => hrc_checkOut(attendance.id);
+    listItem.appendChild(checkOutButton);
+}
+
+
 
         attendanceListElement.appendChild(listItem);
     });

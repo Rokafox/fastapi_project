@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">Home</a>
         </nav>
         <a class="JPpage" href="/project-sub-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>
@@ -52,7 +52,7 @@
             <!-- Hidden field to send selected dates and times -->
             <input type="hidden" id="selected_dates" name="selected_dates">
         
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit" id="btn-id">
         </form>
         
         <script>
@@ -183,7 +183,7 @@
             <!-- 選択された日付を送信するための隠しフィールド -->
             <input type="hidden" id="pm_remove_selected_dates" name="pm_remove_selected_dates">
         
-            <input type="submit" value="Remove">
+            <input type="submit" value="Remove" id="btn-id">
         </form>
         
         <script>

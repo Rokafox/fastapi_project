@@ -78,7 +78,7 @@
 
         {% if role == 'hiruchaaru' %}
         <nav>
-            <a href="/passwd-jp?username={{ username }}&role={{ role }}&password={{ password }}">パスワード変更</a>
+            <a href="/passwd-jp?username={{ username }}&role={{ role }}&password={{ password }}" id="pwL">パスワード変更</a>
         </nav>
         {% endif %}
 
@@ -141,7 +141,7 @@
                             <strong>終了時間:</strong> ${project.endtime} <br>
                             <strong>状態:</strong> ${project.status} <br>
                             <strong>マネージャー:</strong> ${project.managers} <br>
-                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminEditProject(${project.id})">編集</button>
+                            <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminEditProject(${project.id})" id="btn-id">編集</button>
                             <button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="sysadminDeleteProject(${project.id})">削除</button>
                         `;
                         projectListElement.appendChild(listItem);

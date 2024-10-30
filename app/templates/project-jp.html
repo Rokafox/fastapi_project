@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
-            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">ホーム</a>
         </nav>
         <a class="JPpage" href="/project-en?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
     </div>
@@ -65,7 +65,7 @@
                 <label for="project_manager_names">プロジェクトマネージャー(カンマで区切って複数記入可):</label>
                 <input type="text" id="project_manager_names" name="project_manager_names" placeholder="マネージャー名を入力" required>
             
-                <input type="submit" value="プロジェクト作成">
+                <input type="submit" value="プロジェクト作成" id="btn-id">
             </form>
 
             {% if sysadmin_createproject_message %}
@@ -87,7 +87,7 @@
                 <label for="retireproject_name">プロジェクト名：</label>
                 <input type="text" id="retireproject_name" name="retireproject_name" required>
             
-                <input type="submit" value="クビ">
+                <input type="submit" value="クビ" id="btn-id">
             </form>
             
             {% if sysadmin_retireprojectmanager_message %}
@@ -110,7 +110,7 @@
                 <label for="assignproject_name">プロジェクト名：</label>
                 <input type="text" id="assignproject_name" name="assignproject_name" required>
             
-                <input type="submit" value="割り当てる">
+                <input type="submit" value="割り当てる" id="btn-id">
             </form>
                 
             {% if sysadmin_assignprojectmanager_message %}

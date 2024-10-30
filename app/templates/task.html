@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">Home</a>
         </nav>
         <a class="JPpage" href="/task-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>
@@ -95,7 +95,7 @@
             <label for="the_task_status">Task Description:</label>
             <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" placeholder="Make 7 pieces of sugar: 40% complete&#10;Hilichurl A: 3 pieces complete&#10;Hilichurl B: 1 piece complete, 2 pieces lost&#10;Hilichurl C: Met a hero on the roadside, death confirmation ongoing" required></textarea>       
 
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit" id="btn-id">
         </form>
 
         {% if pm_createtask_message %}

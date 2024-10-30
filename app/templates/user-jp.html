@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
-            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">ホーム</a>
         </nav>
         <a class="JPpage" href="/user?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
     </div>
@@ -72,7 +72,7 @@
 
                         // 現在のユーザー名と一致しない場合のみ編集ボタンを表示
                         if (user.name !== "{{ username }}") {
-                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})">編集</button>`;
+                            editButtonHTML = `<button style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" onclick="editUser(${user.id})" id="btn-id">編集</button>`;
                         }
                         // can't edit sysadmin
                         // if (user.role !== "sysadmin") {

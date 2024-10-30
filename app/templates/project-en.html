@@ -16,7 +16,7 @@
             <input type="hidden" name="lang" value="en">
         </form>
         <nav>
-            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}">Home</a>
+            <a href="/home?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">Home</a>
         </nav>
         <a class="JPpage" href="/project-jp?username={{ username }}&role={{ role }}&password={{ password }}&lang=jp">Japanese</a>
     </div>
@@ -64,7 +64,7 @@
                 <label for="project_manager_names">Project Manager(comma-separated if multiple):</label>
                 <input type="text" id="project_manager_names" name="project_manager_names" placeholder="Enter manager names" required>
             
-                <input type="submit" value="Create Project">
+                <input type="submit" value="Create Project" id="btn-id">
             </form>
 
             {% if sysadmin_createproject_message %}
@@ -86,7 +86,7 @@
                 <label for="retireproject_name">Project Name:</label>
                 <input type="text" id="retireproject_name" name="retireproject_name" required>
             
-                <input type="submit" value="Retire Project Manager">
+                <input type="submit" value="Retire Project Manager" id="btn-id">
             </form>
             
             {% if sysadmin_retireprojectmanager_message %}
@@ -108,7 +108,7 @@
                 <label for="assignproject_name">Project Name:</label>
                 <input type="text" id="assignproject_name" name="assignproject_name" required>
             
-                <input type="submit" value="Assign Project Manager">
+                <input type="submit" value="Assign Project Manager" id="btn-id">
             </form>
                 
             {% if sysadmin_assignprojectmanager_message %}

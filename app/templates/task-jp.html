@@ -18,7 +18,7 @@
             <input type="hidden" name="lang" value="jp">
         </form>
         <nav>
-            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}">ホーム</a>
+            <a href="/home-jp?username={{ username }}&role={{ role }}&password={{ password }}" id="homeLink">ホーム</a>
         </nav>
         <a class="JPpage" href="/task?username={{ username }}&role={{ role }}&password={{ password }}&lang=en">英語</a>
     </div>
@@ -90,7 +90,7 @@
             <label for="the_task_status">タスクの説明:</label>
             <textarea id="the_task_status" name="the_task_status" rows="6" style="width: 100%;" placeholder="砂糖を7個作る：40%完成&#10;ヒルチャールA：3個完成&#10;ヒルチャールB：1個完成、2個紛失&#10;ヒルチャールC：道端で勇者と出会い、死亡確認中" required></textarea>
 
-            <input type="submit" value="送信">
+            <input type="submit" value="送信" id="btn-id">
         </form>
 
         {% if pm_createtask_message %}
