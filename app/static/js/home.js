@@ -1230,3 +1230,139 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+
+document.addEventListener("DOMContentLoaded", fetchFileList);
+
+async function fetchFileList() {
+    const fileSelect = document.getElementById("fileSelect");
+    const deleteFileSelect = document.getElementById("deleteFileSelect");
+    // only continue if the fileSelect and deleteFileSelect elements exist
+    if (!fileSelect || !deleteFileSelect) {
+        return;
+    }
+    try {
+        const response = await fetch("/files");
+        if (response.ok) {
+            const data = await response.json();
+            const fileSelect = document.getElementById("fileSelect");
+            const deleteFileSelect = document.getElementById("deleteFileSelect");
+            // Clear existing options except the placeholder
+            fileSelect.innerHTML = '<option value="">-- Select a file --</option>';
+            deleteFileSelect.innerHTML = '<option value="">-- Select a file --</option>';
+            data.files.forEach((filename) => {
+                const option1 = document.createElement("option");
+                option1.value = filename;
+                option1.textContent = filename;
+                fileSelect.appendChild(option1);
+
+                const option2 = document.createElement("option");
+                option2.value = filename;
+                option2.textContent = filename;
+                deleteFileSelect.appendChild(option2);
+            });
+        } else {
+            alert("Error fetching file list.");
+        }
+    } catch (error) {
+        alert("Error fetching file list.");
+        console.error(error);
+    }
+}
+
+async function uploadFile() {
+    const fileInput = document.getElementById("uploadFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file to upload.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`File uploaded: ${result.filename}`);
+            fetchFileList(); // Refresh the file list
+        } else {
+            const error = await response.json();
+            alert(`Error uploading file: ${error.detail}`);
+        }
+    } catch (error) {
+        alert("Error uploading file.");
+        console.error(error);
+    }
+}
+
+async function downloadFile() {
+    const fileSelect = document.getElementById("fileSelect");
+    const filename = fileSelect.value;
+
+    if (!filename) {
+        alert("Please select a file to download.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/download/${encodeURIComponent(filename)}`);
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            const error = await response.json();
+            alert(`Error downloading file: ${error.detail}`);
+        }
+    } catch (error) {
+        alert("Error downloading file.");
+        console.error(error);
+    }
+}
+
+async function deleteFile() {
+    const deleteFileSelect = document.getElementById("deleteFileSelect");
+    const filename = deleteFileSelect.value;
+
+    if (!filename) {
+        alert("Please select a file to delete.");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/files/${encodeURIComponent(filename)}`, {
+            method: "DELETE",
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`File deleted: ${result.filename}`);
+            fetchFileList(); // Refresh the file list
+        } else {
+            const error = await response.json();
+            alert(`Error deleting file: ${error.detail}`);
+        }
+    } catch (error) {
+        alert("Error deleting file.");
+        console.error(error);
+    }
+}
+

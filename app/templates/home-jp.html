@@ -267,6 +267,25 @@
                     <button type="button" id="sysadmin-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">キャンセル</button>
                 </form>
             </div>
+
+            <p>ファイルアップロード</p>
+            <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+            <br>
+            <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">アップロード</button>
+        
+            <p>ファイルダンロード</p>
+            <select id="fileSelect">
+                <option value="">ファイルを選択してください</option>
+            </select>
+            <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">ダンロード</button>
+
+            <p>ファイル削除</p>
+            <select id="deleteFileSelect">
+                <option value="">ファイルを選択してください</option>
+            </select>
+            <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">削除</button>
+
+
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
@@ -308,6 +327,25 @@
                 <button type="button" id="hrctsk-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;" >キャンセル</button>
             </form>
         </div>
+
+        <p>ファイルアップロード</p>
+        <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+        <br>
+        <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">アップロード</button>
+    
+        <p>ファイルダンロード</p>
+        <select id="fileSelect">
+            <option value="">ファイルを選択してください</option>
+        </select>
+        <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">ダンロード</button>
+
+        <p>ファイル削除</p>
+        <select id="deleteFileSelect">
+            <option value="">ファイルを選択してください</option>
+        </select>
+        <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">削除</button>
+
+
         {% endif %}
 
         {% if role == 'projectmanager' %}
@@ -388,6 +426,24 @@
                 <button type="button" id="cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">取り消す</button>
             </form>
         </div>
+
+        <p>ファイルアップロード</p>
+        <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+        <br>
+        <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">アップロード</button>
+    
+        <p>ファイルダンロード</p>
+        <select id="fileSelect">
+            <option value="">ファイルを選択してください</option>
+        </select>
+        <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">ダンロード</button>
+
+        <p>ファイル削除</p>
+        <select id="deleteFileSelect">
+            <option value="">ファイルを選択してください</option>
+        </select>
+        <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">削除</button>
+
 
         <p>⚠️タスクに関する警告：</p>
         <p>未完成：</p>

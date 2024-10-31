@@ -82,6 +82,13 @@ form select {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
 form input[type="submit"] {
     background-color: #333;
     color: #fff;
@@ -173,6 +180,21 @@ a#pwL:hover{
 	font-size: 20px !important;
 	font-weight: bold !important;
 }
+
+#uploadFileb:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
+
+#downloadFileNameb:hover{
+background-color: rgb(125, 206, 246) !important;
+opacity: 0.8;
+}
+
+#deletefileb:hover{
+    background-color: rgb(125, 206, 246) !important;
+    opacity: 0.8;
+   }
 
 #sysadmin-show-projects-btn:hover{
     background-color: rgb(125, 206, 246) !important;
@@ -277,6 +299,3 @@ a#pwL:hover{
     background-color: rgb(125, 206, 246) !important;
     opacity: 0.8 !important;
 }
-
-
-   

@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Form, HTTPException, Request, File, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -53,6 +53,10 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     a, b = automatic_check_out()
     print(a)
+
+    # create files directory if not exists for file upload/download
+    if not os.path.exists("files"):
+        os.mkdir("files")
 
     yield
     # move the database from ./app/db/database.db to ./unrelated_files/old_db_{current_time}.db
@@ -463,3 +467,57 @@ async def update_task(task_id: int, task: TaskUpdate):
 async def delete_task(task_id: int):
     msg, successcheck = order_delete_task_by_id(task_id)
     return {"message": msg, "success": successcheck}
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    # Sanitize the filename to prevent path traversal
+    filename = os.path.basename(file.filename)
+    file_path = os.path.join("files", filename)
+    # Prevent overwriting existing files
+    if os.path.exists(file_path):
+        raise HTTPException(status_code=400, detail="File already exists.")
+    try:
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+        return {"filename": filename}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+# File download endpoint
+@app.get("/download/{filename}")
+async def download_file(filename: str):
+    # Sanitize the filename to prevent path traversal
+    filename = os.path.basename(filename)
+    file_path = os.path.join("files", filename)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    return FileResponse(path=file_path, filename=filename)
+
+# get all files
+@app.get("/files")
+async def list_files():
+    try:
+        files = os.listdir("files")
+        # Filter out any hidden files or directories
+        files = [f for f in files if os.path.isfile(os.path.join("files", f)) and not f.startswith('.')]
+        return {"files": files}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Could not list files.")
+    
+# delete file
+@app.delete("/files/{filename}")
+async def delete_file(filename: str):
+    # Sanitize the filename to prevent path traversal
+    filename = os.path.basename(filename)
+    file_path = os.path.join("files", filename)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    try:
+        os.remove(file_path)
+        return {"filename": filename}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error.")

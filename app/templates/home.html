@@ -91,7 +91,6 @@
             <ul id="sysadmin-project-list" style="display: none;">
                 <!-- プロジェクトリストがここに表示されます -->
             </ul>
-            
             <script>
                 let sysadmin_projects = [];
             
@@ -260,6 +259,27 @@
                     <button type="button" id="sysadmin-cancel-edit" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Cancel</button>
                 </form>
             </div>
+
+
+            <p>File Upload</p>
+            <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+            <br>
+            <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Upload</button>
+        
+            <p>File Download</p>
+            <select id="fileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Download</button>
+
+            <p>Delete File</p>
+            <select id="deleteFileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Delete</button>
+
+
+
         {% endif %}
 
         {% if role == 'hiruchaaru' %}
@@ -305,6 +325,22 @@
                 </form>
             </div>
             
+            <p>File Upload</p>
+            <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+            <br>
+            <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Upload</button>
+        
+            <p>File Download</p>
+            <select id="fileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Download</button>
+
+            <p>Delete File</p>
+            <select id="deleteFileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Delete</button>
 
 
 
@@ -400,6 +436,23 @@
 
                 </form>
             </div>
+
+            <p>File Upload</p>
+            <input type="file" id="uploadFile" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;"/>
+            <br>
+            <button id="uploadFileb" onclick="uploadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Upload</button>
+        
+            <p>File Download</p>
+            <select id="fileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="downloadFileNameb" onclick="downloadFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Download</button>
+
+            <p>Delete File</p>
+            <select id="deleteFileSelect">
+                <option value="">-- Select a file --</option>
+            </select>
+            <button id="deletefileb" onclick="deleteFile()" style="background-color: #333; border: none; color: white; padding: 9px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">Delete</button>
 
             <p>⚠️Task Alert:</p>
             <p>Not Completed:</p>
